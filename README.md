@@ -15,11 +15,11 @@
 - PostgreSQL as the primary database for storing user progress and course materials
 
 ## 📂 Project Structure
-```sh
-assembly-virtual-learning-platform/ 
-│── backend/ # Go backend API 
-│── frontend/ # Next.js frontend 
-│── README.md # Project overview and setup instructions
+    ```sh
+    assembly-virtual-learning-platform/ 
+    │── backend/ # Go backend API 
+    │── frontend/ # Next.js frontend 
+    │── README.md # Project overview and setup instructions
 
 ## 🛠️ Setup Instructions
 ### **Backend (Go)**
@@ -58,9 +58,9 @@ assembly-virtual-learning-platform/
 - 🛠 RESTful API - Backend APIs for managing learning materials and users
 
 ### **👨‍💻 Contributors**
-```sh
-Patipan Duangdao: https://github.com/patipan-pib
-Peerapol Srisawat: https://github.com/TroJanBoi
-Wongsatorn: https://github.com/PPondWongsatorn
-Anawin: https://github.com/petchhub
-Surapat
+    ```sh
+    Patipan Duangdao: https://github.com/patipan-pib
+    Peerapol Srisawat: https://github.com/TroJanBoi
+    Wongsatorn: https://github.com/PPondWongsatorn
+    Anawin: https://github.com/petchhub
+    Surapat
