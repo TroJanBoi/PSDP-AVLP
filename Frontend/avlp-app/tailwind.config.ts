@@ -10,7 +10,8 @@ export default {
   theme: {
   	extend: {
   		colors: {
-  			background: 'hsl(var(--background))',
+			textbase: 'var(--text-base)',
+  			background: 'var(--background)',
   			foreground: 'hsl(var(--foreground))',
   			card: {
   				DEFAULT: 'hsl(var(--card))',
@@ -21,11 +22,11 @@ export default {
   				foreground: 'hsl(var(--popover-foreground))'
   			},
   			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
+  				DEFAULT: 'var(--primary)',
   				foreground: 'hsl(var(--primary-foreground))'
   			},
   			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
+  				DEFAULT: 'var(--secondary)',
   				foreground: 'hsl(var(--secondary-foreground))'
   			},
   			muted: {
@@ -33,7 +34,7 @@ export default {
   				foreground: 'hsl(var(--muted-foreground))'
   			},
   			accent: {
-  				DEFAULT: 'hsl(var(--accent))',
+  				DEFAULT: 'var(--accent)',
   				foreground: 'hsl(var(--accent-foreground))'
   			},
   			destructive: {
