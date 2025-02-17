@@ -3,10 +3,10 @@ import BtnSignUp from "./_components/BtnSignUp";
 import { User, Mail, Lock } from "lucide-react";
 export default function RegisterPage() {
   return (
-    <div className="flex justify-start items-center w-screen h-screen bg-primary">
-      <div className="relative w-1/2 mr-auto space-y-6 h-full bg-gray-100 p-14 shadow-lg rounded-r-3xl">
+    <div className="flex justify-start items-center w-screen h-screen bg-primary ">
+      <div className="relative w-3/5 mr-auto space-y-6 min-h-screen bg-gray-100 p-14 shadow-lg rounded-r-3xl flex flex-col justify-center">
         <div className="flex justify-center">
-          <div className="h-40 w-40 rounded-full bg-gray-300 flex items-center justify-center text-lg font-bold">
+          <div className="relative flex flex-col justify-center h-40 w-40 rounded-full bg-gray-300 flex items-center justify-center text-lg font-bold">
             Logo
           </div>
         </div>
@@ -65,14 +65,14 @@ export default function RegisterPage() {
             </div>
           </div>
           {/* Checkbox */}
-          <div className="flex items-center gap-2 w-3/5 justify-center pl-12">
-            <input type="checkbox" name="agree" />
-            <span className="text-gray-600">
+          <div className="flex items-center justify-left w-3/5 mx-auto">
+            <input id="agree" type="checkbox" className="w-4 h-4 text-primary" />
+            <label htmlFor="agree" className="ml-2 text-gray-600 cursor-pointer">
               I agree to the{" "}
               <a href="#" className="text-primary underline">
                 privacy policy
               </a>
-            </span>
+            </label>
           </div>
           {/* Sign Up Button */}
           <button className="flex mx-auto justify-center w-3/5 rounded-lg bg-primary py-3 text-lg font-medium text-white shadow-md hover:bg-primary-dark">
