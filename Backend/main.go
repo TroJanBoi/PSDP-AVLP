@@ -19,10 +19,10 @@ type User struct {
 // var db *gorm.DB
 
 const (
-	host     = "postgres"
-	username = "postgres"
-	password = "postgres"
-	dbname   = "avlp-db0"
+	host     = "localhost"
+	username = "myuser"
+	password = "mypassword"
+	dbname   = "mydatabase"
 	port     = 5432
 )
 
@@ -31,8 +31,8 @@ func main() {
 
 	// เชื่อมต่อกับฐานข้อมูล PostgreSQL
 	// dsn := "host=postgres user=postgres password=postgres dbname=avlp-db0 port=5432"
-	fmt.Printf("host=%s user=%s password=%s dbname=%s port=%d", host, username, password, dbname, port)
-	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s  sslmode=disable", host, port, username, password, dbname)
+	fmt.Printf("host=%s user=%s password=%s dbname=%s port=%d \n", host, username, password, dbname, port)
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, username, password, dbname)
 	// db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {

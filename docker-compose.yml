@@ -3,16 +3,28 @@ version: '3.8'
 services:
   postgres:
     image: postgres:latest
-    container_name: postgres
+    container_name: postgres_container
+    restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: avlp0
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
     ports:
       - "5432:5432"
     volumes:
-      - pg-volumes:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_container
     restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin[123]
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
     
 
   # web:
@@ -36,21 +48,10 @@ services:
   #   depends_on:
   #     postgres:
   #       condition: service_healthy
-  pgadmin:
-      image: dpage/pgadmin4:latest
-      environment:
-        PGADMIN_DEFAULT_EMAIL: admin@example.com
-        PGADMIN_DEFAULT_PASSWORD: admin[123]
-      ports:
-        - "5050:80"
-      restart: always
-      networks:
-        - avlp-network
-      depends_on:
-        - postgres
+
 volumes:
-  pg-volumes:
+  postgres_data:
+  pgadmin_data:
 
 networks:
   avlp-network:
-    driver: bridge
