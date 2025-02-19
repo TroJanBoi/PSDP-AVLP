@@ -13,6 +13,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - avlp-network
 
   pgadmin:
     image: dpage/pgadmin4
@@ -25,29 +27,28 @@ services:
       - "5050:80"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-    
+      - ./pgadmin/servers.json:/pgadmin4/servers.json
+    networks:
+      - avlp-network
 
-  # web:
-  #   build: 
-  #     context: ./Frontend
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "3200:3000"
-  #   restart: always
-  #   networks:
-  #     - avlp-network
-  # be:
-  #   build: 
-  #     context: ./Backend
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "9899:9898"
-  #   restart: always
-  #   networks:
-  #     - avlp-network
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: go_app_container
+    depends_on:
+      - postgres
+    ports:
+      - "9898:9898"
+    environment:
+      DB_HOST: postgres
+      DB_USER: myuser
+      DB_PASSWORD: mypassword
+      DB_NAME: mydatabase
+      DB_PORT: "5432"
+    networks:
+      - avlp-network
+    
 
 volumes:
   postgres_data:
@@ -55,3 +56,4 @@ volumes:
 
 networks:
   avlp-network:
+    driver: bridge

@@ -9,14 +9,25 @@ import (
 	"gorm.io/gorm"
 )
 
-// Model ของ User
+// Model ของ User ตาม SQL ที่ให้ไว้
 type User struct {
-	ID   uint   `json:"id"`
-	Name string `json:"name"`
+	UserID   uint   `gorm:"column:user_id;primaryKey" json:"user_id"`
+	Username string `gorm:"column:username;unique;not null" json:"username"`
+	Password string `gorm:"column:password;not null" json:"password"`
+	Email    string `gorm:"column:email;unique" json:"email"`
+	Name     string `gorm:"column:name" json:"name"`
+	Bio      string `gorm:"column:bio" json:"bio"`
+	Github   string `gorm:"column:github" json:"github"`
+	Youtube  string `gorm:"column:youtube" json:"youtube"`
+	Linkedin string `gorm:"column:linkedin" json:"linkedin"`
+	Discord  string `gorm:"column:discord" json:"discord"`
 }
 
-// Global db variable
-// var db *gorm.DB
+// ตั้งชื่อ table เป็น "user" ตาม SQL (หมายเหตุ: ชื่อ table "user" เป็น reserved word ในบาง DBMS)
+// ถ้าต้องการเปลี่ยนให้ใช้ชื่ออื่น เช่น "users" ก็สามารถเปลี่ยนได้
+func (User) TableName() string {
+	return "users"
+}
 
 const (
 	host     = "localhost"
@@ -30,17 +41,13 @@ func main() {
 	var err error
 
 	// เชื่อมต่อกับฐานข้อมูล PostgreSQL
-	// dsn := "host=postgres user=postgres password=postgres dbname=avlp-db0 port=5432"
-	fmt.Printf("host=%s user=%s password=%s dbname=%s port=%d \n", host, username, password, dbname, port)
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, username, password, dbname)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	// db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v\n", err)
 	}
 
-	// fmt.Println("Successfully connected to the database!")
-	// อัปเดตหรือสร้างตารางในฐานข้อมูล
+	// ใช้ AutoMigrate เพื่อสร้างหรืออัปเดตตารางในฐานข้อมูล
 	err = db.AutoMigrate(&User{})
 	if err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
@@ -49,10 +56,9 @@ func main() {
 	// สร้าง Gin router
 	r := gin.Default()
 
-	// Route สำหรับ GET /users
+	// Route สำหรับ GET /users เพื่อดึงข้อมูลผู้ใช้
 	r.GET("/users", func(c *gin.Context) {
 		var users []User
-		// ดึงข้อมูลผู้ใช้จากฐานข้อมูล
 		if err := db.Find(&users).Error; err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
@@ -60,14 +66,13 @@ func main() {
 		c.JSON(200, users)
 	})
 
-	// Route สำหรับ POST /users
+	// Route สำหรับ POST /users เพื่อสร้างผู้ใช้ใหม่
 	r.POST("/users", func(c *gin.Context) {
 		var user User
 		if err := c.ShouldBindJSON(&user); err != nil {
 			c.JSON(400, gin.H{"error": "Invalid data"})
 			return
 		}
-		// บันทึกข้อมูลผู้ใช้ใหม่ลงในฐานข้อมูล
 		if err := db.Create(&user).Error; err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
@@ -75,6 +80,6 @@ func main() {
 		c.JSON(201, user)
 	})
 
-	// เริ่มเซิร์ฟเวอร์
+	// เริ่มเซิร์ฟเวอร์บนพอร์ต 9898
 	r.Run(":9898")
 }
