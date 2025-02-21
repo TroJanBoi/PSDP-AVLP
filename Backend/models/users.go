@@ -1,7 +1,10 @@
 package models
 
+import "gorm.io/gorm"
+
 type User struct {
-	UserID   uint   `gorm:"column:user_id;primaryKey" json:"user_id"`
+	gorm.Model
+	// UserID   uint   `gorm:"column:user_id;primaryKey" json:"user_id"`
 	Username string `gorm:"column:username;unique;not null" json:"username"`
 	Password string `gorm:"column:password;not null" json:"password"`
 	Email    string `gorm:"column:email;unique" json:"email"`
@@ -13,7 +16,6 @@ type User struct {
 	Discord  string `gorm:"column:discord" json:"discord"`
 }
 
-// กำหนดชื่อ Table ในฐานข้อมูล
 func (User) TableName() string {
 	return "users"
 }
