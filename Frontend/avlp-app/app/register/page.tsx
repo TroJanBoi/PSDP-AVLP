@@ -1,7 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import BtnSignUp from "./_components/BtnSignUp";
 import { User, Mail, Lock } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
 
 interface InputFieldProps {
   type: string;
@@ -18,16 +20,31 @@ const InputField: React.FC<InputFieldProps> = ({ type, name, placeholder, Icon }
         type={type}
         name={name}
         placeholder={placeholder}
-        className="w-full pl-10 pr-4 py-2 rounded-md bg-primary text-white focus:outline-none focus:ring-2 focus:ring-primary"
+        className="w-full pl-10 pr-4 py-3 rounded-md bg-primary text-white focus:outline-none focus:ring-2 focus:ring-primary"
       />
     </div>
   </div>
 );
 
 export default function RegisterPage() {
+  useEffect(() => {
+    const updateOrientation = () => {
+      if (window.matchMedia("(orientation: portrait)").matches) {
+        document.body.classList.add("portrait");
+      } else {
+        document.body.classList.remove("portrait");
+      }
+    };
+    updateOrientation();
+    window.addEventListener("resize", updateOrientation);
+    return () => window.removeEventListener("resize", updateOrientation);
+  }, []);
+
   return (
     <div className="flex justify-start items-center w-screen h-screen bg-primary">
-      <div className="relative w-1/2 mr-auto space-y-6 min-h-screen bg-gray-100 p-14 shadow-lg rounded-r-3xl flex flex-col justify-center">
+      <div className="relative w-1/2 mr-auto space-y-6 min-h-screen bg-gray-100 p-14 shadow-lg rounded-r-3xl flex flex-col justify-center
+                      md:w-1/2 md:rounded-r-3xl
+                      portrait:w-full portrait:rounded-none portrait:min-h-screen">
         <div className="flex justify-center">
           <div className="relative flex flex-col justify-center h-40 w-40 rounded-full bg-gray-300 text-lg font-bold flex items-center">
             Logo
