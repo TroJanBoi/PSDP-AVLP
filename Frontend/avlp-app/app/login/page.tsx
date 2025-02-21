@@ -1,9 +1,39 @@
+"use client";
+
 import Link from "next/link";
 import BtnSignIn from "./_components/BtnSignIn";
 import { User, Lock } from "lucide-react";
+import { useState } from "react";
+import { api, login } from "@/services/api";
 
 
-export default function Login() {
+export default function LoginPage() {
+
+    const [username, setUsername] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [error, setError] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try 
+        {
+            const data = await login(username, password);
+            console.log("login success: ", data);
+
+            window.location.href = "/homePage";
+        }
+        catch (error: any) {
+            setError(error.response.data.message);
+        }
+        finally
+        {
+            setLoading(false);
+        }
+    }
 
     return (
         <div className="flex justify-center items-center h-screen w-screen bg-primary">
@@ -21,15 +51,15 @@ export default function Login() {
                         <h1 className="text-3xl font-bold text-accent">Sign In</h1>
                     </div>
                     <div className="w-3/4 mt-4">
-                        <form action="">
+                        <form onSubmit={handleSubmit} method="POST" className="flex flex-col gap-4">
                             <div className="flex items-center text-xl bg-white shadow-md hover:border-2 hover:border-primary text-primary px-4 py-2 rounded-lg w-full">
                                 <User className="mr-2 w-6 h-6 text-primary" />
-                                <input type="text" placeholder="Username" className="bg-transparent outline-none text-primary w-full h-8 placeholder-secondary" />
+                                <input type="text" placeholder="Username" value={username} className="bg-transparent outline-none text-primary w-full h-8 placeholder-secondary" onChange={(error) => setUsername(error.target.value)} />
                             </div>
                             <div className="w-full mt-4">
                                 <div className="flex items-center text-xl bg-white shadow-md hover:border-2 hover:border-primary text-white px-4 py-2 rounded-lg w-full">
-                                    <Lock className="mr-2 w-6 h-6 text-primary" />                                    
-                                    <input type="password" placeholder="Password" className="bg-transparent outline-none text-primary w-full h-8 placeholder-primary" />
+                                    <Lock className="mr-2 w-6 h-6 text-primary" />
+                                    <input type="password" placeholder="Password" value={password} className="bg-transparent outline-none text-primary w-full h-8 placeholder-primary" onChange={(error) => setPassword(error.target.value)} />
                                 </div>
                                 <div className="flex justify-between items-center mt-2 text-xl">
                                     <label className="flex items-center text-gray-500">
@@ -42,7 +72,12 @@ export default function Login() {
                             <div className="flex flex-col justify-center w-full mt-10">
                                 <BtnSignIn />
                                 <div className="text-xl text-accent mt-2">
-                                    <h1>Don't have an account? <Link href={"../register/"} className="hover:underline hover:font-semibold">Sign Up</Link></h1>
+                                    <h1>
+                                        Don't have an account?
+                                        <Link href={"../register/"} className="hover:underline hover:font-semibold">
+                                           Sign Up
+                                        </Link>
+                                    </h1>
                                 </div>
                             </div>
                         </form>
