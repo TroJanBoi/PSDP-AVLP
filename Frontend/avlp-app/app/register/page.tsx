@@ -42,11 +42,11 @@ export default function RegisterPage() {
 
   return (
     <div className="flex justify-start items-center w-screen h-screen bg-primary">
-      <div className="relative w-1/2 mr-auto space-y-6 min-h-screen bg-gray-100 p-14 shadow-lg rounded-r-3xl flex flex-col justify-center
+      <div className="relative w-1/2 mr-auto space-y-6 min-h-screen bg-gray-100 p-14 shadow-lg rounded-r-3xl flex-col justify-center
                       md:w-1/2 md:rounded-r-3xl
                       portrait:w-full portrait:rounded-none portrait:min-h-screen">
         <div className="flex justify-center">
-          <div className="relative flex flex-col justify-center h-40 w-40 rounded-full bg-gray-300 text-lg font-bold flex items-center">
+          <div className="relative flex flex-col justify-center h-40 w-40 rounded-full bg-gray-300 text-lg font-bold items-center">
             Logo
           </div>
         </div>
