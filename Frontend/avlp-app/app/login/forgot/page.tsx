@@ -101,7 +101,7 @@ export default function ForgotPasswordPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!status || countdown === null || countdown <= 0) {
             Swal.fire({
                 icon: "error",
@@ -119,7 +119,7 @@ export default function ForgotPasswordPage() {
             return;
         }
         const data_mail = await resetPassword(email, password, code);
-        console.log("data_mail: ",data_mail);
+        console.log("data_mail: ", data_mail);
         if (data_mail === undefined) {
             Swal.fire({
                 icon: "error",
@@ -154,7 +154,7 @@ export default function ForgotPasswordPage() {
                     <div className="flex flex-col items-center border-b-2 w-4/5 text-center border-primary">
                         <h1 className="text-xl xl:text-4xl font-bold text-accent">Forgot your password ?</h1>
                     </div>
-                    <form  onSubmit={status ? handleSubmit : handleSendEmail} className="flex flex-col w-3/4 gap-4">
+                    <form onSubmit={status ? handleSubmit : handleSendEmail} className="flex flex-col w-3/4 gap-4">
                         <div className="flex items-center text-xl bg-white shadow-md hover:border-2 hover:border-primary text-primary px-4 py-2 rounded-lg w-full">
                             <User className="mr-2 w-6 h-6 text-primary" />
                             <input type="text" placeholder="Username" className="bg-transparent outline-none text-primary w-full h-8 placeholder-secondary" value={username} onChange={(e) => setUsername(e.target.value)} />
@@ -163,26 +163,26 @@ export default function ForgotPasswordPage() {
                             <>
                                 <div className="flex items-center text-xl bg-white shadow-md hover:border-2 hover:border-primary text-primary px-4 py-2 rounded-lg w-full">
                                     <Lock className="mr-2 w-6 h-6 text-primary" />
-                                    <input type="password" placeholder="password" name="password" className="bg-transparent outline-none text-primary w-full h-8 placeholder-secondary" value={password} onChange={(e) => setPassword(e.target.value)}/>
+                                    <input type="password" placeholder="password" name="password" className="bg-transparent outline-none text-primary w-full h-8 placeholder-secondary" value={password} onChange={(e) => setPassword(e.target.value)} />
                                 </div>
                                 <div className="flex items-center text-xl bg-white shadow-md hover:border-2 hover:border-primary text-primary px-4 py-2 rounded-lg w-full">
                                     <Lock className="mr-2 w-6 h-6 text-primary" />
-                                    <input type="password" placeholder="Confirm password" name="confpassword" className="bg-transparent outline-none text-primary w-full h-8 placeholder-secondary" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}/>
+                                    <input type="password" placeholder="Confirm password" name="confpassword" className="bg-transparent outline-none text-primary w-full h-8 placeholder-secondary" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                                 </div>
                                 <div className="flex items-center text-xl bg-white shadow-md hover:border-2 hover:border-primary text-primary px-4 py-2 rounded-lg w-full">
                                     <Code className="mr-2 w-6 h-6 text-primary" />
-                                    <input type="text" placeholder="Code" name="code" className="bg-transparent outline-none text-primary w-full h-8 placeholder-secondary" value={code} onChange={(e) => setCode(e.target.value)}/>
+                                    <input type="text" placeholder="Code" name="code" className="bg-transparent outline-none text-primary w-full h-8 placeholder-secondary" value={code} onChange={(e) => setCode(e.target.value)} />
                                 </div>
                             </>
                         }
                         <div className="flex flex-row justify-center items-center h-fit w-full shadow-lg">
                             <button className="flex mx-auto justify-center w-full rounded-l-lg bg-primary py-3 text-md xl:text-lg font-medium text-white shadow-md hover:bg-secondary" disabled={isDisabled && !status} type="submit">
-                            {status ? (countdown ? `Submit` : "Send Again") : "Send Email"}
+                                {status ? (countdown ? `Submit` : "Send Again") : "Send Email"}
                             </button>
                             <Link href={"/login"} className="bg-accent text-md xl:text-lg py-3 px-3 text-center w-full rounded-r-lg">Back to log in</Link>
                         </div>
                         <div className="flex flex-row justify-center items-center w-full">
-                           <h1 className="text-xl text-primary">{status ? (countdown ? `${timeleft}` : "") : "" }</h1> 
+                            <h1 className="text-xl text-primary">{status ? (countdown ? `${timeleft}` : "") : ""}</h1>
                         </div>
                     </form>
                 </div>

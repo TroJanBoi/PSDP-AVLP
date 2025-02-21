@@ -40,11 +40,11 @@ export default function RegisterPage() {
   const [email, setEmail] = useState<string>("");
   const [policy, setPolicy] = useState<boolean>(false);
 
-  
+
   const handleSignUp = async (e: React.FormEvent) => {
-      e.preventDefault();
+    e.preventDefault();
     try {
-      
+
       if (policy === false) {
         Swal.fire({
           icon: "warning",
@@ -62,7 +62,7 @@ export default function RegisterPage() {
       }
       const data = await register(username, password, email);
       console.log("register success: ", data);
-      
+
       if (data === undefined) {
         Swal.fire({
           icon: "error",
@@ -78,7 +78,7 @@ export default function RegisterPage() {
       }).then(() => {
         window.location.href = "/login";
       });
-      
+
     } catch (error: any) {
       Swal.fire({
         icon: "error",

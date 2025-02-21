@@ -21,8 +21,7 @@ export default function LoginPage() {
         setError('');
         setLoading(true);
 
-        try 
-        {
+        try {
             const data = await login(username, password);
             if (data === undefined) {
                 Swal.fire({
@@ -37,8 +36,8 @@ export default function LoginPage() {
                 icon: "success",
                 title: "Login success",
                 text: "Welcome to AVLP",
-            }).then (() => {
-                window.location.href = "/homePage";    
+            }).then(() => {
+                window.location.href = "/homePage";
             });
         }
         catch (error: any) {
@@ -48,8 +47,7 @@ export default function LoginPage() {
                 text: error.response.data.message,
             });
         }
-        finally
-        {
+        finally {
             setLoading(false);
         }
     }
@@ -94,7 +92,7 @@ export default function LoginPage() {
                                     <h1>
                                         Don't have an account?
                                         <Link href={"../register/"} className="hover:underline hover:font-semibold">
-                                           Sign Up
+                                            Sign Up
                                         </Link>
                                     </h1>
                                 </div>
