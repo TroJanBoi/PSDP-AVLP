@@ -5,6 +5,7 @@ import BtnSignIn from "./_components/BtnSignIn";
 import { User, Lock } from "lucide-react";
 import { useState } from "react";
 import { api, login } from "@/services/api";
+import Swal from "sweetalert2";
 
 
 export default function LoginPage() {
@@ -14,6 +15,7 @@ export default function LoginPage() {
     const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
 
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -22,12 +24,29 @@ export default function LoginPage() {
         try 
         {
             const data = await login(username, password);
+            if (data === undefined) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Login failed",
+                    text: "Please check your username and password",
+                });
+                return;
+            }
             console.log("login success: ", data);
-
-            window.location.href = "/homePage";
+            Swal.fire({
+                icon: "success",
+                title: "Login success",
+                text: "Welcome to AVLP",
+            }).then (() => {
+                window.location.href = "/homePage";    
+            });
         }
         catch (error: any) {
-            setError(error.response.data.message);
+            Swal.fire({
+                icon: "error",
+                title: "Login failed",
+                text: error.response.data.message,
+            });
         }
         finally
         {
@@ -66,7 +85,7 @@ export default function LoginPage() {
                                         <input type="checkbox" className="mr-1 accent-teal-500" />
                                         <span className="text-accent cursor-pointer">remember</span>
                                     </label>
-                                    <Link href="#" className="text-accent hover:underline hover:font-semibold">forgot password?</Link>
+                                    <Link href="login/forgot" className="text-accent hover:underline hover:font-semibold">forgot password?</Link>
                                 </div>
                             </div>
                             <div className="flex flex-col justify-center w-full mt-10">
