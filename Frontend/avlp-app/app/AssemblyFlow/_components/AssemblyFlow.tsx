@@ -93,7 +93,7 @@ const onConnect = useCallback(
     }
 
     try {
-      const response = await axios.post("http://localhost:9898/execute", { instructions });
+      const response = await axios.post("http://localhost:9898/asm/execute", { instructions });
       alert(`Result: ${response.data.result}`);
       console.log(response.data.result);
       console.log(instructions);
