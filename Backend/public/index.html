@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check Fetch Status</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #282c34;
+      color: white;
+      margin: 0;
+    }
+    .container {
+      text-align: center;
+      padding: 50px 30px;
+      background: #3b3f47;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      margin: 10px;
+    }
+    h1 {
+        color: #61dafb;
+    }
+    p {
+        font-size: 1.2em;
+    }
+    button {
+      margin: 10px;
+      padding: 5px 10px;
+      background-color: #61dafb;
+      border: none;
+      border-radius: 4px;
+      color: #282c34;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #4fa8d5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="users-container">
+    <h1>Go lang API Check</h1>
+    <p id="status-message">Checking fetch...</p>
+    <p id="fetch-status">Checking fetch...</p>
+    <button onclick="goToSwagger()">Go to Swagger UI</button>
+    <p>ปิ๊บตรวจสอบแล้ว เชื่อสิ</p>
+  </div>
+  <script>
+    fetch("http://localhost:9898/api-ready")
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("status-message").textContent = data.message;
+        })
+        .catch(error => {
+            document.getElementById("status-message").textContent = "❌ Failed to fetch API status";
+        });
+
+    fetch("http://localhost:9898/users")
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then(data => {
+        document.getElementById("fetch-status").textContent = "✅ API is ready to Database accept requests!";
+        console.log(true);
+      })
+      .catch(error => {
+        document.getElementById("fetch-status").textContent = "❌ Failed to fetch Database status";
+        console.log(false);
+      });
+
+    function goToSwagger() {
+      window.location.href = "http://localhost:9898/swagger/index.html";
+    }
+  </script>
+</body>
+</html>
