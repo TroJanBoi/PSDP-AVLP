@@ -1,5 +1,4 @@
-"use client";
-
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { register } from "@/services/api";
@@ -17,6 +16,7 @@ interface SignupBtnProps {
 
 const SignupBtn: React.FC<SignupBtnProps> = ({ username, password, confirmPassword, email, policy, children, className, type = "button" }) => {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);  // New state to track loading
 
   const handleSignUp = async () => {
     if (!policy) {
@@ -27,18 +27,21 @@ const SignupBtn: React.FC<SignupBtnProps> = ({ username, password, confirmPasswo
       Swal.fire({ icon: "warning", title: "Passwords do not match" });
       return;
     }
-    
+
+    setLoading(true);  // Set loading to true when the request starts
+
     const data = await register(username, password, email);
-    if (!data) {
-      Swal.fire({ icon: "error", title: "Register failed" });
+    setLoading(false);  // Set loading to false after the request completes
+
+    if (data?.error) {
+      Swal.fire({ icon: "error", title: "Register failed", text: data.error });
       return;
     }
-    
+
     Swal.fire({ icon: "success", title: "Register success", text: "Please login to continue" })
       .then(() => {
         router.push("/login");
       });
-    
   };
 
   return (
@@ -46,8 +49,13 @@ const SignupBtn: React.FC<SignupBtnProps> = ({ username, password, confirmPasswo
       onClick={handleSignUp}
       type={type}  // ✅ Ensure the button type is handled
       className={`mt-10 w-full h-8 max-w-sm bg-[#a07cff] text-white py-3 rounded-[8px] hover:bg-purple-700 transition flex items-center justify-center ${className}`}
+      disabled={loading}  // Disable the button when loading
     >
-      {children}  {/* ✅ Display button text dynamically */}
+      {loading ? (
+        <span>Loading...</span>  // Show loading text or spinner while processing
+      ) : (
+        children  // Show button text when not loading
+      )}
     </button>
   );
 };

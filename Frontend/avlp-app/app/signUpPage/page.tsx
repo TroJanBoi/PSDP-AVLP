@@ -67,7 +67,6 @@ export default function RegisterPage() {
   const router = useRouter();
   const [passwordError, setPasswordError] = useState(false);
 
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -91,7 +90,6 @@ export default function RegisterPage() {
     } else {
       setPasswordError(false);
     }
-    
 
     const { username, password, email } = formData;
     const data = await register(username, password, email);
@@ -124,9 +122,7 @@ export default function RegisterPage() {
           />
         </div>
 
-        <form onSubmit={handleSignUp} 
-        className="w-full max-w-sm space-y-7"
-        >
+        <form onSubmit={handleSignUp} className="w-full max-w-sm space-y-7">
           <h2 className="font-bold text-black border-b border-black w-full text-center mb-10">Sign Up</h2>
 
           <InputField
@@ -149,23 +145,20 @@ export default function RegisterPage() {
             onTogglePasswordVisibility={() => setShowPassword(!showPassword)}
           />
 
-        <InputField
-          type={showConfirmPassword ? "text" : "password"}
-          name="confirmPassword"
-          placeholder="Confirm Password"
-          Icon={Key}
-          value={formData.confirmPassword}
-          onChange={(e) => {
-            handleInputChange(e);
-            setPasswordError(formData.password !== e.target.value);
-          }}
-          showPasswordButton
-          onTogglePasswordVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
-          className={passwordError ? "border-2 border-red-500" : ""}
-        />
-
-
-
+          <InputField
+            type={showConfirmPassword ? "text" : "password"}
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            Icon={Key}
+            value={formData.confirmPassword}
+            onChange={(e) => {
+              handleInputChange(e);
+              setPasswordError(formData.password !== e.target.value);
+            }}
+            showPasswordButton
+            onTogglePasswordVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
+            className={passwordError ? "border-2 border-red-500" : ""}
+          />
 
           <InputField
             type="email"
@@ -175,44 +168,44 @@ export default function RegisterPage() {
             value={formData.email}
             onChange={handleInputChange}
           />
+          
+          {/* Privacy Policy Checkbox */}
+          <div className="flex items-center mt-10">
+            <input
+              id="agree"
+              type="checkbox"
+              checked={policy}
+              onChange={() => setPolicy(!policy)}
+              className="mr-2 w-3 h-3 appearance-none border-2 bg-[#f0f0f0] rounded-sm checked:bg-[#696969] checked:border-[#f0f0f0] focus:ring-0 cursor-pointer"
+            />
+            <label htmlFor="agree" className="text-primary text-xs font-semibold">
+              I agree to the{" "}
+              <a href="#" className="text-primary underline">
+                privacy policy
+              </a>
+            </label>
+          </div>
+
+          {/* Submit Button */}
+          <SignupBtn
+            username={formData.username}
+            password={formData.password}
+            confirmPassword={formData.confirmPassword}
+            email={formData.email}
+            policy={policy}
+            type="submit"
+            className="mt-10 w-full h-8 max-w-sm bg-[#a07cff] text-white py-3 rounded-[8px] hover:bg-purple-700 transition flex items-center justify-center"
+          >
+            Sign Up
+          </SignupBtn>
+
+          <p className="mt-10 text-primary font-semibold">
+            Already have an account?{" "}
+            <Link href="/login" className="text-primary underline">
+              Sign In
+            </Link>
+          </p>
         </form>
-
-        {/* Privacy Policy Checkbox */}
-        <div className="flex items-center mt-10">
-          <input
-            id="agree"
-            type="checkbox"
-            checked={policy}
-            onChange={() => setPolicy(!policy)}
-            className="mr-2 w-3 h-3 appearance-none border-2 bg-[#f0f0f0] rounded-sm checked:bg-[#696969] checked:border-[#f0f0f0] focus:ring-0 cursor-pointer"
-          />
-          <label htmlFor="agree" className="text-primary text-xs font-semibold">
-            I agree to the{" "}
-            <a href="#" className="text-primary underline">
-              privacy policy
-            </a>
-          </label>
-        </div>
-
-        {/* Submit Button */}
-        <SignupBtn
-          username={formData.username}
-          password={formData.password}
-          confirmPassword={formData.confirmPassword}
-          email={formData.email}
-          policy={policy}
-          type="submit"
-          className="mt-10 w-full h-8 max-w-sm bg-[#a07cff] text-white py-3 rounded-[8px] hover:bg-purple-700 transition flex items-center justify-center"
-        >
-          Sign Up
-        </SignupBtn>
-
-        <p className="mt-10 text-primary font-semibold">
-          Already have an account?{" "}
-          <Link href="/login" className="text-primary underline">
-            Sign In
-          </Link>
-        </p>
       </div>
     </div>
   );
