@@ -38,6 +38,7 @@ const SignupBtn: React.FC<SignupBtnProps> = ({ username, password, confirmPasswo
       .then(() => {
         router.push("/login");
       });
+    
   };
 
   return (

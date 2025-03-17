@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { User, Mail, Lock, Key, Eye, EyeOff } from "lucide-react";
+import { User, Mail, Key, Eye, EyeOff } from "lucide-react";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { register } from "@/services/api";
@@ -13,13 +13,11 @@ interface InputFieldProps {
   name: string;
   placeholder: string;
   Icon: React.ComponentType<{ size?: number; className?: string }>;
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onTogglePasswordVisibility?: () => void;
+  showPasswordButton?: boolean;
   className?: string;
-  hasToggle?: boolean;
-  isVisible?: boolean;
-  toggleVisibility?: () => void;
-  isInvalid?: boolean;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -29,62 +27,80 @@ const InputField: React.FC<InputFieldProps> = ({
   Icon,
   value,
   onChange,
-  hasToggle = false,
-  isVisible = false,
-  toggleVisibility,
-  isInvalid = false
+  onTogglePasswordVisibility,
+  showPasswordButton = false,
+  className = "",
 }) => (
   <div className="relative w-full">
     <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#696969] w-5 h-5" />
     <input
-      type={isVisible ? "text" : type}
+      type={type}
       name={name}
       placeholder={placeholder}
       value={value}
       onChange={onChange}
-      className={`w-full h-8 pl-10 pr-10 py-3 px-4 bg-[#f0f0f0] rounded-[10px] placeholder-[#696969] focus:outline-none focus:ring-0 ${
-        isInvalid ? "border border-red-500" : ""
-      }`}
+      className={`w-full h-8 pl-10 py-3 px-4 bg-[#f0f0f0] rounded-[10px] placeholder-[#696969] focus:outline-none focus:ring-0 ${className}`}
     />
-    {hasToggle && (
+
+    {showPasswordButton && (
       <button
         type="button"
-        onClick={toggleVisibility}
-        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#696969]"
+        onClick={onTogglePasswordVisibility}
+        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#696969] w-5 h-5"
       >
-        {isVisible ? <EyeOff size={20} /> : <Eye size={20} />}
+        {type === "password" ? <EyeOff /> : <Eye />}
       </button>
     )}
   </div>
 );
 
 export default function RegisterPage() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [email, setEmail] = useState("");
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+    confirmPassword: "",
+    email: "",
+  });
   const [policy, setPolicy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
+  const [passwordError, setPasswordError] = useState(false);
 
-  const passwordsMatch = password === confirmPassword || confirmPassword === "";
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (!policy) {
       Swal.fire({ icon: "warning", title: "Please agree to the privacy policy" });
       return;
     }
-    if (!passwordsMatch) {
+
+    if (formData.password !== formData.confirmPassword) {
+      setPasswordError(true);
       Swal.fire({ icon: "warning", title: "Passwords do not match" });
       return;
+    } else {
+      setPasswordError(false);
     }
+    
+
+    const { username, password, email } = formData;
     const data = await register(username, password, email);
+
     if (!data) {
       Swal.fire({ icon: "error", title: "Register failed" });
       return;
     }
+
     Swal.fire({ icon: "success", title: "Register success", text: "Please login to continue" }).then(() => {
       router.push("/login");
     });
@@ -108,7 +124,9 @@ export default function RegisterPage() {
           />
         </div>
 
-        <form onSubmit={handleSignUp} className="w-full max-w-sm space-y-7">
+        <form onSubmit={handleSignUp} 
+        className="w-full max-w-sm space-y-7"
+        >
           <h2 className="font-bold text-black border-b border-black w-full text-center mb-10">Sign Up</h2>
 
           <InputField
@@ -116,63 +134,72 @@ export default function RegisterPage() {
             name="username"
             placeholder="Username"
             Icon={User}
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={formData.username}
+            onChange={handleInputChange}
           />
 
           <InputField
-            type="password"
+            type={showPassword ? "text" : "password"}
             name="password"
             placeholder="Password"
             Icon={Key}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            hasToggle
-            isVisible={showPassword}
-            toggleVisibility={() => setShowPassword(!showPassword)}
+            value={formData.password}
+            onChange={handleInputChange}
+            showPasswordButton
+            onTogglePasswordVisibility={() => setShowPassword(!showPassword)}
           />
 
-          <InputField
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm password"
-            Icon={Key}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            hasToggle
-            isVisible={showConfirmPassword}
-            toggleVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
-            isInvalid={!passwordsMatch}
-          />
+        <InputField
+          type={showConfirmPassword ? "text" : "password"}
+          name="confirmPassword"
+          placeholder="Confirm Password"
+          Icon={Key}
+          value={formData.confirmPassword}
+          onChange={(e) => {
+            handleInputChange(e);
+            setPasswordError(formData.password !== e.target.value);
+          }}
+          showPasswordButton
+          onTogglePasswordVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
+          className={passwordError ? "border-2 border-red-500" : ""}
+        />
+
+
+
 
           <InputField
             type="email"
             name="email"
             placeholder="Email"
             Icon={Mail}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={formData.email}
+            onChange={handleInputChange}
           />
         </form>
 
+        {/* Privacy Policy Checkbox */}
         <div className="flex items-center mt-10">
           <input
             id="agree"
             type="checkbox"
             checked={policy}
-            onChange={(e) => setPolicy(e.target.checked)}
+            onChange={() => setPolicy(!policy)}
             className="mr-2 w-3 h-3 appearance-none border-2 bg-[#f0f0f0] rounded-sm checked:bg-[#696969] checked:border-[#f0f0f0] focus:ring-0 cursor-pointer"
           />
           <label htmlFor="agree" className="text-primary text-xs font-semibold">
-            I agree to the <a href="#" className="text-primary underline">privacy policy</a>
+            I agree to the{" "}
+            <a href="#" className="text-primary underline">
+              privacy policy
+            </a>
           </label>
         </div>
 
+        {/* Submit Button */}
         <SignupBtn
-          username={username}
-          password={password}
-          confirmPassword={confirmPassword}
-          email={email}
+          username={formData.username}
+          password={formData.password}
+          confirmPassword={formData.confirmPassword}
+          email={formData.email}
           policy={policy}
           type="submit"
           className="mt-10 w-full h-8 max-w-sm bg-[#a07cff] text-white py-3 rounded-[8px] hover:bg-purple-700 transition flex items-center justify-center"
@@ -181,7 +208,10 @@ export default function RegisterPage() {
         </SignupBtn>
 
         <p className="mt-10 text-primary font-semibold">
-          Already Have an Account? <Link href="/login" className="text-primary underline">Sign In</Link>
+          Already have an account?{" "}
+          <Link href="/login" className="text-primary underline">
+            Sign In
+          </Link>
         </p>
       </div>
     </div>

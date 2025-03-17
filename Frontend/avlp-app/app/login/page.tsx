@@ -91,7 +91,7 @@ export default function LoginPage() {
                                 <div className="text-xl text-accent mt-2">
                                     <h1>
                                         Don't have an account?
-                                        <Link href={"../register/"} className="hover:underline hover:font-semibold">
+                                        <Link href={"../signUpPage/"} className="hover:underline hover:font-semibold">
                                             Sign Up
                                         </Link>
                                     </h1>
