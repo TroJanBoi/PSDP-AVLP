@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -14,8 +16,8 @@ import (
 var DB *gorm.DB
 
 const (
-	host = "postgres"
-	// host     = "localhost"
+	// host = "postgres"
+	host     = "localhost"
 	username = "myuser"
 	password = "mypassword"
 	dbname   = "mydatabase"
@@ -23,6 +25,16 @@ const (
 )
 
 func ConnectDatabase() {
+	// โหลด .env ถ้ามี (สำหรับ terminal)
+	_ = godotenv.Load()
+
+	// อ่านค่าจาก environment variables หรือใช้ default
+	host := getEnv("DB_HOST", "localhost")             // Default เป็น localhost สำหรับ terminal
+	port, _ := strconv.Atoi(getEnv("DB_PORT", "5432")) // Default เป็น 5432
+	username := getEnv("DB_USER", "myuser")
+	password := getEnv("DB_PASSWORD", "mypassword")
+	dbname := getEnv("DB_NAME", "mydatabase")
+
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, username, password, dbname)
 	var err error
 
@@ -46,6 +58,14 @@ func ConnectDatabase() {
 	go monitorConnection()
 }
 
+// getEnv อ่าน environment variable หรือใช้ default
+func getEnv(key, defaultValue string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return defaultValue
+}
+
 func monitorConnection() {
 	for {
 		sqlDB, err := DB.DB()
@@ -60,8 +80,15 @@ func monitorConnection() {
 		time.Sleep(2 * time.Minute)
 	}
 }
+
 func reconnectDatabase() {
 	for {
+		host := getEnv("DB_HOST", "localhost")
+		port, _ := strconv.Atoi(getEnv("DB_PORT", "5432"))
+		username := getEnv("DB_USER", "myuser")
+		password := getEnv("DB_PASSWORD", "mypassword")
+		dbname := getEnv("DB_NAME", "mydatabase")
+
 		dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, username, password, dbname)
 		newLogger := logger.New(
 			log.New(os.Stdout, "\r\n", log.LstdFlags),
