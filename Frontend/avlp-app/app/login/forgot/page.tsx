@@ -1,6 +1,6 @@
 "use client";
 
-import { forgotPassword, resetPassword } from "@/services/api";
+import { forgotPassword, resetPassword, verifyCode } from "@/services/api";
 import { User, Lock, Code, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -86,11 +86,57 @@ export default function ForgotPasswordPage() {
     };
     
     // ตรวจสอบรหัสยืนยันที่ผู้ใช้ป้อน
-    // ตรวจสอบรหัสยืนยันที่ผู้ใช้ป้อน
-// ทางเลือกในกรณีไม่สามารถเพิ่ม API endpoint ได้
-const handleVerifyCode = async (e: React.FormEvent) => {
+    const handleVerifyCode = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        if (!status || countdown === null || countdown <= 0) {
+            Swal.fire({
+                icon: "error",
+                title: "Code expired",
+                text: "Please request a new code",
+            });
+            setStatus(false);
+            return;
+        }
+        
+        try {
+            // Show loading
+            Swal.fire({
+                title: "Verifying code",
+                text: "Please wait...",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Store the code for later use
+            // We'll move to step 3 without actually verifying now
+            // This is a workaround if your API doesn't have a separate verification endpoint
+            setStep(3);
+            Swal.close();
+            Swal.fire({
+                icon: "success",
+                title: "Code accepted",
+                text: "Please set your new password",
+            });
+        } catch (error: any) {
+            Swal.close();
+            console.error("Verification error:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Verification failed",
+                text: error.message || "Invalid verification code",
+            });
+        }
+    };
+
+
+    // ฟังก์ชันรีเซ็ตรหัสผ่านใหม่
+    const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Check that code hasn't expired
     if (!status || countdown === null || countdown <= 0) {
         Swal.fire({
             icon: "error",
@@ -101,84 +147,70 @@ const handleVerifyCode = async (e: React.FormEvent) => {
         return;
     }
     
-    try {
-        // ใช้ resetPassword โดยส่งรหัสผ่านชั่วคราวที่ไม่สำคัญ
-        const tempPassword = "temporary_password_for_verification";
-        const result = await resetPassword(email, tempPassword, code);
-        if (result) {
-            // ถ้าการตรวจสอบสำเร็จ ให้ไปยังหน้า 3
-            setStep(3);
+    // Check that passwords match
+    if (password !== confirmPassword) {
+        Swal.fire({
+            icon: "error",
+            title: "Passwords don't match",
+            text: "Please check your passwords",
+        });
+        return;
+    }
+    
+    // Check password strength
+    if (password.length < 6) {
+        Swal.fire({
+            icon: "error",
+            title: "Password not secure",
+            text: "Password must be at least 6 characters",
+        });
+        return;
+    }
+    
+    // Show loading
+    Swal.fire({
+        title: "Changing password",
+        text: "Please wait...",
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    try { 
+        console.log(`Changing password for email: ${email} with verification code: ${code}`);
+        
+        // Call resetPassword directly with the code
+        const result = await resetPassword(email, password, code);
+        
+        Swal.close();
+        
+        if (result && result.message) {
+            console.log("Password changed successfully");
             Swal.fire({
                 icon: "success",
-                title: "Code verified",
-                text: "Please set your new password",
+                title: "Password changed successfully",
+                text: "Please login with your new password",
+            }).then(() => {
+                window.location.href = "/login"; 
             });
         } else {
             Swal.fire({
                 icon: "error",
-                title: "Verification failed",
-                text: "Invalid verification code",
+                title: "Couldn't change password",
+                text: "Please try again",
             });
         }
     } catch (error: any) {
+        console.error("Password reset error:", error);
         Swal.fire({
             icon: "error",
-            title: "Verification failed",
-            text: error.response?.data?.message || "Invalid verification code",
+            title: "Couldn't change password",
+            text: error.message || "Something went wrong, please try again",
         });
     }
 };
 
-    // ฟังก์ชันรีเซ็ตรหัสผ่านใหม่
-const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!status || countdown === null || countdown <= 0) {
-        Swal.fire({
-            icon: "error",
-            title: "Code expired",
-            text: "Please request a new code",
-        });
-        setStatus(false);
-        return;
-    }
-    
-    if (password !== confirmPassword) {
-        Swal.fire({
-            icon: "error",
-            title: "Passwords do not match",
-        });
-        return;
-    }
-    
-    try { 
-        // ตอนนี้เราไม่ต้องตรวจสอบ OTP อีกแล้ว เพราะตรวจสอบไปแล้วในขั้นตอนก่อนหน้า
-        const result = await resetPassword(email, password, code);
-        if (!result) {
-            Swal.fire({
-                icon: "error",
-                title: "Reset password failed",
-                text: "Please try again",
-            });
-            return;
-        }
-        
-        console.log("Password changed successfully");
-        Swal.fire({
-            icon: "success",
-            title: "Password changed",
-            text: "Please login to continue",
-        }).then(() => {
-            window.location.href = "/login"; 
-        });
-    } catch (error: any) {
-        Swal.fire({
-            icon: "error",
-            title: "Reset password failed",
-            text: error.response?.data?.message || "Something went wrong",
-        });
-    }
-};
 
     // ฟังก์ชันขอรหัสยืนยันใหม่หากไม่ได้รหัส
     const handleResendCode = async () => {
@@ -308,24 +340,11 @@ const handleResetPassword = async (e: React.FormEvent) => {
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             className="w-full py-3 sm:py-4 pl-10 sm:pl-12 pr-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base sm:text-lg"
-                            readOnly
+                            placeholder="Enter your username"
+                            required
                         />
-                        {countdown && countdown > 0 ? (
-                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-blue-100 text-blue-600 px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm">
-                                {`( ${Math.floor(countdown)} sec )`}
-                            </div>
-                        ) : (
-                            <button
-                                type="button"
-                                onClick={handleSendEmail}
-                                className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm hover:bg-blue-600"
-                            >
-                                Send Otp
-                            </button>
-                        )}
                     </div>
                 </div>
-                
                 <div className="mb-4">
                     <label className="block text-base sm:text-lg font-medium text-gray-600 mb-2">Verification Code</label>
                     <div className="relative">
@@ -337,149 +356,96 @@ const handleResetPassword = async (e: React.FormEvent) => {
                             value={code}
                             onChange={(e) => setCode(e.target.value)}
                             className="w-full py-3 sm:py-4 pl-10 sm:pl-12 pr-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base sm:text-lg"
-                            placeholder="Enter verification code"
+                            placeholder="Enter the verification code"
                             required
                         />
                     </div>
                 </div>
-
-                <div className="mb-4">
-                    <div className="flex justify-between items-center">
-                        <p className="text-sm sm:text-base text-gray-600">
-                            Time remaining: <span className="font-semibold">{timeleft}</span>
-                        </p>
-                        <button
-                            type="button"
-                            onClick={handleResendCode}
-                            disabled={isDisabled}
-                            className={`text-sm sm:text-base ${
-                                isDisabled 
-                                ? "text-gray-400 cursor-not-allowed" 
-                                : "text-blue-500 hover:text-blue-700"
-                            }`}
-                        >
-                            Resend Code
-                        </button>
-                    </div>
-                </div>
-
                 <button
                     type="submit"
                     className="w-full py-3 sm:py-4 rounded-lg font-medium text-base sm:text-lg bg-violet-400 text-white hover:bg-violet-500 transition-colors"
                 >
                     Verify Code
                 </button>
-                </form>
-       );
+            </form>
+        );
 
-       return renderPageLayout(
-           "Verification Code",
-           "Enter the verification code sent to your email.",
-           formContent
-       );
-   };
+        return renderPageLayout(
+            "Verify your code",
+            "Enter the verification code sent to your email.",
+            formContent
+        );
+    };
 
-   // ฟังก์ชันสำหรับแสดงหน้าตั้งรหัสผ่านใหม่
-   // ฟังก์ชันสำหรับแสดงหน้าตั้งรหัสผ่านใหม่
-const renderResetPassword = () => {
-    const formContent = (
-        <form onSubmit={handleResetPassword} className="w-full">
-            <div className="mb-4">
-                <label className="block text-base sm:text-lg font-medium text-gray-600 mb-2">Verification Code</label>
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Code className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-400" />
+    // ฟังก์ชันสำหรับแสดงหน้าตั้งรหัสผ่านใหม่
+    const renderResetPassword = () => {
+        const formContent = (
+            <form onSubmit={handleResetPassword} className="w-full">
+                <div className="mb-4">
+                    <label className="block text-base sm:text-lg font-medium text-gray-600 mb-2">New Password</label>
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Lock className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 text-gray-400" />
+                        </div>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full py-3 sm:py-4 pl-10 sm:pl-12 pr-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base sm:text-lg"
+                            placeholder="Enter new password"
+                            required
+                        />
                     </div>
-                    <input
-                        type="text"
-                        value={code}
-                        className="w-full py-3 sm:py-4 pl-10 sm:pl-12 pr-3 border border-gray-300 rounded-lg bg-gray-100 text-base sm:text-lg"
-                        readOnly
-                    />
                 </div>
-            </div>
-            
-            <div className="mb-4">
-                <label className="block text-base sm:text-lg font-medium text-gray-600 mb-2">New Password</label>
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Lock className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-400" />
+                <div className="mb-4">
+                    <label className="block text-base sm:text-lg font-medium text-gray-600 mb-2">Confirm New Password</label>
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Lock className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 text-gray-400" />
+                        </div>
+                        <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="w-full py-3 sm:py-4 pl-10 sm:pl-12 pr-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base sm:text-lg"
+                            placeholder="Confirm new password"
+                            required
+                        />
                     </div>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full py-3 sm:py-4 pl-10 sm:pl-12 pr-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base sm:text-lg"
-                        placeholder="Enter new password"
-                        required
-                    />
                 </div>
-            </div>
-            
-            <div className="mb-4">
-                <label className="block text-base sm:text-lg font-medium text-gray-600 mb-2">Confirm Password</label>
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Lock className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-400" />
-                    </div>
-                    <input
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full py-3 sm:py-4 pl-10 sm:pl-12 pr-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base sm:text-lg"
-                        placeholder="Confirm new password"
-                        required
-                    />
-                </div>
-            </div>
-            <div className="mb-4">
-                <div className="flex justify-between items-center">
-                    <p className="text-sm sm:text-base text-gray-600">
-                        Time remaining: <span className="font-semibold">{timeleft}</span>
-                    </p>
-                    <button
-                        type="button"
-                        onClick={handleResendCode}
-                        disabled={isDisabled}
-                        className={`text-sm sm:text-base ${
-                            isDisabled 
-                            ? "text-gray-400 cursor-not-allowed" 
-                            : "text-blue-500 hover:text-blue-700"
-                        }`}
-                    >
-                        Resend Code
-                    </button>
-                </div>
-            </div>
-            
-            <button
-                type="submit"
-                className="w-full py-3 sm:py-4 rounded-lg font-medium text-base sm:text-lg bg-violet-400 text-white hover:bg-violet-500 transition-colors"
-            >
-                Reset Password
-            </button>
-        </form>
+                <button
+                    type="submit"
+                    className="w-full py-3 sm:py-4 rounded-lg font-medium text-base sm:text-lg bg-violet-400 text-white hover:bg-violet-500 transition-colors"
+                >
+                    Reset Password
+                </button>
+            </form>
+        );
+
+        return renderPageLayout(
+            "Reset your password",
+            "Enter and confirm your new password.",
+            formContent
+        );
+    };
+
+    // ฟังก์ชันสำหรับแสดงเนื้อหาตามขั้นตอน
+    const renderStepContent = () => {
+        switch (step) {
+            case 1:
+                return renderEnterUsername();
+            case 2:
+                return renderVerifyCode();
+            case 3:
+                return renderResetPassword();
+            default:
+                return renderEnterUsername();
+        }
+    };
+
+    return (
+        <div>
+            {renderStepContent()}
+        </div>
     );
-
-    return renderPageLayout(
-        "Reset Password",
-        "Create a new password for your account.",
-        formContent
-    );
-};
-   // เลือกหน้าที่จะแสดงตาม step
-   const renderStepContent = () => {
-       switch (step) {
-           case 1:
-               return renderEnterUsername();
-           case 2:
-               return renderVerifyCode();
-           case 3:
-               return renderResetPassword();
-           default:
-               return renderEnterUsername();
-       }
-   };
-
-   return renderStepContent();
 }

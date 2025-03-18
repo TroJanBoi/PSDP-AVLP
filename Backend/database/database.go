@@ -15,15 +15,6 @@ import (
 
 var DB *gorm.DB
 
-const (
-	// host = "postgres"
-	host     = "localhost"
-	username = "myuser"
-	password = "mypassword"
-	dbname   = "mydatabase"
-	port     = 5432
-)
-
 func ConnectDatabase() {
 	// โหลด .env ถ้ามี (สำหรับ terminal)
 	_ = godotenv.Load()
