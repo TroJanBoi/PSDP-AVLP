@@ -32,9 +32,9 @@ export const register = async (username: string, password: string, email: string
 export const forgotPassword = async (username: string) => {
   try {
     const response = await api.post("/users/forgot-password", { username });
-    return response.data;
+    return response.data; // Should only return email and success message, NOT the code
   } catch (error: any) {
-    error.response.data.message;
+    throw error; // Properly throw the error
   }
 }
 
@@ -43,6 +43,16 @@ export const resetPassword = async (email: string, new_password: string, code: s
     const response = await api.post("/users/reset-password", { email, code, new_password });
     return response.data;
   } catch (error: any) {
-    error.response.data.message;
+    throw error; // Properly throw the error
+  }
+}
+
+// เพิ่มฟังก์ชันใหม่สำหรับการตรวจสอบ OTP
+export const verifyOTP = async (email: string, code: string) => {
+  try {
+    const response = await api.post("/users/verify-otp", { email, code });
+    return response.data;
+  } catch (error: any) {
+    throw error;
   }
 }
