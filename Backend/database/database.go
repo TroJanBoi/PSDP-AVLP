@@ -14,8 +14,8 @@ import (
 var DB *gorm.DB
 
 const (
-	// host = "postgres"
-	host     = "localhost"
+	host = "postgres"
+	// host     = "localhost"
 	username = "myuser"
 	password = "mypassword"
 	dbname   = "mydatabase"
