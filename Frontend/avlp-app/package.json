@@ -53,7 +53,7 @@
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.2",
     "react-resizable-panels": "^2.1.7",
-    "react-sweetalert2": "^0.6.0",
+    "react-sweetalert2": "^0.5.2",
     "reactflow": "^11.11.4",
     "recharts": "^2.15.1",
     "sonner": "^1.7.4",
