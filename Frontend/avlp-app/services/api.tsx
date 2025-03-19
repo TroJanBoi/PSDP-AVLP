@@ -2,19 +2,11 @@ import axios from 'axios';
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:9898";
 
-const getToken = () => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('token');
-  }
-  return null;
-};
-
 export const api = axios.create({
   baseURL: API,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${getToken()}`, // หรือวิธีการอื่นในการเก็บ token
   },
 });
 
@@ -23,7 +15,7 @@ export const login = async (username: string, password: string) => {
     const response = await api.post("/users/login", { username, password });
     return response.data;
   } catch (error: any) {
-    throw error.response.data.message;
+    throw error.response?.data?.message || "การเข้าสู่ระบบล้มเหลว";
   }
 };
 
@@ -32,62 +24,63 @@ export const register = async (username: string, password: string, email: string
     const register = await api.post("/users", { username, password, email });
     return register.data;
   } catch (error: any) {
-    throw error.response.data.message;
+    throw error.response?.data?.message || "การลงทะเบียนล้มเหลว";
   }
-}
+};
 
 export const forgotPassword = async (username: string) => {
   try {
     const response = await api.post("/users/forgot-password", { username });
-    return response.data; // Should only return email and success message, NOT the code
+    return response.data; // ส่งคืนอีเมลสำหรับการส่งรหัสยืนยัน
   } catch (error: any) {
-    throw error; // Properly throw the error
-  }
-}
-
-// แก้ไขฟังก์ชัน resetPassword ในไฟล์ API service
-export const resetPassword = async (email: string, new_password: string, code: string) => {
-  try {
-    const response = await api.post('/users/reset-password', { 
-      email, 
-      new_password,
-      code 
-    });
-    return response.data;
-  } catch (error: any) {
-    // Better error handling with more specific errors
-    if (error.response) {
-      const errorMessage = error.response.data.error || 
-                          error.response.data.message || 
-                          "Failed to reset password";
-      throw new Error(errorMessage);
-    }
-    throw new Error("Network error. Please try again later.");
+    throw error;
   }
 };
 
-// เพิ่มฟังก์ชันใหม่สำหรับตรวจสอบโค้ดโดยไม่เปลี่ยนรหัสผ่าน
 export const verifyCode = async (email: string, code: string) => {
   try {
-    // Use a dedicated endpoint for verification if available
-    // If not, we can use a different approach
-    const response = await api.post('/users/verify-code', { 
-      email, 
-      code 
-    });
-    return true;
+    // ส่งคำขอไปยัง API เพื่อตรวจสอบรหัสยืนยัน
+    try {
+      // ใช้ endpoint reset-password เพื่อตรวจสอบความถูกต้องของรหัส OTP
+      const response = await api.post("/users/reset-password", {
+        email: email,
+        new_password: "temporary_verification_password",
+        code: code
+      });
+      
+      return true;
+    } catch (apiError: any) {
+      // ในกรณีที่รหัส OTP ไม่ถูกต้อง (สถานะข้อผิดพลาด 401)
+      if (apiError.response && apiError.response.status === 401) {
+        return false;
+      }
+      
+      throw new Error("เกิดข้อผิดพลาดที่เซิร์ฟเวอร์ระหว่างการตรวจสอบ OTP กรุณาลองใหม่อีกครั้ง");
+    }
   } catch (error: any) {
-    console.error("Verification error:", error);
-    return false;
+    console.error("ข้อผิดพลาดรหัสยืนยัน:", error);
+    throw error;
   }
 };
 
-// เพิ่มฟังก์ชันใหม่สำหรับการเปลี่ยนรหัสผ่าน
-export const changePassword = async (userId: string, oldPassword: string, newPassword: string) => {
+export const resetPassword = async (email: string, password: string, code: string) => {
   try {
-    const response = await api.put(`/users/${userId}/change-password`, { old_password: oldPassword, new_password: newPassword });
+    // ส่งคำขอเปลี่ยนรหัสผ่านไปยัง API โดยตรง
+    const requestData = {
+      email: email,
+      new_password: password,
+      code: code
+    };
+    
+    const response = await api.post('/users/reset-password', requestData);
     return response.data;
   } catch (error: any) {
-    throw error.response.data.message;
+    if (error.response) {
+      throw error.response?.data?.message || "การรีเซ็ตรหัสผ่านล้มเหลว";
+    } else if (error.request) {
+      throw "ไม่ได้รับการตอบกลับจากเซิร์ฟเวอร์ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต";
+    } else {
+      throw error;
+    }
   }
-}
+};
