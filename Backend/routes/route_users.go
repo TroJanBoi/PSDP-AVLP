@@ -38,6 +38,13 @@ type LoginRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
+// ResetPasswordRequest represents the request body for resetting a password
+type ResetPasswordRequest struct {
+	Email       string `json:"email" binding:"required,email"`
+	Code        string `json:"code" binding:"required"`
+	NewPassword string `json:"new_password" binding:"required"`
+}
+
 // UpdateUserRequest represents the request body for updating a user
 type UpdateUserRequest struct {
 	Name     string `json:"name,omitempty"`
@@ -264,7 +271,7 @@ func forgotPassword(c *gin.Context) {
 // @Description Reset user's password using a verification code
 // @Accept json
 // @Produce json
-// @Param reset body object true "Reset data"
+// @Param reset body routes.ResetPasswordRequest true "Reset data"
 // @Success 200 {object} models.SuccessResponse
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 401 {object} models.ErrorResponse
@@ -272,14 +279,9 @@ func forgotPassword(c *gin.Context) {
 // @Failure 500 {object} models.ErrorResponse
 // @Router /users/reset-password [post]
 func resetPassword(c *gin.Context) {
-	var input struct {
-		Email       string `json:"email"`
-		Code        string `json:"code"`
-		NewPassword string `json:"new_password"`
-	}
-
+	var input ResetPasswordRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "The information is incorrect."})
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid data: " + err.Error()})
 		return
 	}
 	storedData, exists := resetCodes[input.Email]
@@ -299,13 +301,12 @@ func resetPassword(c *gin.Context) {
 	}
 	user.Password = input.NewPassword
 	if err := database.DB.Save(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Unable to update password"})
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Unable to update password: " + err.Error()})
 		return
 	}
 	delete(resetCodes, input.Email)
 	c.JSON(http.StatusOK, models.SuccessResponse{Message: "Password changed successfully"})
 }
-
 func loadEnv() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")

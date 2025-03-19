@@ -92,6 +92,19 @@ definitions:
     - password
     - username
     type: object
+  routes.ResetPasswordRequest:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+      new_password:
+        type: string
+    required:
+    - code
+    - email
+    - new_password
+    type: object
   routes.UpdateUserRequest:
     properties:
       bio:
@@ -319,7 +332,7 @@ paths:
         name: reset
         required: true
         schema:
-          type: object
+          $ref: '#/definitions/routes.ResetPasswordRequest'
       produces:
       - application/json
       responses:
