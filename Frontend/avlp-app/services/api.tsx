@@ -22,12 +22,13 @@ export const login = async (username: string, password: string) => {
 
 export const register = async (username: string, password: string, email: string) => {
   try {
-    const register = await api.post("/users", { username, password, email });
-    return register.data;
+    const response = await api.post("/users", { username, password, email });
+    return response.data; 
   } catch (error: any) {
-    error.response.data.message;
+    return error.response?.data || { error: "An unknown error occurred" };
   }
-}
+};
+
 
 export const forgotPassword = async (username: string) => {
   try {

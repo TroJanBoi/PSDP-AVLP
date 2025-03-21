@@ -27,22 +27,34 @@ const SignupBtn: React.FC<SignupBtnProps> = ({ username, password, confirmPasswo
       Swal.fire({ icon: "warning", title: "Passwords do not match" });
       return;
     }
-
-    setLoading(true);  // Set loading to true when the request starts
-
+  
+    setLoading(true);
+  
     const data = await register(username, password, email);
-    setLoading(false);  // Set loading to false after the request completes
-
+  
+    setLoading(false);
+  
     if (data?.error) {
-      Swal.fire({ icon: "error", title: "Register failed", text: data.error });
+      let errorMessage = data.error;
+    
+      // ตรวจสอบว่าข้อผิดพลาดมาจาก username หรือ email ซ้ำ
+      if (data.error.includes("uni_users_email")) {
+        errorMessage = "This email is already in use. Please use another email address.";
+      } else if (data.error.includes("uni_users_username")) {
+        errorMessage = "This username is already taken. Please choose another one.";
+      }
+    
+      Swal.fire({ icon: "error", title: "Register Failed", text: errorMessage });
       return;
     }
-
+    
+  
     Swal.fire({ icon: "success", title: "Register success", text: "Please login to continue" })
       .then(() => {
         router.push("/login");
       });
   };
+  
 
   return (
     <button
