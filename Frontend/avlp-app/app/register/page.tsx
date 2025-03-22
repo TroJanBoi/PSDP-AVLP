@@ -105,107 +105,59 @@ export default function RegisterPage() {
   };
 
   return (
-    <div
-      className="flex h-screen w-screen bg-cover bg-center bg-opacity-60"
-      style={{ backgroundImage: "url('https://i.postimg.cc/qBcGFBv4/man2new.jpg')" }}
-    >
-      {/* Left side - Image with transparency */}
-      <div className="w-1/2 bg-cover bg-center hidden md:block bg-opacity-60"></div>
-
-      {/* Right side - Form with background */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-10 bg-white rounded-l-[40px] shadow-3xl overflow-hidden shadow-lg">
-        <div className="text-center mb-6">
-          <img
-            src="https://i.postimg.cc/LsBzbNmv/image-2025-03-16-034214396.png"
-            alt="Logo"
-            className="h-[120px] w-[120px] rounded-[35px] mx-auto mb-1 shadow-lg object-cover max-w-full max-h-full"
-          />
-        </div>
-
-        <form onSubmit={handleSignUp} className="w-full max-w-sm space-y-7">
-          <h2 className="font-bold text-black border-b border-black w-full text-center mb-10">Sign Up</h2>
-
-          <InputField
-            type="text"
-            name="username"
-            placeholder="Username"
-            Icon={User}
-            value={formData.username}
-            onChange={handleInputChange}
-          />
-
-          <InputField
-            type={showPassword ? "text" : "password"}
-            name="password"
-            placeholder="Password"
-            Icon={Key}
-            value={formData.password}
-            onChange={handleInputChange}
-            showPasswordButton
-            onTogglePasswordVisibility={() => setShowPassword(!showPassword)}
-          />
-
-          <InputField
-            type={showConfirmPassword ? "text" : "password"}
-            name="confirmPassword"
-            placeholder="Confirm Password"
-            Icon={Key}
-            value={formData.confirmPassword}
-            onChange={(e) => {
-              handleInputChange(e);
-              setPasswordError(formData.password !== e.target.value);
-            }}
-            showPasswordButton
-            onTogglePasswordVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
-            className={passwordError ? "border-2 border-red-500" : ""}
-          />
-
-          <InputField
-            type="email"
-            name="email"
-            placeholder="Email"
-            Icon={Mail}
-            value={formData.email}
-            onChange={handleInputChange}
-          />
-          
-          {/* Privacy Policy Checkbox */}
-          <div className="flex items-center mt-10">
-            <input
-              id="agree"
-              type="checkbox"
-              checked={policy}
-              onChange={() => setPolicy(!policy)}
-              className="mr-2 w-3 h-3 appearance-none border-2 bg-[#f0f0f0] rounded-sm checked:bg-[#696969] checked:border-[#f0f0f0] focus:ring-0 cursor-pointer"
-            />
-            <label htmlFor="agree" className="text-primary text-xs font-semibold">
-              I agree to the{" "}
-              <a href="#" className="text-primary underline">
-                privacy policy
-              </a>
-            </label>
+    <div className="flex h-screen w-screen">
+      {/* PC Layout */}
+      <div className="hidden lg:flex h-full w-full bg-cover bg-center" style={{ backgroundImage: "url('https://i.postimg.cc/qBcGFBv4/man2new.jpg')" }}>
+        <div className="w-1/2"></div>
+        <div className="w-1/2 flex flex-col justify-center items-center p-10 bg-white rounded-l-[40px] shadow-3xl overflow-hidden shadow-lg">
+          <div className="text-center mb-6">
+            <img src="https://i.postimg.cc/LsBzbNmv/image-2025-03-16-034214396.png" alt="Logo" className="h-[120px] w-[120px] rounded-[35px] mx-auto mb-1 shadow-lg object-cover" />
           </div>
 
-          {/* Submit Button */}
-          <SignupBtn
-            username={formData.username}
-            password={formData.password}
-            confirmPassword={formData.confirmPassword}
-            email={formData.email}
-            policy={policy}
-            type="submit"
-            className="mt-10 w-full h-8 max-w-sm bg-[#a07cff] text-white py-3 rounded-[8px] hover:bg-purple-700 transition flex items-center justify-center"
-          >
-            Sign Up
-          </SignupBtn>
+          <form onSubmit={handleSignUp} className="w-full max-w-sm space-y-7">
+            <h2 className="font-bold text-black border-b border-black w-full text-center mb-10">Sign Up</h2>
 
-          <p className="mt-10 text-primary font-semibold">
-            Already have an account?{" "}
-            <Link href="/login" className="text-primary underline">
-              Sign In
-            </Link>
-          </p>
-        </form>
+            <InputField type="text" name="username" placeholder="Username" Icon={User} value={formData.username} onChange={handleInputChange} />
+            <InputField type={showPassword ? "text" : "password"} name="password" placeholder="Password" Icon={Key} value={formData.password} onChange={handleInputChange} showPasswordButton onTogglePasswordVisibility={() => setShowPassword(!showPassword)} />
+            <InputField type={showConfirmPassword ? "text" : "password"} name="confirmPassword" placeholder="Confirm Password" Icon={Key} value={formData.confirmPassword} onChange={(e) => { handleInputChange(e); setPasswordError(formData.password !== e.target.value); }} showPasswordButton onTogglePasswordVisibility={() => setShowConfirmPassword(!showConfirmPassword)} className={passwordError ? "border-2 border-red-500" : ""} />
+            <InputField type="email" name="email" placeholder="Email" Icon={Mail} value={formData.email} onChange={handleInputChange} />
+
+            <div className="flex justify-center items-center mt-10">
+              <input id="agree" type="checkbox" checked={policy} onChange={() => setPolicy(!policy)} className="mr-2 w-3 h-3 appearance-none border-2 bg-[#f0f0f0] rounded-sm checked:bg-[#696969] checked:border-[#f0f0f0] focus:ring-0 cursor-pointer" />
+              <label htmlFor="agree" className="text-primary text-xs font-semibold">I agree to the <a href="#" className="text-primary underline">privacy policy</a></label>
+            </div>
+
+            <SignupBtn username={formData.username} password={formData.password} confirmPassword={formData.confirmPassword} email={formData.email} policy={policy} type="submit">Sign Up</SignupBtn>
+            <p className="mt-10 text-primary font-semibold text-center">Already have an account? <Link href="/login" className="text-primary underline">Sign In</Link></p>
+          </form>
+        </div>
+      </div>
+
+      {/* iPad Layout (To be styled) */}
+      <div className="lg:hidden flex justify-center items-center w-full h-full" style={{ backgroundImage: "url('https://i.postimg.cc/qBcGFBv4/man2new.jpg')" }}>
+        {/* TODO: Add iPad-specific layout here */}
+        <div className="bg-white p-6 rounded-[40px] shadow-lg w-11/12 max-w-md">
+          <div className="text-center mb-6">
+            <img src="https://i.postimg.cc/LsBzbNmv/image-2025-03-16-034214396.png" alt="Logo" className="h-[100px] w-[100px] rounded-[30px] mx-auto mb-1 shadow-lg object-cover" />
+          </div>
+          <form onSubmit={handleSignUp} className="space-y-7">{ /* Same form as PC */ }
+
+            <h2 className="font-bold text-black border-b border-black w-full text-center mb-10">Sign Up</h2>
+
+            <InputField type="text" name="username" placeholder="Username" Icon={User} value={formData.username} onChange={handleInputChange} />
+            <InputField type={showPassword ? "text" : "password"} name="password" placeholder="Password" Icon={Key} value={formData.password} onChange={handleInputChange} showPasswordButton onTogglePasswordVisibility={() => setShowPassword(!showPassword)} />
+            <InputField type={showConfirmPassword ? "text" : "password"} name="confirmPassword" placeholder="Confirm Password" Icon={Key} value={formData.confirmPassword} onChange={(e) => { handleInputChange(e); setPasswordError(formData.password !== e.target.value); }} showPasswordButton onTogglePasswordVisibility={() => setShowConfirmPassword(!showConfirmPassword)} className={passwordError ? "border-2 border-red-500" : ""} />
+            <InputField type="email" name="email" placeholder="Email" Icon={Mail} value={formData.email} onChange={handleInputChange} />
+            
+            <div className="flex justify-center items-center mt-10">
+              <input id="agree" type="checkbox" checked={policy} onChange={() => setPolicy(!policy)} className="mr-2 w-3 h-3 appearance-none border-2 bg-[#f0f0f0] rounded-sm checked:bg-[#696969] checked:border-[#f0f0f0] focus:ring-0 cursor-pointer" />
+              <label htmlFor="agree" className="text-primary text-xs font-semibold">I agree to the <a href="#" className="text-primary underline">privacy policy</a></label>
+            </div>
+
+            <SignupBtn username={formData.username} password={formData.password} confirmPassword={formData.confirmPassword} email={formData.email} policy={policy} type="submit">Sign Up</SignupBtn>
+            <p className="mt-10 text-primary font-semibold text-center">Already have an account? <Link href="/login" className="text-primary underline">Sign In</Link></p>
+          </form>
+        </div>
       </div>
     </div>
   );
