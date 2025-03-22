@@ -23,16 +23,18 @@ export default function LoginPage() {
           username,
           password,
         });
+
+        console.log("res: ", res);
         console.log("username: ", username);
         console.log("password: ", password);
-        console.log("res: ", res?.status);
+
         if (res?.ok) {
           Swal.fire({
             icon: "success",
             title: "Login success",
             text: "Welcome to AVLP",
           }).then(() => {
-            window.location.href = "/homePage"; // หรือใช้ router.push()
+            window.location.href = "/homePage";
           });
         } else {
           Swal.fire({
@@ -48,7 +50,6 @@ export default function LoginPage() {
 
     return (
         <div className="flex justify-center items-center h-screen w-screen bg-primary relative overflow-hidden">
-            {/* Background image - responsive positioning */}
             <div 
                 className="absolute inset-0 bg-cover bg-center w-full h-full" 
                 style={{ 
@@ -57,8 +58,6 @@ export default function LoginPage() {
                     zIndex: 0 
                 }}>
             </div>
-            
-            {/* Form container with responsive layout */}
             <div className="relative z-10 flex flex-col justify-center items-center bg-background 
                 w-full sm:w-4/5 md:w-3/5 lg:w-1/2 max-w-[1180px] 
                 sm:h-auto md:h-auto lg:h-full 
