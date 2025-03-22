@@ -1,38 +1,4 @@
-basePath: /
 definitions:
-  main.Response:
-    properties:
-      message:
-        type: string
-    type: object
-  models.Class:
-    properties:
-      created_at:
-        type: string
-      deleted_at:
-        type: string
-      description:
-        type: string
-      id:
-        type: integer
-      img:
-        type: string
-      isPublic:
-        type: boolean
-      max_player:
-        type: integer
-      owner:
-        allOf:
-        - $ref: '#/definitions/models.User'
-        description: Relationship
-      owner_id:
-        description: Foreign key
-        type: integer
-      topic:
-        type: string
-      updated_at:
-        type: string
-    type: object
   models.ErrorResponse:
     properties:
       error:
@@ -91,25 +57,6 @@ definitions:
       youtube:
         type: string
     type: object
-  routes.CreateClassRequest:
-    properties:
-      description:
-        type: string
-      img:
-        type: string
-      isPublic:
-        type: boolean
-      max_player:
-        type: integer
-      owner_id:
-        type: integer
-      topic:
-        type: string
-    required:
-    - max_player
-    - owner_id
-    - topic
-    type: object
   routes.CreateUserRequest:
     properties:
       email:
@@ -153,21 +100,6 @@ definitions:
     - email
     - new_password
     type: object
-  routes.UpdateClassRequest:
-    properties:
-      description:
-        type: string
-      img:
-        type: string
-      isPublic:
-        type: boolean
-      max_player:
-        type: integer
-      owner_id:
-        type: integer
-      topic:
-        type: string
-    type: object
   routes.UpdateUserRequest:
     properties:
       bio:
@@ -185,179 +117,9 @@ definitions:
       youtube:
         type: string
     type: object
-host: localhost:9898
 info:
-  contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
-  description: API for managing users, classes, and assembly-related functionality
-    in the Assembly Visual Learning Platform
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: Assembly Visual Learning Platform API
-  version: "1.0"
+  contact: {}
 paths:
-  /api-ready:
-    get:
-      description: Returns a message indicating the API is ready to accept requests
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/main.Response'
-      summary: Check if API is ready
-  /classes:
-    get:
-      description: Retrieve a list of all classes
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Class'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      summary: Get all classes
-      tags:
-      - Classes
-    post:
-      consumes:
-      - application/json
-      description: Create a new class with the provided details
-      parameters:
-      - description: Class data
-        in: body
-        name: class
-        required: true
-        schema:
-          $ref: '#/definitions/routes.CreateClassRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/models.Class'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      summary: Create a new class
-      tags:
-      - Classes
-  /classes/{id}:
-    delete:
-      description: Delete a class by ID
-      parameters:
-      - description: Class ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.SuccessResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      summary: Delete a class
-      tags:
-      - Classes
-    get:
-      description: Retrieve a class by its ID
-      parameters:
-      - description: Class ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Class'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      summary: Get class by ID
-      tags:
-      - Classes
-    put:
-      consumes:
-      - application/json
-      description: Update class details by ID
-      parameters:
-      - description: Class ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Updated class data
-        in: body
-        name: class
-        required: true
-        schema:
-          $ref: '#/definitions/routes.UpdateClassRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Class'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      summary: Update a class
-      tags:
-      - Classes
   /users:
     get:
       description: Retrieve a list of all users

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Check Fetch Status</title>
+  <title>Check Fetch Status & Create Class</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,10 +11,11 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       background-color: #282c34;
       color: white;
       margin: 0;
+      padding: 20px;
     }
     .container {
       text-align: center;
@@ -23,12 +24,15 @@
       box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
       border-radius: 8px;
       margin: 10px;
+      width: 100%;
+      max-width: 600px;
     }
-    h1 {
-        color: #61dafb;
+    h1, h2 {
+      color: #61dafb;
     }
     p {
-        font-size: 1.2em;
+      font-size: 1.2em;
+      margin: 10px 0;
     }
     button {
       margin: 10px;
@@ -43,45 +47,304 @@
     button:hover {
       background-color: #4fa8d5;
     }
+    button:disabled {
+      background-color: #a1c7e0;
+      cursor: not-allowed;
+    }
+    .loading {
+      display: inline-block;
+      margin-left: 10px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #61dafb;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    input[type="file"] {
+      padding: 8px;
+      border: none;
+      border-radius: 4px;
+      font-size: 1em;
+      background-color: #f3f3f3;
+      color: #282c34;
+    }
+    input[type="checkbox"] {
+      margin-right: 5px;
+    }
+    label {
+      display: flex;
+      align-items: center;
+      font-size: 1em;
+    }
+    #form-message, #login-message {
+      font-size: 1em;
+      margin-top: 10px;
+    }
+    .success {
+      color: #61dafb;
+    }
+    .error {
+      color: #ff5555;
+    }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
   <div class="container" id="users-container">
     <h1>Go lang API Check</h1>
-    <p id="status-message">Checking fetch...</p>
-    <p id="fetch-status">Checking fetch...</p>
-    <button onclick="goToSwagger()">Go to Swagger UI</button>
+    <p id="status-message">Checking API status... <span class="loading"></span></p>
+    <p id="fetch-status">Checking database status... <span class="loading"></span></p>
+    <button id="swagger-button" onclick="goToSwagger()">Go to Swagger UI</button>
+    <button id="retry-button" onclick="retryFetch()" style="display: none;">Retry</button>
     <p>ปิ๊บตรวจสอบแล้ว เชื่อสิ</p>
+
+    <div id="auth-section">
+      <h2 id="auth-header">Login</h2>
+      <p id="user-info" class="hidden">Logged in as: <span id="username"></span> <button onclick="logout()">Logout</button></p>
+      <form id="login-form" class="hidden">
+        <input type="text" name="username" placeholder="Username" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <button type="submit" id="login-button">Login</button>
+      </form>
+      <p id="login-message"></p>
+    </div>
+
+    <div id="create-class-section" class="hidden">
+      <h2>Create a New Class</h2>
+      <form id="create-class-form" enctype="multipart/form-data">
+        <input type="text" name="topic" placeholder="Topic" required />
+        <input type="text" name="description" placeholder="Description" />
+        <input type="number" name="max_player" placeholder="Max Players" required />
+        <label><input type="checkbox" name="is_public" /> Is Public</label>
+        <input type="file" name="img" accept="image/*" />
+        <button type="submit" id="submit-button">Create Class</button>
+      </form>
+      <p id="form-message"></p>
+    </div>
   </div>
+
   <script>
-    fetch("http://localhost:9898/api-ready")
-        .then(response => response.json())
+    let isFetching = false;
+    let isSubmitting = false;
+    let isLoggingIn = false;
+    let token = localStorage.getItem("token") || null;
+    let username = localStorage.getItem("username") || null;
+
+    // Check API status
+    function fetchApiStatus() {
+      document.getElementById("status-message").innerHTML = 'Checking API status... <span class="loading"></span>';
+      fetch("http://localhost:9898/api-ready")
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
         .then(data => {
-            document.getElementById("status-message").textContent = data.message;
+          document.getElementById("status-message").textContent = data.message;
         })
         .catch(error => {
-            document.getElementById("status-message").textContent = "❌ Failed to fetch API status";
+          document.getElementById("status-message").textContent = `❌ Failed to fetch API status: ${error.message}`;
+          showRetryButton();
         });
+    }
 
-    fetch("http://localhost:9898/users")
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then(data => {
-        document.getElementById("fetch-status").textContent = "✅ API is ready to Database accept requests!";
-        console.log(true);
-      })
-      .catch(error => {
-        document.getElementById("fetch-status").textContent = "❌ Failed to fetch Database status";
-        console.log(false);
-      });
+    // Check database status
+    function fetchDatabaseStatus() {
+      document.getElementById("fetch-status").innerHTML = 'Checking database status... <span class="loading"></span>';
+      fetch("http://localhost:9898/users")
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          document.getElementById("fetch-status").textContent = "✅ API is ready to Database accept requests!";
+          console.log(true);
+        })
+        .catch(error => {
+          document.getElementById("fetch-status").textContent = `❌ Failed to fetch Database status: ${error.message}`;
+          console.log(false);
+          showRetryButton();
+        });
+    }
 
+    // Show retry button if fetch fails
+    function showRetryButton() {
+      document.getElementById("retry-button").style.display = "inline-block";
+    }
+
+    // Retry fetch requests
+    function retryFetch() {
+      if (isFetching) return;
+      isFetching = true;
+      document.getElementById("retry-button").disabled = true;
+      document.getElementById("retry-button").textContent = "Retrying...";
+      fetchApiStatus();
+      fetchDatabaseStatus();
+      setTimeout(() => {
+        isFetching = false;
+        document.getElementById("retry-button").disabled = false;
+        document.getElementById("retry-button").textContent = "Retry";
+      }, 1000);
+    }
+
+    // Redirect to Swagger UI
     function goToSwagger() {
+      const button = document.getElementById("swagger-button");
+      button.disabled = true;
+      button.textContent = "Redirecting...";
       window.location.href = "http://localhost:9898/swagger/index.html";
     }
+
+    // Handle login form submission
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (isLoggingIn) return;
+
+      isLoggingIn = true;
+      const loginButton = document.getElementById("login-button");
+      const loginMessage = document.getElementById("login-message");
+      loginButton.disabled = true;
+      loginButton.textContent = "Logging in...";
+      loginMessage.textContent = "Logging in...";
+      loginMessage.className = "";
+
+      const formData = new FormData(e.target);
+      const loginData = {
+        username: formData.get("username"),
+        password: formData.get("password"),
+      };
+
+      try {
+        const response = await fetch("http://localhost:9898/users/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(loginData),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        token = data.token;
+        username = data.user.username;
+        localStorage.setItem("token", token);
+        localStorage.setItem("username", username);
+        loginMessage.textContent = "✅ Login successful!";
+        loginMessage.className = "success";
+        updateAuthUI();
+      } catch (error) {
+        loginMessage.textContent = `❌ Error logging in: ${error.message}`;
+        loginMessage.className = "error";
+      } finally {
+        isLoggingIn = false;
+        loginButton.disabled = false;
+        loginButton.textContent = "Login";
+      }
+    });
+
+    // Handle logout
+    function logout() {
+      token = null;
+      username = null;
+      localStorage.removeItem("token");
+      localStorage.removeItem("username");
+      updateAuthUI();
+    }
+
+    // Update UI based on authentication state
+    function updateAuthUI() {
+      const loginForm = document.getElementById("login-form");
+      const userInfo = document.getElementById("user-info");
+      const createClassSection = document.getElementById("create-class-section");
+      const authHeader = document.getElementById("auth-header");
+
+      if (token && username) {
+        loginForm.classList.add("hidden");
+        userInfo.classList.remove("hidden");
+        createClassSection.classList.remove("hidden");
+        authHeader.textContent = "User Info";
+        document.getElementById("username").textContent = username;
+      } else {
+        loginForm.classList.remove("hidden");
+        userInfo.classList.add("hidden");
+        createClassSection.classList.add("hidden");
+        authHeader.textContent = "Login";
+      }
+    }
+
+    // Handle create class form submission
+    document.getElementById("create-class-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (isSubmitting || !token) return;
+
+      isSubmitting = true;
+      const submitButton = document.getElementById("submit-button");
+      const formMessage = document.getElementById("form-message");
+      submitButton.disabled = true;
+      submitButton.textContent = "Creating...";
+      formMessage.textContent = "Submitting form...";
+      formMessage.className = "";
+
+      const formData = new FormData(e.target);
+      try {
+        const response = await fetch("http://localhost:9898/classes", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        formMessage.textContent = "✅ Class created successfully!";
+        formMessage.className = "success";
+        console.log("Class created:", data);
+
+        // Reset the form
+        e.target.reset();
+      } catch (error) {
+        formMessage.textContent = `❌ Error creating class: ${error.message}`;
+        formMessage.className = "error";
+        console.error("Error creating class:", error);
+      } finally {
+        isSubmitting = false;
+        submitButton.disabled = false;
+        submitButton.textContent = "Create Class";
+      }
+    });
+
+    // Initial fetch calls and UI setup
+    fetchApiStatus();
+    fetchDatabaseStatus();
+    updateAuthUI();
   </script>
 </body>
 </html>

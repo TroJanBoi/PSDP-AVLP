@@ -11,9 +11,13 @@ import (
 	"example.com/greetings/database"
 	"example.com/greetings/models"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
+	"golang.org/x/crypto/bcrypt"
 	gomail "gopkg.in/gomail.v2"
 )
+
+// swag init --tags Users -o docs/users
 
 var resetCodes = make(map[string]struct {
 	Code      string
@@ -36,6 +40,13 @@ type CreateUserRequest struct {
 type LoginRequest struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
+}
+
+// LoginResponse represents the response body for login
+type LoginResponse struct {
+	Message string      `json:"message"`
+	User    models.User `json:"user"`
+	Token   string      `json:"token"`
 }
 
 // ResetPasswordRequest represents the request body for resetting a password
@@ -65,13 +76,13 @@ func RegisterUserRoutes(r *gin.Engine) {
 		userGroup.PUT("/:id", updateUser)
 		userGroup.DELETE("/:id", deleteUser)
 		userGroup.POST("/login", loginUser)
-
 		userGroup.POST("/forgot-password", forgotPassword)
 		userGroup.POST("/reset-password", resetPassword)
 	}
 }
 
 // @Summary Get all users
+// @Tags Users
 // @Description Retrieve a list of all users
 // @Produce json
 // @Success 200 {array} models.User
@@ -87,6 +98,7 @@ func getUsers(c *gin.Context) {
 }
 
 // @Summary Create a new user
+// @Tags Users
 // @Description Create a new user with the provided details
 // @Accept json
 // @Produce json
@@ -101,9 +113,17 @@ func createUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid data: " + err.Error()})
 		return
 	}
+
+	// Hash the password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to hash password: " + err.Error()})
+		return
+	}
+
 	user := models.User{
 		Username: input.Username,
-		Password: input.Password,
+		Password: string(hashedPassword),
 		Email:    input.Email,
 	}
 	if err := database.DB.Create(&user).Error; err != nil {
@@ -114,6 +134,7 @@ func createUser(c *gin.Context) {
 }
 
 // @Summary Get user by ID
+// @Tags Users
 // @Description Retrieve a user by their ID
 // @Produce json
 // @Param id path string true "User ID"
@@ -132,6 +153,7 @@ func getUserByID(c *gin.Context) {
 }
 
 // @Summary Update a user
+// @Tags Users
 // @Description Update user details by ID
 // @Accept json
 // @Produce json
@@ -154,6 +176,17 @@ func updateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid JSON data: " + err.Error()})
 		return
 	}
+
+	// If password is provided, hash it
+	if input.Password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to hash password: " + err.Error()})
+			return
+		}
+		input.Password = string(hashedPassword)
+	}
+
 	updateData := map[string]interface{}{
 		"name":     input.Name,
 		"password": input.Password,
@@ -171,6 +204,7 @@ func updateUser(c *gin.Context) {
 }
 
 // @Summary Delete a user
+// @Tags Users
 // @Description Delete a user by ID
 // @Produce json
 // @Param id path string true "User ID"
@@ -196,13 +230,15 @@ func deleteUser(c *gin.Context) {
 }
 
 // @Summary Login user
-// @Description Authenticate a user with username and password
+// @Tags Users
+// @Description Authenticate a user with username and password and return a JWT token
 // @Accept json
 // @Produce json
 // @Param credentials body routes.LoginRequest true "Login credentials"
-// @Success 200 {object} models.LoginResponse
+// @Success 200 {object} routes.LoginResponse
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 401 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
 // @Router /users/login [post]
 func loginUser(c *gin.Context) {
 	var input LoginRequest
@@ -215,17 +251,29 @@ func loginUser(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "The username or password is incorrect."})
 		return
 	}
-	if user.Password != input.Password {
+
+	// Compare the hashed password
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
 		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "The username or password is incorrect."})
 		return
 	}
-	c.JSON(http.StatusOK, models.LoginResponse{
+
+	// Generate JWT token
+	token, err := generateJWT(user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to generate token: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, LoginResponse{
 		Message: "Login successful",
 		User:    user,
+		Token:   token,
 	})
 }
 
 // @Summary Forgot password
+// @Tags Users
 // @Description Send a password reset code to the user's email
 // @Accept json
 // @Produce json
@@ -268,6 +316,7 @@ func forgotPassword(c *gin.Context) {
 }
 
 // @Summary Reset password
+// @Tags Users
 // @Description Reset user's password using a verification code
 // @Accept json
 // @Produce json
@@ -299,7 +348,15 @@ func resetPassword(c *gin.Context) {
 		c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "No users found with this email address."})
 		return
 	}
-	user.Password = input.NewPassword
+
+	// Hash the new password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to hash new password: " + err.Error()})
+		return
+	}
+
+	user.Password = string(hashedPassword)
 	if err := database.DB.Save(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Unable to update password: " + err.Error()})
 		return
@@ -307,6 +364,34 @@ func resetPassword(c *gin.Context) {
 	delete(resetCodes, input.Email)
 	c.JSON(http.StatusOK, models.SuccessResponse{Message: "Password changed successfully"})
 }
+
+// generateJWT generates a JWT token for the given user ID
+func generateJWT(userID uint) (string, error) {
+	// Load environment variables
+	loadEnv()
+
+	// Get the JWT secret from environment
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		return "", fmt.Errorf("JWT_SECRET not set in environment")
+	}
+
+	// Create the token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": userID,
+		"exp":     time.Now().Add(time.Hour * 24).Unix(), // Token expires in 24 hours
+		"iat":     time.Now().Unix(),
+	})
+
+	// Sign the token with the secret
+	tokenString, err := token.SignedString([]byte(jwtSecret))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
 func loadEnv() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
@@ -363,7 +448,7 @@ func sendEmail(email, username, code string) error {
 			<p>หากคุณไม่ได้ร้องขอรีเซ็ตรหัสผ่าน กรุณาละเว้นอีเมลนี้</p>
 			<p>If you did not request a password reset, please ignore this email.</p>
 			<div class="footer">
-				<p>&copy; 2025 บริษัท ปิ๊บเขียน Code จำกัด / PipWrite Code Co., Ltd.</p>
+				<p>© 2025 บริษัท ปิ๊บเขียน Code จำกัด / PipWrite Code Co., Ltd.</p>
 			</div>
 		</div>
 	</body>
