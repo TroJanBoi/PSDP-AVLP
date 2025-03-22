@@ -15,6 +15,8 @@ import (
 	gomail "gopkg.in/gomail.v2"
 )
 
+// swag init --tags Users -o docs/users
+
 var resetCodes = make(map[string]struct {
 	Code      string
 	ExpiresAt time.Time
@@ -72,6 +74,7 @@ func RegisterUserRoutes(r *gin.Engine) {
 }
 
 // @Summary Get all users
+// @Tags Users
 // @Description Retrieve a list of all users
 // @Produce json
 // @Success 200 {array} models.User
@@ -87,6 +90,7 @@ func getUsers(c *gin.Context) {
 }
 
 // @Summary Create a new user
+// @Tags Users
 // @Description Create a new user with the provided details
 // @Accept json
 // @Produce json
@@ -114,6 +118,7 @@ func createUser(c *gin.Context) {
 }
 
 // @Summary Get user by ID
+// @Tags Users
 // @Description Retrieve a user by their ID
 // @Produce json
 // @Param id path string true "User ID"
@@ -132,6 +137,7 @@ func getUserByID(c *gin.Context) {
 }
 
 // @Summary Update a user
+// @Tags Users
 // @Description Update user details by ID
 // @Accept json
 // @Produce json
@@ -171,6 +177,7 @@ func updateUser(c *gin.Context) {
 }
 
 // @Summary Delete a user
+// @Tags Users
 // @Description Delete a user by ID
 // @Produce json
 // @Param id path string true "User ID"
@@ -196,6 +203,7 @@ func deleteUser(c *gin.Context) {
 }
 
 // @Summary Login user
+// @Tags Users
 // @Description Authenticate a user with username and password
 // @Accept json
 // @Produce json
@@ -226,6 +234,7 @@ func loginUser(c *gin.Context) {
 }
 
 // @Summary Forgot password
+// @Tags Users
 // @Description Send a password reset code to the user's email
 // @Accept json
 // @Produce json
@@ -268,6 +277,7 @@ func forgotPassword(c *gin.Context) {
 }
 
 // @Summary Reset password
+// @Tags Users
 // @Description Reset user's password using a verification code
 // @Accept json
 // @Produce json

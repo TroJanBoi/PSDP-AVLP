@@ -1,0 +1,254 @@
+definitions:
+  models.Class:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      img:
+        type: string
+      isPublic:
+        type: boolean
+      max_player:
+        type: integer
+      owner:
+        allOf:
+        - $ref: '#/definitions/models.User'
+        description: Relationship
+      owner_id:
+        description: Foreign key
+        type: integer
+      topic:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  models.SuccessResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.User:
+    properties:
+      bio:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        description: Nullable field
+        type: string
+      discord:
+        type: string
+      email:
+        type: string
+      github:
+        type: string
+      id:
+        type: integer
+      linkedin:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
+      youtube:
+        type: string
+    type: object
+  routes.CreateClassRequest:
+    properties:
+      description:
+        type: string
+      img:
+        type: string
+      isPublic:
+        type: boolean
+      max_player:
+        type: integer
+      owner_id:
+        type: integer
+      topic:
+        type: string
+    required:
+    - max_player
+    - owner_id
+    - topic
+    type: object
+  routes.UpdateClassRequest:
+    properties:
+      description:
+        type: string
+      img:
+        type: string
+      isPublic:
+        type: boolean
+      max_player:
+        type: integer
+      owner_id:
+        type: integer
+      topic:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /classes:
+    get:
+      description: Retrieve a list of all classes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Class'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get all classes
+      tags:
+      - Classes
+    post:
+      consumes:
+      - application/json
+      description: Create a new class with the provided details
+      parameters:
+      - description: Class data
+        in: body
+        name: class
+        required: true
+        schema:
+          $ref: '#/definitions/routes.CreateClassRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Class'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Create a new class
+      tags:
+      - Classes
+  /classes/{id}:
+    delete:
+      description: Delete a class by ID
+      parameters:
+      - description: Class ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Delete a class
+      tags:
+      - Classes
+    get:
+      description: Retrieve a class by its ID
+      parameters:
+      - description: Class ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Class'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get class by ID
+      tags:
+      - Classes
+    put:
+      consumes:
+      - application/json
+      description: Update class details by ID
+      parameters:
+      - description: Class ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated class data
+        in: body
+        name: class
+        required: true
+        schema:
+          $ref: '#/definitions/routes.UpdateClassRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Class'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Update a class
+      tags:
+      - Classes
+swagger: "2.0"
