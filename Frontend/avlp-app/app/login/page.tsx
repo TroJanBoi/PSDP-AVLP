@@ -4,7 +4,8 @@ import Link from "next/link";
 import BtnSignIn from "./_components/BtnSignIn";
 import { User, Lock } from "lucide-react";
 import { useState } from "react";
-import { api, login } from "@/services/api";
+import { signIn } from "next-auth/react";
+
 import Swal from "sweetalert2";
 
 
@@ -20,37 +21,34 @@ export default function LoginPage() {
         e.preventDefault();
         setError('');
         setLoading(true);
-
-        try {
-            const data = await login(username, password);
-            if (data === undefined) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Login failed",
-                    text: "Please check your username and password",
-                });
-                return;
-            }
-            console.log("login success: ", data);
-            Swal.fire({
-                icon: "success",
-                title: "Login success",
-                text: "Welcome to AVLP",
-            }).then(() => {
-                window.location.href = "/homePage";
-            });
+      
+        const res = await signIn("credentials", {
+          redirect: false,
+          username,
+          password,
+        });
+        console.log("username: ", username);
+        console.log("password: ", password);
+        console.log("res: ", res?.status);
+        if (res?.ok) {
+          Swal.fire({
+            icon: "success",
+            title: "Login success",
+            text: "Welcome to AVLP",
+          }).then(() => {
+            window.location.href = "/homePage"; // หรือใช้ router.push()
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Login failed",
+            text: "Invalid username or password",
+          });
         }
-        catch (error: any) {
-            Swal.fire({
-                icon: "error",
-                title: "Login failed",
-                text: error.response.data.message,
-            });
-        }
-        finally {
-            setLoading(false);
-        }
-    }
+      
+        setLoading(false);
+      };
+      
 
     return (
         <div className="flex justify-center items-center h-screen w-screen bg-primary">
