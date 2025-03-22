@@ -51,7 +51,7 @@ func SeedData() {
 			Description: "Learn the basics of Assembly language, including syntax, registers, and basic instructions.",
 			MaxPlayer:   20,
 			IsPublic:    true,
-			Img:         "https://example.com/images/assembly-intro.jpg",
+			Img:         "/uploads/topic-class-1.png", // No image during seeding
 			OwnerID:     adminUser.ID,
 		},
 		{
@@ -59,7 +59,7 @@ func SeedData() {
 			Description: "Explore arithmetic operations in Assembly, such as ADD, SUB, MUL, and DIV, with practical examples.",
 			MaxPlayer:   15,
 			IsPublic:    true,
-			Img:         "https://example.com/images/assembly-arithmetic.jpg",
+			Img:         "/uploads/topic-class-2.png",
 			OwnerID:     adminUser.ID,
 		},
 		{
@@ -67,7 +67,7 @@ func SeedData() {
 			Description: "Understand control flow in Assembly using jumps, loops, and conditional statements.",
 			MaxPlayer:   25,
 			IsPublic:    true,
-			Img:         "https://example.com/images/assembly-control-flow.jpg",
+			Img:         "/uploads/topic-class-3.png",
 			OwnerID:     adminUser.ID,
 		},
 		{
@@ -75,7 +75,7 @@ func SeedData() {
 			Description: "Learn how to manage memory in Assembly, including stack operations and memory addressing modes.",
 			MaxPlayer:   18,
 			IsPublic:    true,
-			Img:         "https://example.com/images/assembly-memory.jpg",
+			Img:         "/uploads/topic-class-1.png",
 			OwnerID:     adminUser.ID,
 		},
 		{
@@ -83,7 +83,7 @@ func SeedData() {
 			Description: "Dive into advanced Assembly topics like interrupts, system calls, and optimization techniques.",
 			MaxPlayer:   10,
 			IsPublic:    false,
-			Img:         "https://example.com/images/assembly-advanced.jpg",
+			Img:         "/uploads/topic-class-2.png",
 			OwnerID:     adminUser.ID,
 		},
 	}

@@ -7,6 +7,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"example.com/greetings/database"
@@ -56,6 +57,10 @@ func swaggerHandler(c *gin.Context) {
 
 func main() {
 
+	if err := os.MkdirAll("uploads/classes", os.ModePerm); err != nil {
+		log.Fatalf("failed to create uploads directory: %v", err)
+	}
+
 	database.ConnectDatabase()
 
 	// Migrate both User and Class models
@@ -98,6 +103,9 @@ func main() {
 
 	// Serve custom Swagger UI
 	r.GET("/swagger/*any", swaggerHandler)
+
+	// Serve uploaded images
+	r.Static("/uploads", "./uploads")
 
 	r.Run(":9898")
 }
