@@ -34,6 +34,12 @@ import (
 
 // @host localhost:9898
 // @BasePath /
+
+// @SecurityDefinitions.apiKey BearerAuth
+// @in header
+// @name Authorization
+// @description "Enter the token with the `Bearer ` prefix, e.g., `Bearer <token>`"
+
 type Response struct {
 	Message string `json:"message"`
 }
@@ -61,7 +67,11 @@ func main() {
 		log.Fatalf("failed to create uploads directory: %v", err)
 	}
 
+	log.Println("Connecting to the database...")
 	database.ConnectDatabase()
+	log.Println("Database connection established")
+
+	log.Println("Running database migrations...")
 
 	// Migrate both User and Class models
 	err := database.DB.AutoMigrate(&models.User{}, &models.Class{})
@@ -69,9 +79,12 @@ func main() {
 		log.Fatalf("failed to migrate database: %v", err)
 
 	}
+	log.Println("Database migration completed")
 
 	// Seed the database with default data
+	log.Println("Seeding the database...")
 	seed.SeedData()
+	log.Println("Database seeding completed")
 
 	// Set Gin to release mode in production
 	gin.SetMode(gin.ReleaseMode)

@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   models.Class:
     properties:
@@ -67,42 +68,20 @@ definitions:
       youtube:
         type: string
     type: object
-  routes.CreateClassRequest:
-    properties:
-      description:
-        type: string
-      img:
-        type: string
-      isPublic:
-        type: boolean
-      max_player:
-        type: integer
-      owner_id:
-        type: integer
-      topic:
-        type: string
-    required:
-    - max_player
-    - owner_id
-    - topic
-    type: object
-  routes.UpdateClassRequest:
-    properties:
-      description:
-        type: string
-      img:
-        type: string
-      isPublic:
-        type: boolean
-      max_player:
-        type: integer
-      owner_id:
-        type: integer
-      topic:
-        type: string
-    type: object
+host: localhost:9898
 info:
-  contact: {}
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API for managing users, classes, and assembly-related functionality
+    in the Assembly Visual Learning Platform
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Assembly Visual Learning Platform API
+  version: "1.0"
 paths:
   /classes:
     get:
@@ -125,15 +104,31 @@ paths:
       - Classes
     post:
       consumes:
-      - application/json
-      description: Create a new class with the provided details
+      - multipart/form-data
+      description: Create a new class with the provided details and an optional image
       parameters:
-      - description: Class data
-        in: body
-        name: class
+      - description: Class topic
+        in: formData
+        name: topic
         required: true
-        schema:
-          $ref: '#/definitions/routes.CreateClassRequest'
+        type: string
+      - description: Class description
+        in: formData
+        name: description
+        type: string
+      - description: Maximum number of players
+        in: formData
+        name: max_player
+        required: true
+        type: integer
+      - description: Whether the class is public
+        in: formData
+        name: is_public
+        type: boolean
+      - description: Class image
+        in: formData
+        name: img
+        type: file
       produces:
       - application/json
       responses:
@@ -145,6 +140,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -154,13 +153,13 @@ paths:
       - Classes
   /classes/{id}:
     delete:
-      description: Delete a class by ID
+      description: Delete a class by its ID
       parameters:
       - description: Class ID
         in: path
         name: id
         required: true
-        type: string
+        type: integer
       produces:
       - application/json
       responses:
@@ -190,7 +189,7 @@ paths:
         in: path
         name: id
         required: true
-        type: string
+        type: integer
       produces:
       - application/json
       responses:
@@ -210,25 +209,39 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      summary: Get class by ID
+      summary: Get a class by ID
       tags:
       - Classes
     put:
       consumes:
-      - application/json
-      description: Update class details by ID
+      - multipart/form-data
+      description: Update a class with the provided details and an optional image
       parameters:
       - description: Class ID
         in: path
         name: id
         required: true
+        type: integer
+      - description: Class topic
+        in: formData
+        name: topic
         type: string
-      - description: Updated class data
-        in: body
-        name: class
-        required: true
-        schema:
-          $ref: '#/definitions/routes.UpdateClassRequest'
+      - description: Class description
+        in: formData
+        name: description
+        type: string
+      - description: Maximum number of players
+        in: formData
+        name: max_player
+        type: integer
+      - description: Whether the class is public
+        in: formData
+        name: is_public
+        type: boolean
+      - description: Class image
+        in: formData
+        name: img
+        type: file
       produces:
       - application/json
       responses:

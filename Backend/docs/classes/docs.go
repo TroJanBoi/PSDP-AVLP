@@ -9,7 +9,16 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -44,9 +53,9 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new class with the provided details",
+                "description": "Create a new class with the provided details and an optional image",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -57,13 +66,36 @@ const docTemplate = `{
                 "summary": "Create a new class",
                 "parameters": [
                     {
-                        "description": "Class data",
-                        "name": "class",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/routes.CreateClassRequest"
-                        }
+                        "type": "string",
+                        "description": "Class topic",
+                        "name": "topic",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Class description",
+                        "name": "description",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of players",
+                        "name": "max_player",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Whether the class is public",
+                        "name": "is_public",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Class image",
+                        "name": "img",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -75,6 +107,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -97,10 +135,10 @@ const docTemplate = `{
                 "tags": [
                     "Classes"
                 ],
-                "summary": "Get class by ID",
+                "summary": "Get a class by ID",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "Class ID",
                         "name": "id",
                         "in": "path",
@@ -135,9 +173,9 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Update class details by ID",
+                "description": "Update a class with the provided details and an optional image",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -148,20 +186,41 @@ const docTemplate = `{
                 "summary": "Update a class",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "Class ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Updated class data",
-                        "name": "class",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/routes.UpdateClassRequest"
-                        }
+                        "type": "string",
+                        "description": "Class topic",
+                        "name": "topic",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Class description",
+                        "name": "description",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of players",
+                        "name": "max_player",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Whether the class is public",
+                        "name": "is_public",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Class image",
+                        "name": "img",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -192,7 +251,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete a class by ID",
+                "description": "Delete a class by its ID",
                 "produces": [
                     "application/json"
                 ],
@@ -202,7 +261,7 @@ const docTemplate = `{
                 "summary": "Delete a class",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "Class ID",
                         "name": "id",
                         "in": "path",
@@ -343,69 +402,18 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "routes.CreateClassRequest": {
-            "type": "object",
-            "required": [
-                "max_player",
-                "owner_id",
-                "topic"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "img": {
-                    "type": "string"
-                },
-                "isPublic": {
-                    "type": "boolean"
-                },
-                "max_player": {
-                    "type": "integer"
-                },
-                "owner_id": {
-                    "type": "integer"
-                },
-                "topic": {
-                    "type": "string"
-                }
-            }
-        },
-        "routes.UpdateClassRequest": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "img": {
-                    "type": "string"
-                },
-                "isPublic": {
-                    "type": "boolean"
-                },
-                "max_player": {
-                    "type": "integer"
-                },
-                "owner_id": {
-                    "type": "integer"
-                },
-                "topic": {
-                    "type": "string"
-                }
-            }
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0",
+	Host:             "localhost:9898",
+	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Assembly Visual Learning Platform API",
+	Description:      "API for managing users, classes, and assembly-related functionality in the Assembly Visual Learning Platform",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

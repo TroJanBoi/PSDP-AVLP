@@ -64,9 +64,9 @@
                 }
             },
             "post": {
-                "description": "Create a new class with the provided details",
+                "description": "Create a new class with the provided details and an optional image",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -77,13 +77,36 @@
                 "summary": "Create a new class",
                 "parameters": [
                     {
-                        "description": "Class data",
-                        "name": "class",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/routes.CreateClassRequest"
-                        }
+                        "type": "string",
+                        "description": "Class topic",
+                        "name": "topic",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Class description",
+                        "name": "description",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of players",
+                        "name": "max_player",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Whether the class is public",
+                        "name": "is_public",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Class image",
+                        "name": "img",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -95,6 +118,12 @@
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -117,10 +146,10 @@
                 "tags": [
                     "Classes"
                 ],
-                "summary": "Get class by ID",
+                "summary": "Get a class by ID",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "Class ID",
                         "name": "id",
                         "in": "path",
@@ -155,9 +184,9 @@
                 }
             },
             "put": {
-                "description": "Update class details by ID",
+                "description": "Update a class with the provided details and an optional image",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -168,20 +197,41 @@
                 "summary": "Update a class",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "Class ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Updated class data",
-                        "name": "class",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/routes.UpdateClassRequest"
-                        }
+                        "type": "string",
+                        "description": "Class topic",
+                        "name": "topic",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Class description",
+                        "name": "description",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of players",
+                        "name": "max_player",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Whether the class is public",
+                        "name": "is_public",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Class image",
+                        "name": "img",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -212,7 +262,7 @@
                 }
             },
             "delete": {
-                "description": "Delete a class by ID",
+                "description": "Delete a class by its ID",
                 "produces": [
                     "application/json"
                 ],
@@ -222,7 +272,7 @@
                 "summary": "Delete a class",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "Class ID",
                         "name": "id",
                         "in": "path",
@@ -384,7 +434,7 @@
         },
         "/users/login": {
             "post": {
-                "description": "Authenticate a user with username and password",
+                "description": "Authenticate a user with username and password and return a JWT token",
                 "consumes": [
                     "application/json"
                 ],
@@ -410,7 +460,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.LoginResponse"
+                            "$ref": "#/definitions/routes.LoginResponse"
                         }
                     },
                     "400": {
@@ -421,6 +471,12 @@
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -696,17 +752,6 @@
                 }
             }
         },
-        "models.LoginResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/models.User"
-                }
-            }
-        },
         "models.SuccessResponse": {
             "type": "object",
             "properties": {
@@ -760,34 +805,6 @@
                 }
             }
         },
-        "routes.CreateClassRequest": {
-            "type": "object",
-            "required": [
-                "max_player",
-                "owner_id",
-                "topic"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "img": {
-                    "type": "string"
-                },
-                "isPublic": {
-                    "type": "boolean"
-                },
-                "max_player": {
-                    "type": "integer"
-                },
-                "owner_id": {
-                    "type": "integer"
-                },
-                "topic": {
-                    "type": "string"
-                }
-            }
-        },
         "routes.CreateUserRequest": {
             "type": "object",
             "required": [
@@ -833,6 +850,20 @@
                 }
             }
         },
+        "routes.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                }
+            }
+        },
         "routes.ResetPasswordRequest": {
             "type": "object",
             "required": [
@@ -848,29 +879,6 @@
                     "type": "string"
                 },
                 "new_password": {
-                    "type": "string"
-                }
-            }
-        },
-        "routes.UpdateClassRequest": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "img": {
-                    "type": "string"
-                },
-                "isPublic": {
-                    "type": "boolean"
-                },
-                "max_player": {
-                    "type": "integer"
-                },
-                "owner_id": {
-                    "type": "integer"
-                },
-                "topic": {
                     "type": "string"
                 }
             }
@@ -900,6 +908,14 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "\"Enter the token with the `Bearer ` prefix, e.g., `Bearer \u003ctoken\u003e`\"",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }
