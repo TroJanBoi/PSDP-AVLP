@@ -65,6 +65,8 @@ const SignupBtn: React.FC<SignupBtnProps> = ({ username, password, confirmPasswo
         errorMessage = "This email is already in use. Please use another email address.";
       } else if (data.error.includes("uni_users_username")) {
         errorMessage = "This username is already taken. Please choose another one.";
+      } else if (data.error.includes("CreateUserRequest.Email")) {
+        errorMessage = "Invalid email format. Please enter a valid email address.";
       }
   
       Swal.fire({ icon: "error", title: "Register Failed", text: errorMessage });
