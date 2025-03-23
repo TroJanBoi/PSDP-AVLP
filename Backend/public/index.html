@@ -90,7 +90,7 @@
       align-items: center;
       font-size: 1em;
     }
-    #form-message, #login-message {
+    #form-message, #login-message, #upload-message {
       font-size: 1em;
       margin-top: 10px;
     }
@@ -137,14 +137,26 @@
       </form>
       <p id="form-message"></p>
     </div>
+
+    <!-- New Section for Profile Picture Upload -->
+    <div id="upload-profile-section" class="hidden">
+      <h2>Upload Profile Picture</h2>
+      <form id="upload-profile-form" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/jpeg,image/png" required />
+        <button type="submit" id="upload-button">Upload Profile Picture</button>
+      </form>
+      <p id="upload-message"></p>
+    </div>
   </div>
 
   <script>
     let isFetching = false;
     let isSubmitting = false;
     let isLoggingIn = false;
+    let isUploading = false;
     let token = localStorage.getItem("token") || null;
     let username = localStorage.getItem("username") || null;
+    let userId = localStorage.getItem("userId") || null; // Store user ID for profile picture upload
 
     // Check API status
     function fetchApiStatus() {
@@ -250,8 +262,10 @@
         const data = await response.json();
         token = data.token;
         username = data.user.username;
+        userId = data.user.id; // Store the user ID from the login response
         localStorage.setItem("token", token);
         localStorage.setItem("username", username);
+        localStorage.setItem("userId", userId);
         loginMessage.textContent = "✅ Login successful!";
         loginMessage.className = "success";
         updateAuthUI();
@@ -269,8 +283,10 @@
     function logout() {
       token = null;
       username = null;
+      userId = null;
       localStorage.removeItem("token");
       localStorage.removeItem("username");
+      localStorage.removeItem("userId");
       updateAuthUI();
     }
 
@@ -279,18 +295,21 @@
       const loginForm = document.getElementById("login-form");
       const userInfo = document.getElementById("user-info");
       const createClassSection = document.getElementById("create-class-section");
+      const uploadProfileSection = document.getElementById("upload-profile-section");
       const authHeader = document.getElementById("auth-header");
 
       if (token && username) {
         loginForm.classList.add("hidden");
         userInfo.classList.remove("hidden");
         createClassSection.classList.remove("hidden");
+        uploadProfileSection.classList.remove("hidden"); // Show profile upload section
         authHeader.textContent = "User Info";
         document.getElementById("username").textContent = username;
       } else {
         loginForm.classList.remove("hidden");
         userInfo.classList.add("hidden");
         createClassSection.classList.add("hidden");
+        uploadProfileSection.classList.add("hidden"); // Hide profile upload section
         authHeader.textContent = "Login";
       }
     }
@@ -338,6 +357,52 @@
         isSubmitting = false;
         submitButton.disabled = false;
         submitButton.textContent = "Create Class";
+      }
+    });
+
+    // Handle profile picture upload form submission
+    document.getElementById("upload-profile-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (isUploading || !token || !userId) return;
+
+      isUploading = true;
+      const uploadButton = document.getElementById("upload-button");
+      const uploadMessage = document.getElementById("upload-message");
+      uploadButton.disabled = true;
+      uploadButton.textContent = "Uploading...";
+      uploadMessage.textContent = "Uploading profile picture...";
+      uploadMessage.className = "";
+
+      const formData = new FormData(e.target);
+      try {
+        const response = await fetch(`http://localhost:9898/users/${userId}/profile-picture`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        uploadMessage.textContent = "✅ Profile picture uploaded successfully!";
+        uploadMessage.className = "success";
+        console.log("Profile picture uploaded:", data);
+
+        // Reset the form
+        e.target.reset();
+      } catch (error) {
+        uploadMessage.textContent = `❌ Error uploading profile picture: ${error.message}`;
+        uploadMessage.className = "error";
+        console.error("Error uploading profile picture:", error);
+      } finally {
+        isUploading = false;
+        uploadButton.disabled = false;
+        uploadButton.textContent = "Upload Profile Picture";
       }
     });
 

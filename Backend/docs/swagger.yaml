@@ -77,6 +77,8 @@ definitions:
         type: string
       password:
         type: string
+      profile_picture:
+        type: string
       updated_at:
         type: string
       username:
@@ -493,6 +495,44 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Update a user
+      tags:
+      - Users
+  /users/{id}/profile-picture:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a profile picture for the authenticated user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Profile picture file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Upload user profile picture
       tags:
       - Users
   /users/forgot-password:
