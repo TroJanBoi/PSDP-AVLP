@@ -85,3 +85,12 @@ export const resetPassword = async (email: string, password: string, code: strin
     }
   }
 };
+
+export const getAllClass = async () => {
+  try {
+    const response = await api.get('/classes');
+    return response.data;
+  } catch (error: any) {
+    throw error || "ไม่สามารถดึงข้อมูลชั้นเรียนได้";
+  }
+};

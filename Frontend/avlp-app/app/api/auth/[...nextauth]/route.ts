@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 declare module "next-auth" {
   interface Session {
     accessToken?: string;
+    maxPlayer?: number;
     user?: {
       id?: string;
       name?: string;
@@ -16,6 +17,7 @@ declare module "next-auth" {
     id: string;
     name: string;
     email: string;
+    image: string;
     accessToken: string;
   }
 }
@@ -25,7 +27,7 @@ const handler = NextAuth({
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        username: { label: "Username", type: "text" },
+        username: { label: "UsernamemaxPlayer?: number;", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
@@ -45,6 +47,8 @@ const handler = NextAuth({
             id: data.user.id,
             name: data.user.username,
             email: data.user.email,
+            maxPlayer: data.user.maxPlayer,
+            image: data.user.image,
             accessToken: data.token, // ✅ Type-safe
           };
         }
@@ -62,7 +66,9 @@ const handler = NextAuth({
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
+        token.image = user.image;
         token.accessToken = user.accessToken;
+        token.maxPlayer = (user as any).maxPlayer;
       }
       return token;
     },
@@ -71,8 +77,10 @@ const handler = NextAuth({
         id: token.id as string,
         name: token.name as string,
         email: token.email as string,
+        image: token.image as string,
       };
       session.accessToken = token.accessToken as string;
+      session.maxPlayer = token.maxPlayer as number;
       return session;
     },
   },
