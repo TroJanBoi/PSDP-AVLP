@@ -78,16 +78,11 @@ const SignupBtn: React.FC<SignupBtnProps> = ({ username, password, confirmPasswo
       });
   };
   
-  
-  
-  
-  
-
   return (
     <button
       onClick={handleSignUp}
       type={type}  // ✅ Ensure the button type is handled
-      className={`mt-10 w-full h-8 max-w-md bg-[#a07cff] text-white py-3 rounded-[8px] hover:bg-purple-700 transition flex items-center justify-center ${className}`}
+      className={`font-semibold text-lg md:text-xl bg-[#a394f9] text-textbase w-full rounded-md py-3 text-center hover:bg-secondary flex justify-center items-center h-12 ${className}`}
       disabled={loading}  // Disable the button when loading
     >
       {loading ? (
