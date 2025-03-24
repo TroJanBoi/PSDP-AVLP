@@ -73,3 +73,19 @@ type TestCase struct {
 // func (User) TableName() string {
 // 	return "users"
 // }
+
+// Add to models/models.go
+type ProblemAttempt struct {
+	ID            uint       `gorm:"primaryKey" json:"attempt_id"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
+	DeletedAt     *time.Time `gorm:"index" json:"deleted_at"`
+	ProblemID     uint       `json:"problem_id" gorm:"index"`
+	Problem       Problem    `json:"problem" gorm:"foreignKey:ProblemID"`
+	UserID        uint       `json:"user_id" gorm:"index"`
+	User          User       `json:"user" gorm:"foreignKey:UserID"`
+	InputData     string     `json:"input_data"`
+	StartedAt     time.Time  `json:"started_at"`
+	CompleteAt    *time.Time `json:"complete_at"`    // Nullable
+	ScoreObtained *int       `json:"score_obtained"` // Nullable
+}

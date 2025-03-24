@@ -76,6 +76,35 @@ definitions:
       user_id:
         type: integer
     type: object
+  models.ProblemAttempt:
+    properties:
+      attempt_id:
+        type: integer
+      complete_at:
+        description: Nullable
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      input_data:
+        type: string
+      problem:
+        $ref: '#/definitions/models.Problem'
+      problem_id:
+        type: integer
+      score_obtained:
+        description: Nullable
+        type: integer
+      started_at:
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        type: integer
+    type: object
   models.SuccessResponse:
     properties:
       message:
@@ -200,6 +229,19 @@ definitions:
       user:
         $ref: '#/definitions/models.User'
     type: object
+  routes.ProblemAttemptRequest:
+    properties:
+      problem_id:
+        type: integer
+      started_at:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - problem_id
+    - started_at
+    - user_id
+    type: object
   routes.ResetPasswordRequest:
     properties:
       code:
@@ -212,6 +254,16 @@ definitions:
     - code
     - email
     - new_password
+    type: object
+  routes.TestCaseCheckRequest:
+    properties:
+      input_data:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - input_data
+    - user_id
     type: object
   routes.UpdateProblemRequest:
     properties:
@@ -327,6 +379,49 @@ paths:
       summary: ลบโจทย์
       tags:
       - problems
+    get:
+      description: Retrieves all attempts and scores for a specific problem
+      parameters:
+      - description: Class ID
+        in: path
+        name: class_id
+        required: true
+        type: integer
+      - description: Problem ID
+        in: path
+        name: problem_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ProblemAttempt'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get problem scores
+      tags:
+      - problem_attempts
     put:
       consumes:
       - application/json
@@ -488,6 +583,56 @@ paths:
       summary: แก้ไข test case
       tags:
       - test_cases
+  /api/{class_id}/{problem_id}/test_case:
+    post:
+      consumes:
+      - application/json
+      description: Checks if the submitted solution matches test case expectations
+      parameters:
+      - description: Class ID
+        in: path
+        name: class_id
+        required: true
+        type: integer
+      - description: Problem ID
+        in: path
+        name: problem_id
+        required: true
+        type: integer
+      - description: Test case check data
+        in: body
+        name: test_case
+        required: true
+        schema:
+          $ref: '#/definitions/routes.TestCaseCheckRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TestCase'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Check test case solution
+      tags:
+      - problem_attempts
   /api/{class_id}/problems/{problem_id}:
     post:
       consumes:
@@ -636,6 +781,93 @@ paths:
       summary: ดูโจทย์ทั้งหมดในคลาส
       tags:
       - problems
+  /api/problem_attempt/{attempt_id}/{problem_id}:
+    get:
+      description: Retrieves details of a specific problem attempt
+      parameters:
+      - description: Attempt ID
+        in: path
+        name: attempt_id
+        required: true
+        type: integer
+      - description: Problem ID
+        in: path
+        name: problem_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ProblemAttempt'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get problem attempt details
+      tags:
+      - problem_attempts
+  /api/problem_attempt/{problem_id}:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new attempt for solving a problem
+      parameters:
+      - description: Problem ID
+        in: path
+        name: problem_id
+        required: true
+        type: integer
+      - description: Attempt data
+        in: body
+        name: attempt
+        required: true
+        schema:
+          $ref: '#/definitions/routes.ProblemAttemptRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ProblemAttempt'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new problem attempt
+      tags:
+      - problem_attempts
   /classes:
     get:
       description: Retrieve a list of all classes
