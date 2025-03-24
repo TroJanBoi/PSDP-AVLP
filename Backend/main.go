@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"time"
 
 	"example.com/greetings/database"
@@ -63,55 +62,55 @@ func swaggerHandler(c *gin.Context) {
 }
 
 func main() {
-	// รันคำสั่ง swag init ก่อนเริ่มโปรแกรม
-	log.Println("Generating Swagger docs for Users...")
-	cmd := exec.Command("swag", "init", "--tags", "Users", "-o", "docs/users")
-	cmd.Stdout = os.Stdout // แสดง output ใน terminal
-	cmd.Stderr = os.Stderr // แสดง error ใน terminal
-	if err := cmd.Run(); err != nil {
-		log.Fatalf("failed to run swag init: %v", err)
-	}
-	log.Println("Swagger docs for Users generated successfully")
+	// // รันคำสั่ง swag init ก่อนเริ่มโปรแกรม
+	// log.Println("Generating Swagger docs for Users...")
+	// cmd := exec.Command("swag", "init", "--tags", "Users", "-o", "docs/users")
+	// cmd.Stdout = os.Stdout // แสดง output ใน terminal
+	// cmd.Stderr = os.Stderr // แสดง error ใน terminal
+	// if err := cmd.Run(); err != nil {
+	// 	log.Fatalf("failed to run swag init: %v", err)
+	// }
+	// log.Println("Swagger docs for Users generated successfully")
 
-	// รันคำสั่ง swag init สำหรับ Classes
-	log.Println("Generating Swagger docs for Classes...")
-	cmd = exec.Command("swag", "init", "--tags", "Classes", "-o", "docs/classes")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		log.Fatalf("failed to run swag init for Classes: %v", err)
-	}
-	log.Println("Swagger docs for Classes generated successfully")
+	// // รันคำสั่ง swag init สำหรับ Classes
+	// log.Println("Generating Swagger docs for Classes...")
+	// cmd = exec.Command("swag", "init", "--tags", "Classes", "-o", "docs/classes")
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
+	// if err := cmd.Run(); err != nil {
+	// 	log.Fatalf("failed to run swag init for Classes: %v", err)
+	// }
+	// log.Println("Swagger docs for Classes generated successfully")
 
-	// รันคำสั่ง swag init สำหรับ Problems
-	log.Println("Generating Swagger docs for Problems...")
-	cmd = exec.Command("swag", "init", "--tags", "Problems", "-o", "docs/problems")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		log.Fatalf("failed to run swag init for Problems: %v", err)
-	}
-	log.Println("Swagger docs for Problems generated successfully")
+	// // รันคำสั่ง swag init สำหรับ Problems
+	// log.Println("Generating Swagger docs for Problems...")
+	// cmd = exec.Command("swag", "init", "--tags", "Problems", "-o", "docs/problems")
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
+	// if err := cmd.Run(); err != nil {
+	// 	log.Fatalf("failed to run swag init for Problems: %v", err)
+	// }
+	// log.Println("Swagger docs for Problems generated successfully")
 
-	// รันคำสั่ง swag init สำหรับ Test_case
-	log.Println("Generating Swagger docs for Test_case...")
-	cmd = exec.Command("swag", "init", "--tags", "Test_cases", "-o", "docs/test_cases")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		log.Fatalf("failed to run swag init for Test_case: %v", err)
-	}
-	log.Println("Swagger docs for Test_case generated successfully")
+	// // รันคำสั่ง swag init สำหรับ Test_case
+	// log.Println("Generating Swagger docs for Test_case...")
+	// cmd = exec.Command("swag", "init", "--tags", "Test_cases", "-o", "docs/test_cases")
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
+	// if err := cmd.Run(); err != nil {
+	// 	log.Fatalf("failed to run swag init for Test_case: %v", err)
+	// }
+	// log.Println("Swagger docs for Test_case generated successfully")
 
-	// รันคำสั่ง swag init สำหรับ main
-	log.Println("Generating Swagger docs for Test_case...")
-	cmd = exec.Command("swag", "init", "-o", "docs")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		log.Fatalf("failed to run swag init for Test_case: %v", err)
-	}
-	log.Println("Swagger docs for Test_case generated successfully")
+	// // รันคำสั่ง swag init สำหรับ main
+	// log.Println("Generating Swagger docs for Test_case...")
+	// cmd = exec.Command("swag", "init", "-o", "docs")
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
+	// if err := cmd.Run(); err != nil {
+	// 	log.Fatalf("failed to run swag init for Test_case: %v", err)
+	// }
+	// log.Println("Swagger docs for Test_case generated successfully")
 
 	if err := os.MkdirAll("uploads/classes", os.ModePerm); err != nil {
 		log.Fatalf("failed to create uploads directory: %v", err)
