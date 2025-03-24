@@ -105,7 +105,7 @@ export default function LoginPage() {
                                     type="text" 
                                     placeholder="Username" 
                                     value={username} 
-                                    className="bg-[#dddddd] outline-none text-primary w-full h-8 placeholder-secondary" 
+                                    className="bg-[#dddddd] outline-none text-primary w-full h-8" 
                                     onChange={(e) => setUsername(e.target.value)} 
                                 />
                             </div>
@@ -119,7 +119,7 @@ export default function LoginPage() {
                                         type="password" 
                                         placeholder="Password" 
                                         value={password} 
-                                        className="bg-[#dddddd] outline-none text-primary w-full h-8 placeholder-primary" 
+                                        className="bg-[#dddddd] outline-none text-primary w-full h-8" 
                                         onChange={(e) => setPassword(e.target.value)} 
                                     />
                                 </div>

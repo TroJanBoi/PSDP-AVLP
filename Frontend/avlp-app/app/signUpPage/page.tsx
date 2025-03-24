@@ -40,7 +40,7 @@ const InputField: React.FC<InputFieldProps> = ({
       placeholder={placeholder}
       value={value}
       onChange={onChange}
-      className={`pl-12 placeholder-black flex items-center text-xl bg-[#dddddd] shadow-md border transition-all duration-200 hover:border-primary text-primary px-4 py-2 rounded-lg w-full ${className}`}
+      className={`pl-12 flex items-center text-xl bg-[#dddddd] shadow-md border transition-all duration-200 hover:border-primary text-primary px-4 py-2 rounded-lg w-full ${className}`}
     />
     {showPasswordButton && (
       <button
