@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { register } from "@/services/api";
 import Swal from "sweetalert2";
-import SignupBtn from "../register/_components/signupBtn";
+import SignupBtn from "./_components/signupBtn";
 
 interface InputFieldProps {
   type: React.HTMLInputTypeAttribute;
