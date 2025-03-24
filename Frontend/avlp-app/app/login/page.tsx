@@ -163,7 +163,7 @@ export default function LoginPage() {
                                             {/* Reduced mb-2 to mb-1 */}
                                             Don't have an account ?
                                         </span>
-                                        <Link href={"../register/"} className="text-center sm:text-right hover:underline hover:font-semibold">
+                                        <Link href={"../signUpPage/"} className="text-center sm:text-right hover:underline hover:font-semibold">
                                             Sign up here!
                                         </Link>
                                     </div>
