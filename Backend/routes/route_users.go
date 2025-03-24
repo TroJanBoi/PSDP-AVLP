@@ -126,6 +126,7 @@ func createUser(c *gin.Context) {
 
 	user := models.User{
 		Username: input.Username,
+		Name:     input.Username,
 		Password: string(hashedPassword),
 		Email:    input.Email,
 	}
