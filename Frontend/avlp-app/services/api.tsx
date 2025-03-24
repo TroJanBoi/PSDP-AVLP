@@ -1,9 +1,9 @@
+// services/api.ts
 import axios from 'axios';
-
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:9898";
 
-export const api = axios.create({
+const api = axios.create({
   baseURL: API,
   withCredentials: true,
   headers: {
@@ -16,14 +16,14 @@ export const login = async (username: string, password: string) => {
     const response = await api.post("/users/login", { username, password });
     return response.data;
   } catch (error: any) {
-    error.response.data.message;
+    throw error.response?.data?.message || "การเข้าสู่ระบบล้มเหลว";
   }
 };
 
 export const register = async (username: string, password: string, email: string) => {
   try {
-    const register = await api.post("/users", { username, password, email });
-    return register.data;
+    const response = await api.post("/users", { username, password, email });
+    return response.data; 
   } catch (error: any) {
     error.response.data.message;
   }
@@ -32,17 +32,65 @@ export const register = async (username: string, password: string, email: string
 export const forgotPassword = async (username: string) => {
   try {
     const response = await api.post("/users/forgot-password", { username });
-    return response.data;
+    return response.data; // ส่งคืนอีเมลสำหรับการส่งรหัสยืนยัน
   } catch (error: any) {
-    error.response.data.message;
+    throw error;
   }
-}
+};
 
-export const resetPassword = async (email: string, new_password: string, code: string) => {
+export const verifyCode = async (email: string, code: string) => {
   try {
-    const response = await api.post("/users/reset-password", { email, code, new_password });
+    // ส่งคำขอไปยัง API เพื่อตรวจสอบรหัสยืนยัน
+    try {
+      // ใช้ endpoint reset-password เพื่อตรวจสอบความถูกต้องของรหัส OTP
+      const response = await api.post("/users/reset-password", {
+        email: email,
+        new_password: "temporary_verification_password",
+        code: code
+      });
+      
+      return true;
+    } catch (apiError: any) {
+      // ในกรณีที่รหัส OTP ไม่ถูกต้อง (สถานะข้อผิดพลาด 401)
+      if (apiError.response && apiError.response.status === 401) {
+        return false;
+      }
+      
+      throw new Error("เกิดข้อผิดพลาดที่เซิร์ฟเวอร์ระหว่างการตรวจสอบ OTP กรุณาลองใหม่อีกครั้ง");
+    }
+  } catch (error: any) {
+    console.error("ข้อผิดพลาดรหัสยืนยัน:", error);
+    throw error;
+  }
+};
+
+export const resetPassword = async (email: string, password: string, code: string) => {
+  try {
+    // ส่งคำขอเปลี่ยนรหัสผ่านไปยัง API โดยตรง
+    const requestData = {
+      email: email,
+      new_password: password,
+      code: code
+    };
+    
+    const response = await api.post('/users/reset-password', requestData);
     return response.data;
   } catch (error: any) {
-    error.response.data.message;
+    if (error.response) {
+      throw error.response?.data?.message || "การรีเซ็ตรหัสผ่านล้มเหลว";
+    } else if (error.request) {
+      throw "ไม่ได้รับการตอบกลับจากเซิร์ฟเวอร์ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต";
+    } else {
+      throw error;
+    }
   }
-}
+};
+
+export const getAllClass = async () => {
+  try {
+    const response = await api.get('/classes');
+    return response.data;
+  } catch (error: any) {
+    throw error || "ไม่สามารถดึงข้อมูลชั้นเรียนได้";
+  }
+};

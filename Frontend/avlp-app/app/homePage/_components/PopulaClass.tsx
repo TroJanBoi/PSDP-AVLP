@@ -10,39 +10,39 @@ import {
     CardHeader,
     CardTitle
 } from "@/components/ui/card";
+import { getAllClass } from "@/services/api";
+import { BookOpen } from "lucide-react";
 
-const cards = [
-    {
-        image: "/images/topic-class-1.png",
-        title: "Assembly Tutorial 1",
-        description:
-            "Learn the fundamentals of assembly language step by step. This tutorial covers syntax, registers and memory management examples 🚀💻"
-    },
-    {
-        image: "/images/topic-class-2.png",
-        title: "Assembly Tutorial 2",
-        description:
-            "Master low-level programming with interactive exercises. Dive into control flow, instructions, and more!"
-    },
-    {
-        image: "/images/topic-class-3.png",
-        title: "Assembly Tutorial 3",
-        description:
-            "Explore memory management, registers, and syntax. Build confidence with step-by-step examples!"
-    },
-    {
-        image: "/images/topic-class-2.png",
-        title: "Assembly Tutorial 4",
-        description:
-            "Advance your skills with real-world assembly code. Debug, optimize, and run programs live!"
-    }
-];
+interface ClassType {
+    id: number;
+    topic: string;
+    description: string;
+    img: string;
+    max_player: number;
+    owner: {
+        name: string;
+        email: string;
+        img: string;
+    };
+}
 
 export default function PopularClassesSection() {
+    const [classes, setClasses] = useState<ClassType[]>([]);
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(2);
 
     useEffect(() => {
+
+        const fetchClasses = async () => {
+            try {
+                const data = await getAllClass();
+                console.log("data: ", data);
+                setClasses(data);
+            } catch (error) {
+                console.error("Error fetching classes", error);
+            }
+        };
+
         const handleResize = () => {
             const widowWidth = window.innerWidth;
             if (typeof window !== "undefined") {
@@ -53,8 +53,10 @@ export default function PopularClassesSection() {
             }
         }
 
+        fetchClasses();
         handleResize();
         window.addEventListener("resize", handleResize);
+
         return () => {
             if (typeof window !== "undefined") {
                 window.removeEventListener("resize", handleResize);
@@ -64,7 +66,7 @@ export default function PopularClassesSection() {
 
 
     const nextPage = () => {
-        if ((page + 1) * pageSize < cards.length) {
+        if ((page + 1) * pageSize < classes.length) {
             setPage(page + 1);
         }
     };
@@ -75,8 +77,9 @@ export default function PopularClassesSection() {
         }
     };
 
-    const visibleCards = cards.slice(page * pageSize, (page + 1) * pageSize);
+    const visibleCards = classes.slice(page * pageSize, (page + 1) * pageSize);
 
+    console.log("images: ", classes);
     return (
         <section className="flex flex-col justify-center items-center w-full h-[100vh] bg-no-repeat bg-center bg-cover bg-[#A179DC] xl:bg-[url('/images/bg-populaClass.png')] px-4 py-12 pt-24">
             <div className="flex flex-col justify-center items-center space-y-3 text-center max-w-7xl w-full">
@@ -93,18 +96,19 @@ export default function PopularClassesSection() {
                 </div>
 
                 <div className="w-full flex flex-wrap justify-center items-stretch gap-6">
-                    {visibleCards.map((card, index) => (
+                    {visibleCards.map((cls) => (
+                        
                         <Card
-                            key={index}
+                            key={cls.id}
                             className="w-full sm:w-[22rem] flex flex-col justify-between"
                         >
                             <CardHeader>
                                 <div className="flex justify-center items-center">
                                     <Image
-                                        src={card.image}
+                                        src={`http://localhost:9898${cls.img}`}
                                         width={350}
                                         height={350}
-                                        alt={card.title}
+                                        alt={cls.topic}
                                         className="rounded-md object-cover max-h-60 w-full"
                                     />
                                 </div>
@@ -112,15 +116,30 @@ export default function PopularClassesSection() {
 
                             <CardContent className="text-left flex-grow">
                                 <CardTitle className="text-primary text-xl sm:text-2xl">
-                                    {card.title}
+                                    {cls.topic}
                                 </CardTitle>
                                 <CardDescription className="text-sm sm:text-base text-gray-600 mt-2">
-                                    {card.description}
+                                    <div>
+                                        {cls.description}
+                                    </div>
+
                                 </CardDescription>
                             </CardContent>
-
-                            <CardFooter className="pt-4 text-black font-semibold">
-                                Peerapol Srisawat
+                            <CardFooter className="flex justify-between items-center pt-4 text-black font-semibold">
+                                <div className="flex items-center gap-2">
+                                    <BookOpen />
+                                    {cls.max_player} Students
+                                </div>
+                                <div className="flex items-center gap-2 truncate">
+                                    <Image
+                                        className="w-7 h-7 rounded-full cursor-pointer bg-gray-200"
+                                        src={`${cls.owner.img ?? "/images/unknown.png"}`}
+                                        width={7}
+                                        height={7}
+                                        alt="User"
+                                    />
+                                     {cls.owner.name}
+                                </div>
                             </CardFooter>
                         </Card>
                     ))}
@@ -128,6 +147,7 @@ export default function PopularClassesSection() {
 
                 <div className="flex space-x-4 mt-6">
                     <button
+                        type="button"
                         onClick={prevPage}
                         disabled={page === 0}
                         className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
@@ -135,8 +155,9 @@ export default function PopularClassesSection() {
                         ย้อนกลับ
                     </button>
                     <button
+                        type="button"
                         onClick={nextPage}
-                        disabled={(page + 1) * pageSize >= cards.length}
+                        disabled={(page + 1) * pageSize >= classes.length}
                         className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:opacity-50"
                     >
                         ถัดไป
