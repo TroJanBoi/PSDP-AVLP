@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   models.ErrorResponse:
     properties:
@@ -14,13 +15,6 @@ definitions:
         type: string
       username:
         type: string
-    type: object
-  models.LoginResponse:
-    properties:
-      message:
-        type: string
-      user:
-        $ref: '#/definitions/models.User'
     type: object
   models.SuccessResponse:
     properties:
@@ -49,6 +43,8 @@ definitions:
       name:
         type: string
       password:
+        type: string
+      profile_picture:
         type: string
       updated_at:
         type: string
@@ -87,6 +83,15 @@ definitions:
     - password
     - username
     type: object
+  routes.LoginResponse:
+    properties:
+      message:
+        type: string
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
   routes.ResetPasswordRequest:
     properties:
       code:
@@ -117,8 +122,20 @@ definitions:
       youtube:
         type: string
     type: object
+host: localhost:9898
 info:
-  contact: {}
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API for managing users, classes, and assembly-related functionality
+    in the Assembly Visual Learning Platform
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Assembly Visual Learning Platform API
+  version: "1.0"
 paths:
   /users:
     get:
@@ -255,6 +272,44 @@ paths:
       summary: Update a user
       tags:
       - Users
+  /users/{id}/profile-picture:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a profile picture for the authenticated user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Profile picture file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Upload user profile picture
+      tags:
+      - Users
   /users/forgot-password:
     post:
       consumes:
@@ -293,7 +348,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Authenticate a user with username and password
+      description: Authenticate a user with username and password and return a JWT
+        token
       parameters:
       - description: Login credentials
         in: body
@@ -307,13 +363,17 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.LoginResponse'
+            $ref: '#/definitions/routes.LoginResponse'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorResponse'
         "401":
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Login user
@@ -357,4 +417,10 @@ paths:
       summary: Reset password
       tags:
       - Users
+securityDefinitions:
+  BearerAuth:
+    description: '"Enter the token with the `Bearer ` prefix, e.g., `Bearer <token>`"'
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

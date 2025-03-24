@@ -5,11 +5,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
 	"example.com/greetings/database"
 	"example.com/greetings/models"
+	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
@@ -78,6 +80,7 @@ func RegisterUserRoutes(r *gin.Engine) {
 		userGroup.POST("/login", loginUser)
 		userGroup.POST("/forgot-password", forgotPassword)
 		userGroup.POST("/reset-password", resetPassword)
+		userGroup.POST("/:id/profile-picture", uploadProfilePicture)
 	}
 }
 
@@ -177,7 +180,6 @@ func updateUser(c *gin.Context) {
 		return
 	}
 
-	// If password is provided, hash it
 	if input.Password != "" {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 		if err != nil {
@@ -363,6 +365,95 @@ func resetPassword(c *gin.Context) {
 	}
 	delete(resetCodes, input.Email)
 	c.JSON(http.StatusOK, models.SuccessResponse{Message: "Password changed successfully"})
+}
+
+// Add new handler for profile picture upload
+// @Summary Upload user profile picture
+// @Tags Users
+// @Description Upload a profile picture for the authenticated user
+// @Accept multipart/form-data
+// @Produce json
+// @Param id path string true "User ID"
+// @Param file formData file true "Profile picture file"
+// @Success 200 {object} models.User
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 401 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /users/{id}/profile-picture [post]
+func uploadProfilePicture(c *gin.Context) {
+	id := c.Param("id")
+	var user models.User
+
+	// Verify user exists
+	if err := database.DB.First(&user, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "User not found"})
+		return
+	}
+
+	// Get file from form data
+	file, header, err := c.Request.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "No file uploaded"})
+		return
+	}
+	defer file.Close()
+
+	// Validate file type
+	allowedTypes := map[string]bool{
+		".jpg":  true,
+		".jpeg": true,
+		".png":  true,
+	}
+	ext := filepath.Ext(header.Filename)
+	if !allowedTypes[ext] {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid file type. Only JPG, JPEG, and PNG are allowed"})
+		return
+	}
+
+	// Decode the uploaded image
+	img, err := imaging.Decode(file)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Failed to decode image: " + err.Error()})
+		return
+	}
+
+	// Resize the image (e.g., to 200x200 pixels)
+	resizedImg := imaging.Resize(img, 200, 200, imaging.Lanczos)
+
+	// Create upload directory if it doesn’t exist
+	uploadDir := "./uploads/profile_pictures"
+	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to create upload directory"})
+		return
+	}
+
+	// Generate unique filename
+	timestamp := uint(time.Now().Unix()) // Convert int64 to uint
+	filename := fmt.Sprintf("%d_%d%s", user.ID, timestamp, ext)
+	filePath := filepath.Join(uploadDir, filename)
+
+	// Save the resized image
+	if err := imaging.Save(resizedImg, filePath, imaging.JPEGQuality(85)); err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to save resized image: " + err.Error()})
+		return
+	}
+
+	// Delete old profile picture if exists
+	if user.ProfilePicture != "" {
+		oldFile := filepath.Join(uploadDir, filepath.Base(user.ProfilePicture)) // Use filepath.Join and filepath.Base
+		if err := os.Remove(oldFile); err != nil && !os.IsNotExist(err) {
+			log.Printf("Failed to delete old profile picture: %v", err)
+		}
+	}
+
+	// Update user with new profile picture path
+	user.ProfilePicture = "/uploads/profile_pictures/" + filename
+	if err := database.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to update user profile"})
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
 }
 
 // generateJWT generates a JWT token for the given user ID

@@ -3,32 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swagger UI</title>
+    <title>Swagger UI - Assembly Visual Learning Platform</title>
     <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
     <style>
         body {
             margin: 0;
             padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .navbar {
+            background-color: #007bff;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .navbar a:hover {
+            background-color: #0056b3;
+        }
+        .navbar .brand {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .navbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .navbar .user-info span {
+            color: white;
+            font-weight: bold;
+        }
+        .navbar .logout-btn {
+            background-color: #dc3545;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .navbar .logout-btn:hover {
+            background-color: #c82333;
         }
         #swagger-ui {
-            margin: 0 auto;
+            margin: 20px auto;
             max-width: 1200px;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .hidden {
+            display: none;
+        }
+        /* ปรับแต่ง Swagger UI */
+        .swagger-ui .topbar {
+            background-color: #007bff;
+        }
+        .swagger-ui .topbar a {
+            color: white;
+        }
+        .swagger-ui .info .title {
+            color: #007bff;
+        }
+        .swagger-ui .scheme-container {
+            background-color: #f4f4f4;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .navbar .user-info {
+                flex-direction: column;
+                gap: 5px;
+            }
+            #swagger-ui {
+                margin: 10px;
+                padding: 15px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <a href="/" class="brand">Assembly Visual Learning Platform</a>
+        <div class="user-info">
+            <a href="/">กลับไปหน้าแรก</a>
+            <span id="nav-user-name" class="hidden"></span>
+            <button id="nav-logout" class="logout-btn hidden" onclick="logout()">ออกจากระบบ</button>
+        </div>
+    </div>
+
     <div id="swagger-ui"></div>
+
     <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
     <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
     <script>
+        // ตรวจสอบสถานะการล็อกอินเมื่อโหลดหน้า
         window.onload = function() {
+            const token = localStorage.getItem("token");
+            const username = localStorage.getItem("username");
+
+            if (token && username) {
+                // แสดงชื่อผู้ใช้และปุ่ม Logout ใน Navbar
+                document.getElementById("nav-user-name").textContent = `สวัสดี, ${username}`;
+                document.getElementById("nav-user-name").classList.remove("hidden");
+                document.getElementById("nav-logout").classList.remove("hidden");
+            }
+
+            // กำหนด URL สำหรับ Swagger JSON
             const urls = [
                 { url: "/swagger-docs/all.json", name: "All Endpoints" },
                 { url: "/swagger-docs/users.json", name: "Users" },
                 { url: "/swagger-docs/classes.json", name: "Classes" },
+                { url: "/swagger-docs/problems.json", name: "Problems" },
+                { url: "/swagger-docs/test_cases.json", name: "Test_cases" },
                 { url: "/swagger-docs/asm.json", name: "Asm" }
             ];
 
+            // โหลด Swagger UI
             SwaggerUIBundle({
                 urls: urls,
                 dom_id: '#swagger-ui',
@@ -40,9 +147,24 @@
                 layout: "StandaloneLayout",
                 docExpansion: "list",
                 persistAuthorization: true,
-                defaultModelRendering: "example"
+                defaultModelRendering: "example",
+                // ปรับแต่งสีของ Swagger UI
+                customCss: `
+                    .swagger-ui .topbar { background-color: #007bff; }
+                    .swagger-ui .topbar a { color: white; }
+                    .swagger-ui .info .title { color: #007bff; }
+                    .swagger-ui .scheme-container { background-color: #f4f4f4; }
+                `
             });
         };
+
+        // ฟังก์ชันออกจากระบบ
+        function logout() {
+            localStorage.removeItem("token");
+            localStorage.removeItem("username");
+            localStorage.removeItem("userId");
+            window.location.href = "/"; // กลับไปหน้าแรก
+        }
     </script>
 </body>
 </html>

@@ -1,350 +1,1025 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Check Fetch Status & Create Class</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background-color: #282c34;
-      color: white;
-      margin: 0;
-      padding: 20px;
-    }
-    .container {
-      text-align: center;
-      padding: 50px 30px;
-      background: #3b3f47;
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-      border-radius: 8px;
-      margin: 10px;
-      width: 100%;
-      max-width: 600px;
-    }
-    h1, h2 {
-      color: #61dafb;
-    }
-    p {
-      font-size: 1.2em;
-      margin: 10px 0;
-    }
-    button {
-      margin: 10px;
-      padding: 5px 10px;
-      background-color: #61dafb;
-      border: none;
-      border-radius: 4px;
-      color: #282c34;
-      font-size: 1em;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #4fa8d5;
-    }
-    button:disabled {
-      background-color: #a1c7e0;
-      cursor: not-allowed;
-    }
-    .loading {
-      display: inline-block;
-      margin-left: 10px;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #61dafb;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      margin-top: 20px;
-    }
-    input[type="text"],
-    input[type="password"],
-    input[type="number"],
-    input[type="file"] {
-      padding: 8px;
-      border: none;
-      border-radius: 4px;
-      font-size: 1em;
-      background-color: #f3f3f3;
-      color: #282c34;
-    }
-    input[type="checkbox"] {
-      margin-right: 5px;
-    }
-    label {
-      display: flex;
-      align-items: center;
-      font-size: 1em;
-    }
-    #form-message, #login-message {
-      font-size: 1em;
-      margin-top: 10px;
-    }
-    .success {
-      color: #61dafb;
-    }
-    .error {
-      color: #ff5555;
-    }
-    .hidden {
-      display: none;
-    }
-  </style>
-</head>
-<body>
-  <div class="container" id="users-container">
-    <h1>Go lang API Check</h1>
-    <p id="status-message">Checking API status... <span class="loading"></span></p>
-    <p id="fetch-status">Checking database status... <span class="loading"></span></p>
-    <button id="swagger-button" onclick="goToSwagger()">Go to Swagger UI</button>
-    <button id="retry-button" onclick="retryFetch()" style="display: none;">Retry</button>
-    <p>ปิ๊บตรวจสอบแล้ว เชื่อสิ</p>
-
-    <div id="auth-section">
-      <h2 id="auth-header">Login</h2>
-      <p id="user-info" class="hidden">Logged in as: <span id="username"></span> <button onclick="logout()">Logout</button></p>
-      <form id="login-form" class="hidden">
-        <input type="text" name="username" placeholder="Username" required />
-        <input type="password" name="password" placeholder="Password" required />
-        <button type="submit" id="login-button">Login</button>
-      </form>
-      <p id="login-message"></p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Assembly Visual Learning Platform</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+        color: #333;
+      }
+      .navbar {
+        background-color: #2e7d32;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .navbar a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        padding: 10px 15px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+      }
+      .navbar a:hover {
+        background-color: #4caf50;
+      }
+      .navbar .brand {
+        font-size: 1.5em;
+        font-weight: bold;
+      }
+      .navbar .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .navbar .user-info span {
+        color: white;
+        font-weight: bold;
+      }
+      .navbar .logout-btn {
+        background-color: #d32f2f;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .navbar .logout-btn:hover {
+        background-color: #b71c1c;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 20px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1,
+      h2,
+      h3 {
+        text-align: center;
+        color: #2e7d32;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+      }
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      button {
+        padding: 10px;
+        background-color: #2e7d32;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px 0;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #4caf50;
+      }
+      .delete-btn {
+        background-color: #d32f2f;
+      }
+      .delete-btn:hover {
+        background-color: #b71c1c;
+      }
+      .edit-btn {
+        background-color: #4caf50;
+      }
+      .edit-btn:hover {
+        background-color: #388e3c;
+      }
+      .copy-btn {
+        background-color: #2e7d32;
+        margin-left: 10px;
+      }
+      .copy-btn:hover {
+        background-color: #4caf50;
+      }
+      .class-list,
+      .problem-list,
+      .test-case-list {
+        margin-top: 20px;
+      }
+      .class-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+        background-color: #fafafa;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      .class-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+      .class-item:last-child {
+        border-bottom: none;
+      }
+      .class-item img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-right: 20px;
+      }
+      .class-item .class-content {
+        flex: 1;
+      }
+      .problem-item,
+      .test-case-item {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        background-color: #fafafa;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+      .problem-item:last-child,
+      .test-case-item:last-child {
+        border-bottom: none;
+      }
+      .error {
+        color: #d32f2f;
+        text-align: center;
+        margin-top: 10px;
+      }
+      .success {
+        color: #388e3c;
+        text-align: center;
+        margin-top: 10px;
+      }
+      .hidden {
+        display: none;
+      }
+      .token-section {
+        margin: 20px 0;
+        text-align: center;
+      }
+      .token-section input {
+        width: 80%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        font-family: monospace;
+        text-align: center;
+      }
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          gap: 10px;
+        }
+        .navbar .user-info {
+          flex-direction: column;
+          gap: 5px;
+        }
+        .container {
+          margin: 10px;
+          padding: 15px;
+        }
+        .class-item {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .class-item img {
+          margin-right: 0;
+          margin-bottom: 10px;
+        }
+        .token-section input {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <div class="navbar">
+      <a href="/" class="brand">Assembly Visual Learning Platform</a>
+      <div class="user-info">
+        <a href="/swagger/" id="swagger-link">Swagger UI</a>
+        <span id="nav-user-name" class="hidden"></span>
+        <button id="nav-logout" class="logout-btn hidden" onclick="logout()">
+          ออกจากระบบ
+        </button>
+        <a href="#" id="nav-login" onclick="showLoginSection()">ล็อกอิน</a>
+      </div>
     </div>
 
-    <div id="create-class-section" class="hidden">
-      <h2>Create a New Class</h2>
-      <form id="create-class-form" enctype="multipart/form-data">
-        <input type="text" name="topic" placeholder="Topic" required />
-        <input type="text" name="description" placeholder="Description" />
-        <input type="number" name="max_player" placeholder="Max Players" required />
-        <label><input type="checkbox" name="is_public" /> Is Public</label>
-        <input type="file" name="img" accept="image/*" />
-        <button type="submit" id="submit-button">Create Class</button>
-      </form>
-      <p id="form-message"></p>
+    <div class="container">
+      <!-- ฟอร์มล็อกอิน -->
+      <div id="login-section">
+        <h2>ล็อกอิน</h2>
+        <div class="form-group">
+          <label for="username">ชื่อผู้ใช้:</label>
+          <input type="text" id="username" placeholder="เช่น admin" />
+        </div>
+        <div class="form-group">
+          <label for="password">รหัสผ่าน:</label>
+          <input type="password" id="password" placeholder="เช่น admin" />
+        </div>
+        <button onclick="login()">ล็อกอิน</button>
+        <p id="login-message" class="error"></p>
+      </div>
+
+      <!-- ส่วนแสดงข้อมูลหลังล็อกอิน -->
+      <div id="dashboard" class="hidden">
+        <h2>ยินดีต้อนรับ, <span id="user-name"></span>!</h2>
+        <p id="dashboard-message" class="success"></p>
+
+        <!-- แสดงโทเค็น -->
+        <div class="token-section">
+          <h3>โทเค็นสำหรับ Swagger UI</h3>
+          <input type="text" id="user-token" readonly />
+          <button class="copy-btn" onclick="copyToken()">Copy</button>
+          <p id="copy-message" class="success"></p>
+        </div>
+
+        <!-- รายการคลาส -->
+        <div class="class-list" id="class-list">
+          <h3>รายการคลาส</h3>
+          <div id="classes"></div>
+        </div>
+
+        <!-- ฟอร์มสร้างโจทย์ -->
+        <div class="problem-form">
+          <h3>สร้างโจทย์ใหม่</h3>
+          <div class="form-group">
+            <label for="problem-class-id">เลือกคลาส:</label>
+            <select id="problem-class-id">
+              <option value="">-- เลือกคลาส --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="problem-id">Problem ID:</label>
+            <input type="number" id="problem-id" placeholder="เช่น 1" />
+          </div>
+          <div class="form-group">
+            <label for="problem-title">ชื่อโจทย์:</label>
+            <input
+              type="text"
+              id="problem-title"
+              placeholder="เช่น Sum of Two Numbers"
+            />
+          </div>
+          <div class="form-group">
+            <label for="problem-description">คำอธิบาย:</label>
+            <textarea
+              id="problem-description"
+              placeholder="เช่น Write a program to sum two numbers"
+            ></textarea>
+          </div>
+          <button onclick="createProblem()">สร้างโจทย์</button>
+          <p id="problem-message" class="error"></p>
+        </div>
+
+        <!-- รายการโจทย์ -->
+        <div class="problem-list" id="problem-list">
+          <h3>รายการโจทย์</h3>
+          <div class="form-group">
+            <label for="problem-class-select">เลือกคลาสเพื่อดูโจทย์:</label>
+            <select id="problem-class-select" onchange="fetchProblems()">
+              <option value="">-- เลือกคลาส --</option>
+            </select>
+          </div>
+          <div id="problems"></div>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <script>
-    let isFetching = false;
-    let isSubmitting = false;
-    let isLoggingIn = false;
-    let token = localStorage.getItem("token") || null;
-    let username = localStorage.getItem("username") || null;
-
-    // Check API status
-    function fetchApiStatus() {
-      document.getElementById("status-message").innerHTML = 'Checking API status... <span class="loading"></span>';
-      fetch("http://localhost:9898/api-ready")
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+    <script>
+      // ตรวจสอบสถานะการล็อกอินเมื่อโหลดหน้า
+      window.onload = async function () {
+        const token = localStorage.getItem("token");
+        if (token) {
+          try {
+            const response = await fetch("http://localhost:9898/classes", {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+            if (response.ok) {
+              showDashboard();
+              fetchClasses();
+            } else {
+              logout();
+            }
+          } catch (error) {
+            logout();
           }
-          return response.json();
-        })
-        .then(data => {
-          document.getElementById("status-message").textContent = data.message;
-        })
-        .catch(error => {
-          document.getElementById("status-message").textContent = `❌ Failed to fetch API status: ${error.message}`;
-          showRetryButton();
-        });
-    }
-
-    // Check database status
-    function fetchDatabaseStatus() {
-      document.getElementById("fetch-status").innerHTML = 'Checking database status... <span class="loading"></span>';
-      fetch("http://localhost:9898/users")
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          document.getElementById("fetch-status").textContent = "✅ API is ready to Database accept requests!";
-          console.log(true);
-        })
-        .catch(error => {
-          document.getElementById("fetch-status").textContent = `❌ Failed to fetch Database status: ${error.message}`;
-          console.log(false);
-          showRetryButton();
-        });
-    }
-
-    // Show retry button if fetch fails
-    function showRetryButton() {
-      document.getElementById("retry-button").style.display = "inline-block";
-    }
-
-    // Retry fetch requests
-    function retryFetch() {
-      if (isFetching) return;
-      isFetching = true;
-      document.getElementById("retry-button").disabled = true;
-      document.getElementById("retry-button").textContent = "Retrying...";
-      fetchApiStatus();
-      fetchDatabaseStatus();
-      setTimeout(() => {
-        isFetching = false;
-        document.getElementById("retry-button").disabled = false;
-        document.getElementById("retry-button").textContent = "Retry";
-      }, 1000);
-    }
-
-    // Redirect to Swagger UI
-    function goToSwagger() {
-      const button = document.getElementById("swagger-button");
-      button.disabled = true;
-      button.textContent = "Redirecting...";
-      window.location.href = "http://localhost:9898/swagger/index.html";
-    }
-
-    // Handle login form submission
-    document.getElementById("login-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (isLoggingIn) return;
-
-      isLoggingIn = true;
-      const loginButton = document.getElementById("login-button");
-      const loginMessage = document.getElementById("login-message");
-      loginButton.disabled = true;
-      loginButton.textContent = "Logging in...";
-      loginMessage.textContent = "Logging in...";
-      loginMessage.className = "";
-
-      const formData = new FormData(e.target);
-      const loginData = {
-        username: formData.get("username"),
-        password: formData.get("password"),
+        } else {
+          showLoginSection();
+        }
       };
 
-      try {
-        const response = await fetch("http://localhost:9898/users/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(loginData),
-        });
+      // ฟังก์ชันล็อกอิน
+      async function login() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const message = document.getElementById("login-message");
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+        if (!username || !password) {
+          message.textContent = "กรุณากรอกชื่อผู้ใช้และรหัสผ่าน";
+          return;
         }
 
-        const data = await response.json();
-        token = data.token;
-        username = data.user.username;
-        localStorage.setItem("token", token);
-        localStorage.setItem("username", username);
-        loginMessage.textContent = "✅ Login successful!";
-        loginMessage.className = "success";
-        updateAuthUI();
-      } catch (error) {
-        loginMessage.textContent = `❌ Error logging in: ${error.message}`;
-        loginMessage.className = "error";
-      } finally {
-        isLoggingIn = false;
-        loginButton.disabled = false;
-        loginButton.textContent = "Login";
+        try {
+          const response = await fetch("http://localhost:9898/users/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, password }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("username", data.user.username);
+            localStorage.setItem("userId", data.user.id);
+            showDashboard();
+            fetchClasses();
+          } else {
+            message.textContent = data.error || "ล็อกอินล้มเหลว";
+          }
+        } catch (error) {
+          message.textContent = "เกิดข้อผิดพลาด: " + error.message;
+        }
       }
-    });
 
-    // Handle logout
-    function logout() {
-      token = null;
-      username = null;
-      localStorage.removeItem("token");
-      localStorage.removeItem("username");
-      updateAuthUI();
-    }
+      // ฟังก์ชันแสดงหน้า Dashboard
+      function showDashboard() {
+        document.getElementById("login-section").style.display = "none";
+        document.getElementById("dashboard").classList.remove("hidden");
+        document.getElementById("user-name").textContent =
+          localStorage.getItem("username");
+        document.getElementById("dashboard-message").textContent =
+          "ล็อกอินสำเร็จ!";
 
-    // Update UI based on authentication state
-    function updateAuthUI() {
-      const loginForm = document.getElementById("login-form");
-      const userInfo = document.getElementById("user-info");
-      const createClassSection = document.getElementById("create-class-section");
-      const authHeader = document.getElementById("auth-header");
+        // แสดงโทเค็น
+        const token = localStorage.getItem("token");
+        document.getElementById("user-token").value = token;
 
-      if (token && username) {
-        loginForm.classList.add("hidden");
-        userInfo.classList.remove("hidden");
-        createClassSection.classList.remove("hidden");
-        authHeader.textContent = "User Info";
-        document.getElementById("username").textContent = username;
-      } else {
-        loginForm.classList.remove("hidden");
-        userInfo.classList.add("hidden");
-        createClassSection.classList.add("hidden");
-        authHeader.textContent = "Login";
+        // อัปเดต Navbar
+        document.getElementById("nav-user-name").textContent = `สวัสดี, ${localStorage.getItem(
+          "username"
+        )}`;
+        document.getElementById("nav-user-name").classList.remove("hidden");
+        document.getElementById("nav-logout").classList.remove("hidden");
+        document.getElementById("nav-login").classList.add("hidden");
+        document.getElementById("swagger-link").classList.remove("hidden");
       }
-    }
 
-    // Handle create class form submission
-    document.getElementById("create-class-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (isSubmitting || !token) return;
+      // ฟังก์ชันแสดงหน้า Login
+      function showLoginSection() {
+        document.getElementById("login-section").style.display = "block";
+        document.getElementById("dashboard").classList.add("hidden");
+        document.getElementById("nav-user-name").classList.add("hidden");
+        document.getElementById("nav-logout").classList.add("hidden");
+        document.getElementById("nav-login").classList.remove("hidden");
+        document.getElementById("swagger-link").classList.add("hidden");
+      }
 
-      isSubmitting = true;
-      const submitButton = document.getElementById("submit-button");
-      const formMessage = document.getElementById("form-message");
-      submitButton.disabled = true;
-      submitButton.textContent = "Creating...";
-      formMessage.textContent = "Submitting form...";
-      formMessage.className = "";
+      // ฟังก์ชันคัดลอกโทเค็น
+      function copyToken() {
+        const token = document.getElementById("user-token").value;
+        navigator.clipboard
+          .writeText(token)
+          .then(() => {
+            document.getElementById("copy-message").textContent =
+              "คัดลอกโทเค็นสำเร็จ!";
+            setTimeout(() => {
+              document.getElementById("copy-message").textContent = "";
+            }, 2000);
+          })
+          .catch((err) => {
+            document.getElementById("copy-message").className = "error";
+            document.getElementById("copy-message").textContent =
+              "ไม่สามารถคัดลอกโทเค็นได้: " + err;
+          });
+      }
 
-      const formData = new FormData(e.target);
-      try {
-        const response = await fetch("http://localhost:9898/classes", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-          body: formData,
-        });
+      // ฟังก์ชันดึงรายการคลาส
+      async function fetchClasses() {
+        const token = localStorage.getItem("token");
+        const classesDiv = document.getElementById("classes");
+        const problemClassSelect = document.getElementById("problem-class-id");
+        const problemClassSelect2 = document.getElementById(
+          "problem-class-select"
+        );
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+        try {
+          const response = await fetch("http://localhost:9898/classes", {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+            },
+          });
+
+          const classes = await response.json();
+
+          if (response.ok) {
+            if (classes.length === 0) {
+              classesDiv.innerHTML = "<p>ไม่มีคลาส</p>";
+            } else {
+              classesDiv.innerHTML = "";
+              problemClassSelect.innerHTML =
+                '<option value="">-- เลือกคลาส --</option>';
+              problemClassSelect2.innerHTML =
+                '<option value="">-- เลือกคลาส --</option>';
+              classes.forEach((cls) => {
+                const classItem = document.createElement("div");
+                classItem.className = "class-item";
+                classItem.innerHTML = `
+                                <img src="http://localhost:9898${cls.img}" alt="${cls.topic}">
+                                <div class="class-content">
+                                    <h4>${cls.topic}</h4>
+                                    <p>${cls.description}</p>
+                                    <p>จำนวนผู้เข้าร่วมสูงสุด: ${
+                                      cls.max_player
+                                    }</p>
+                                    <p>สาธารณะ: ${
+                                      cls.is_public ? "ใช่" : "ไม่"
+                                    }</p>
+                                    <p>เจ้าของ: ${cls.owner.name} (${
+                  cls.owner.username
+                })</p>
+                                </div>
+                            `;
+                classesDiv.appendChild(classItem);
+
+                const option = document.createElement("option");
+                option.value = cls.id;
+                option.textContent = cls.topic;
+                problemClassSelect.appendChild(option);
+
+                const option2 = document.createElement("option");
+                option2.value = cls.id;
+                option2.textContent = cls.topic;
+                problemClassSelect2.appendChild(option2);
+              });
+            }
+          } else {
+            classesDiv.innerHTML = `<p class="error">${
+              classes.error || "ไม่สามารถดึงข้อมูลคลาสได้"
+            }</p>`;
+          }
+        } catch (error) {
+          classesDiv.innerHTML = `<p class="error">เกิดข้อผิดพลาด: ${error.message}</p>`;
+        }
+      }
+
+      // ฟังก์ชันสร้างโจทย์
+      async function createProblem() {
+        const classID = document.getElementById("problem-class-id").value;
+        const problemID = document.getElementById("problem-id").value;
+        const title = document.getElementById("problem-title").value;
+        const description = document.getElementById(
+          "problem-description"
+        ).value;
+        const message = document.getElementById("problem-message");
+        const token = localStorage.getItem("token");
+
+        if (!classID || !problemID || !title || !description) {
+          message.textContent = "กรุณากรอกข้อมูลให้ครบถ้วน";
+          return;
         }
 
-        const data = await response.json();
-        formMessage.textContent = "✅ Class created successfully!";
-        formMessage.className = "success";
-        console.log("Class created:", data);
+        try {
+          const response = await fetch(
+            `http://localhost:9898/api/${classID}/problems/${problemID}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ title, description }),
+            }
+          );
 
-        // Reset the form
-        e.target.reset();
-      } catch (error) {
-        formMessage.textContent = `❌ Error creating class: ${error.message}`;
-        formMessage.className = "error";
-        console.error("Error creating class:", error);
-      } finally {
-        isSubmitting = false;
-        submitButton.disabled = false;
-        submitButton.textContent = "Create Class";
+          const data = await response.json();
+
+          if (response.ok) {
+            message.className = "success";
+            message.textContent = `สร้างโจทย์สำเร็จ (ID: ${data.id})`;
+            document.getElementById("problem-id").value = "";
+            document.getElementById("problem-title").value = "";
+            document.getElementById("problem-description").value = "";
+            fetchProblems();
+          } else {
+            message.textContent = data.error || "ไม่สามารถสร้างโจทย์ได้";
+          }
+        } catch (error) {
+          message.textContent = "เกิดข้อผิดพลาด: " + error.message;
+        }
       }
-    });
 
-    // Initial fetch calls and UI setup
-    fetchApiStatus();
-    fetchDatabaseStatus();
-    updateAuthUI();
-  </script>
-</body>
+      // ฟังก์ชันดึงรายการโจทย์
+      async function fetchProblems() {
+        const classID = document.getElementById("problem-class-select").value;
+        const problemsDiv = document.getElementById("problems");
+        const token = localStorage.getItem("token");
+
+        if (!classID) {
+          problemsDiv.innerHTML = "<p>กรุณาเลือกคลาส</p>";
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `http://localhost:9898/api/classes/${classID}/problem`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/json",
+              },
+            }
+          );
+
+          const problems = await response.json();
+
+          if (response.ok) {
+            if (problems.length === 0) {
+              problemsDiv.innerHTML = "<p>ไม่มีโจทย์</p>";
+            } else {
+              problemsDiv.innerHTML = "";
+              problems.forEach((problem) => {
+                const problemItem = document.createElement("div");
+                problemItem.className = "problem-item";
+                problemItem.innerHTML = `
+                                <h4>${problem.title} (ID: ${problem.id})</h4>
+                                <p>${problem.description}</p>
+                                <p>สร้างโดย: ${problem.user.name} (${
+                  problem.user.username
+                })</p>
+                                <p>สร้างเมื่อ: ${new Date(
+                                  problem.created_at
+                                ).toLocaleString()}</p>
+                                <button class="edit-btn" onclick="showEditProblemForm(${
+                                  problem.class_id
+                                }, ${problem.id}, '${problem.title}', '${
+                  problem.description
+                }')">แก้ไขโจทย์</button>
+                                <button class="delete-btn" onclick="deleteProblem(${
+                                  problem.class_id
+                                }, ${problem.id})">ลบโจทย์</button>
+                                <div class="test-case-form">
+                                    <h5>สร้าง Test Case</h5>
+                                    <div class="form-group">
+                                        <label>Test Case ID:</label>
+                                        <input type="number" id="test-case-id-${
+                                          problem.id
+                                        }" placeholder="เช่น 1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Input Data:</label>
+                                        <input type="text" id="test-case-input-${
+                                          problem.id
+                                        }" placeholder="เช่น 1 2">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Expected Output:</label>
+                                        <input type="text" id="test-case-output-${
+                                          problem.id
+                                        }" placeholder="เช่น 3">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Description:</label>
+                                        <input type="text" id="test-case-desc-${
+                                          problem.id
+                                        }" placeholder="เช่น Test sum of two numbers">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>สาธารณะ:</label>
+                                        <select id="test-case-public-${
+                                          problem.id
+                                        }">
+                                            <option value="true">ใช่</option>
+                                            <option value="false">ไม่</option>
+                                        </select>
+                                    </div>
+                                    <button onclick="createTestCase(${
+                                      problem.class_id
+                                    }, ${problem.id})">สร้าง Test Case</button>
+                                    <p id="test-case-message-${
+                                      problem.id
+                                    }" class="error"></p>
+                                </div>
+                                <div class="test-case-list">
+                                    <h5>Test Cases</h5>
+                                    <div id="test-cases-${problem.id}"></div>
+                                </div>
+                            `;
+                problemsDiv.appendChild(problemItem);
+                fetchTestCases(problem.id);
+              });
+            }
+          } else {
+            problemsDiv.innerHTML = `<p class="error">${
+              problems.error || "ไม่สามารถดึงข้อมูลโจทย์ได้"
+            }</p>`;
+          }
+        } catch (error) {
+          problemsDiv.innerHTML = `<p class="error">เกิดข้อผิดพลาด: ${error.message}</p>`;
+        }
+      }
+
+      // ฟังก์ชันแสดงฟอร์มแก้ไขโจทย์
+      function showEditProblemForm(classID, problemID, title, description) {
+        const problemItem = document.querySelector(
+          `.problem-item:has(h4:contains('ID: ${problemID}'))`
+        );
+        problemItem.innerHTML = `
+                <h4>แก้ไขโจทย์ (ID: ${problemID})</h4>
+                <div class="form-group">
+                    <label>ชื่อโจทย์:</label>
+                    <input type="text" id="edit-problem-title-${problemID}" value="${title}">
+                </div>
+                <div class="form-group">
+                    <label>คำอธิบาย:</label>
+                    <textarea id="edit-problem-desc-${problemID}">${description}</textarea>
+                </div>
+                <button onclick="updateProblem(${classID}, ${problemID})">บันทึก</button>
+                <button onclick="fetchProblems()">ยกเลิก</button>
+                <p id="edit-problem-message-${problemID}" class="error"></p>
+            `;
+      }
+
+      // ฟังก์ชันแก้ไขโจทย์
+      async function updateProblem(classID, problemID) {
+        const title = document.getElementById(
+          `edit-problem-title-${problemID}`
+        ).value;
+        const description = document.getElementById(
+          `edit-problem-desc-${problemID}`
+        ).value;
+        const message = document.getElementById(
+          `edit-problem-message-${problemID}`
+        );
+        const token = localStorage.getItem("token");
+
+        if (!title || !description) {
+          message.textContent = "กรุณากรอกข้อมูลให้ครบถ้วน";
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `http://localhost:9898/api/${classID}/problems/${problemID}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ title, description }),
+            }
+          );
+
+          const data = await response.json();
+
+          if (response.ok) {
+            message.className = "success";
+            message.textContent = data.message;
+            fetchProblems();
+          } else {
+            message.textContent = data.error || "ไม่สามารถแก้ไขโจทย์ได้";
+          }
+        } catch (error) {
+          message.textContent = "เกิดข้อผิดพลาด: " + error.message;
+        }
+      }
+
+      // ฟังก์ชันลบโจทย์
+      async function deleteProblem(classID, problemID) {
+        if (!confirm("คุณแน่ใจหรือไม่ว่าต้องการลบโจทย์นี้?")) return;
+
+        const token = localStorage.getItem("token");
+
+        try {
+          const response = await fetch(
+            `http://localhost:9898/api/${classID}/problems/${problemID}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          const data = await response.json();
+
+          if (response.ok) {
+            alert(data.message);
+            fetchProblems();
+          } else {
+            alert(data.error || "ไม่สามารถลบโจทย์ได้");
+          }
+        } catch (error) {
+          alert("เกิดข้อผิดพลาด: " + error.message);
+        }
+      }
+
+      // ฟังก์ชันสร้าง test case
+      async function createTestCase(classID, problemID) {
+        const testCaseID = document.getElementById(
+          `test-case-id-${problemID}`
+        ).value;
+        const inputData = document.getElementById(
+          `test-case-input-${problemID}`
+        ).value;
+        const expectedOutput = document.getElementById(
+          `test-case-output-${problemID}`
+        ).value;
+        const description = document.getElementById(
+          `test-case-desc-${problemID}`
+        ).value;
+        const isPublic =
+          document.getElementById(`test-case-public-${problemID}`).value ===
+          "true";
+        const message = document.getElementById(
+          `test-case-message-${problemID}`
+        );
+        const token = localStorage.getItem("token");
+
+        if (!testCaseID || !inputData || !expectedOutput || !description) {
+          message.textContent = "กรุณากรอกข้อมูลให้ครบถ้วน";
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `http://localhost:9898/api/${classID}/problems/${problemID}/testcases/${testCaseID}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                input_data: inputData,
+                expected_output: expectedOutput,
+                description: description,
+                isPublic: isPublic,
+              }),
+            }
+          );
+
+          const data = await response.json();
+
+          if (response.ok) {
+            message.className = "success";
+            message.textContent = `สร้าง Test Case สำเร็จ (ID: ${data.id})`;
+            document.getElementById(`test-case-id-${problemID}`).value = "";
+            document.getElementById(`test-case-input-${problemID}`).value = "";
+            document.getElementById(`test-case-output-${problemID}`).value = "";
+            document.getElementById(`test-case-desc-${problemID}`).value = "";
+            fetchTestCases(problemID);
+          } else {
+            message.textContent = data.error || "ไม่สามารถสร้าง Test Case ได้";
+          }
+        } catch (error) {
+          message.textContent = "เกิดข้อผิดพลาด: " + error.message;
+        }
+      }
+
+      // ฟังก์ชันดึง test cases
+      async function fetchTestCases(problemID) {
+        const classID = document.getElementById("problem-class-select").value;
+        const testCasesDiv = document.getElementById(`test-cases-${problemID}`);
+        const token = localStorage.getItem("token");
+
+        try {
+          const response = await fetch(
+            `http://localhost:9898/api/classes/${classID}/problem`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/json",
+              },
+            }
+          );
+
+          const problems = await response.json();
+
+          if (response.ok) {
+            const problem = problems.find((p) => p.id === problemID);
+            if (
+              problem &&
+              problem.test_cases &&
+              problem.test_cases.length > 0
+            ) {
+              testCasesDiv.innerHTML = "";
+              problem.test_cases.forEach((testCase) => {
+                const testCaseItem = document.createElement("div");
+                testCaseItem.className = "test-case-item";
+                testCaseItem.innerHTML = `
+                                <p>ID: ${testCase.id}</p>
+                                <p>Input: ${testCase.input_data}</p>
+                                <p>Expected Output: ${
+                                  testCase.expected_output
+                                }</p>
+                                <p>Description: ${testCase.description}</p>
+                                <p>สาธารณะ: ${
+                                  testCase.is_public ? "ใช่" : "ไม่"
+                                }</p>
+                                <button class="edit-btn" onclick="showEditTestCaseForm(${classID}, ${problemID}, ${
+                  testCase.id
+                }, '${testCase.input_data}', '${testCase.expected_output}', '${
+                  testCase.description
+                }', ${testCase.is_public})">แก้ไข Test Case</button>
+                                <button class="delete-btn" onclick="deleteTestCase(${classID}, ${problemID}, ${
+                  testCase.id
+                })">ลบ Test Case</button>
+                            `;
+                testCasesDiv.appendChild(testCaseItem);
+              });
+            } else {
+              testCasesDiv.innerHTML = "<p>ไม่มี Test Case</p>";
+            }
+          } else {
+            testCasesDiv.innerHTML = `<p class="error">${
+              problems.error || "ไม่สามารถดึงข้อมูล Test Case ได้"
+            }</p>`;
+          }
+        } catch (error) {
+          testCasesDiv.innerHTML = `<p class="error">เกิดข้อผิดพลาด: ${error.message}</p>`;
+        }
+      }
+
+      // ฟังก์ชันแสดงฟอร์มแก้ไข test case
+      function showEditTestCaseForm(
+        classID,
+        problemID,
+        testCaseID,
+        inputData,
+        expectedOutput,
+        description,
+        isPublic
+      ) {
+        const testCaseItem = document.querySelector(
+          `#test-cases-${problemID} .test-case-item:has(p:contains('ID: ${testCaseID}'))`
+        );
+        testCaseItem.innerHTML = `
+                <h5>แก้ไข Test Case (ID: ${testCaseID})</h5>
+                <div class="form-group">
+                    <label>Input Data:</label>
+                    <input type="text" id="edit-test-case-input-${testCaseID}" value="${inputData}">
+                </div>
+                <div class="form-group">
+                    <label>Expected Output:</label>
+                    <input type="text" id="edit-test-case-output-${testCaseID}" value="${expectedOutput}">
+                </div>
+                <div class="form-group">
+                    <label>Description:</label>
+                    <input type="text" id="edit-test-case-desc-${testCaseID}" value="${description}">
+                </div>
+                <div class="form-group">
+                    <label>สาธารณะ:</label>
+                    <select id="edit-test-case-public-${testCaseID}">
+                        <option value="true" ${
+                          isPublic ? "selected" : ""
+                        }>ใช่</option>
+                        <option value="false" ${
+                          !isPublic ? "selected" : ""
+                        }>ไม่</option>
+                    </select>
+                </div>
+                <button onclick="updateTestCase(${classID}, ${problemID}, ${testCaseID})">บันทึก</button>
+                <button onclick="fetchTestCases(${problemID})">ยกเลิก</button>
+                <p id="edit-test-case-message-${testCaseID}" class="error"></p>
+            `;
+      }
+
+      // ฟังก์ชันแก้ไข test case
+      async function updateTestCase(classID, problemID, testCaseID) {
+        const inputData = document.getElementById(
+          `edit-test-case-input-${testCaseID}`
+        ).value;
+        const expectedOutput = document.getElementById(
+          `edit-test-case-output-${testCaseID}`
+        ).value;
+        const description = document.getElementById(
+          `edit-test-case-desc-${testCaseID}`
+        ).value;
+        const isPublic =
+          document.getElementById(`edit-test-case-public-${testCaseID}`)
+            .value === "true";
+        const message = document.getElementById(
+          `edit-test-case-message-${testCaseID}`
+        );
+        const token = localStorage.getItem("token");
+
+        if (!inputData || !expectedOutput || !description) {
+          message.textContent = "กรุณากรอกข้อมูลให้ครบถ้วน";
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `http://localhost:9898/api/${classID}/problems/${problemID}/testcases/${testCaseID}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                input_data: inputData,
+                expected_output: expectedOutput,
+                description: description,
+                isPublic: isPublic,
+              }),
+            }
+          );
+
+          const data = await response.json();
+
+          if (response.ok) {
+            message.className = "success";
+            message.textContent = data.message;
+            fetchTestCases(problemID);
+          } else {
+            message.textContent = data.error || "ไม่สามารถแก้ไข Test Case ได้";
+          }
+        } catch (error) {
+          message.textContent = "เกิดข้อผิดพลาด: " + error.message;
+        }
+      }
+
+      // ฟังก์ชันลบ test case
+      async function deleteTestCase(classID, problemID, testCaseID) {
+        if (!confirm("คุณแน่ใจหรือไม่ว่าต้องการลบ Test Case นี้?")) return;
+
+        const token = localStorage.getItem("token");
+
+        try {
+          const response = await fetch(
+            `http://localhost:9898/api/${classID}/problems/${problemID}/testcases/${testCaseID}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          const data = await response.json();
+
+          if (response.ok) {
+            alert(data.message);
+            fetchTestCases(problemID);
+          } else {
+            alert(data.error || "ไม่สามารถลบ Test Case ได้");
+          }
+        } catch (error) {
+          alert("เกิดข้อผิดพลาด: " + error.message);
+        }
+      }
+
+      // ฟังก์ชันออกจากระบบ
+      function logout() {
+        if (confirm("คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?")) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("username");
+          localStorage.removeItem("userId");
+          showLoginSection();
+          document.getElementById("login-message").textContent = "";
+          document.getElementById("username").value = "";
+          document.getElementById("password").value = "";
+        }
+      }
+    </script>
+  </body>
 </html>

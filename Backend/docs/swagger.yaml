@@ -49,9 +49,59 @@ definitions:
       username:
         type: string
     type: object
+  models.Problem:
+    properties:
+      class:
+        $ref: '#/definitions/models.Class'
+      class_id:
+        type: integer
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      test_cases:
+        items:
+          $ref: '#/definitions/models.TestCase'
+        type: array
+      title:
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        type: integer
+    type: object
   models.SuccessResponse:
     properties:
       message:
+        type: string
+    type: object
+  models.TestCase:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      expected_output:
+        type: string
+      id:
+        type: integer
+      input_data:
+        type: string
+      is_public:
+        type: boolean
+      problem:
+        $ref: '#/definitions/models.Problem'
+      problem_id:
+        type: integer
+      updated_at:
         type: string
     type: object
   models.User:
@@ -77,12 +127,39 @@ definitions:
         type: string
       password:
         type: string
+      profile_picture:
+        type: string
       updated_at:
         type: string
       username:
         type: string
       youtube:
         type: string
+    type: object
+  routes.CreateProblemRequest:
+    properties:
+      description:
+        type: string
+      title:
+        type: string
+    required:
+    - description
+    - title
+    type: object
+  routes.CreateTestCaseRequest:
+    properties:
+      description:
+        type: string
+      expected_output:
+        type: string
+      input_data:
+        type: string
+      isPublic:
+        type: boolean
+    required:
+    - description
+    - expected_output
+    - input_data
     type: object
   routes.CreateUserRequest:
     properties:
@@ -136,6 +213,31 @@ definitions:
     - email
     - new_password
     type: object
+  routes.UpdateProblemRequest:
+    properties:
+      description:
+        type: string
+      title:
+        type: string
+    required:
+    - description
+    - title
+    type: object
+  routes.UpdateTestCaseRequest:
+    properties:
+      description:
+        type: string
+      expected_output:
+        type: string
+      input_data:
+        type: string
+      isPublic:
+        type: boolean
+    required:
+    - description
+    - expected_output
+    - input_data
+    type: object
   routes.UpdateUserRequest:
     properties:
       bio:
@@ -179,6 +281,361 @@ paths:
           schema:
             $ref: '#/definitions/main.Response'
       summary: Check if API is ready
+  /api/{class_id}/{problem_id}:
+    delete:
+      consumes:
+      - application/json
+      description: ลบโจทย์ที่ระบุ โดยต้องระบุ class_id และ problem_id ใน URL
+      parameters:
+      - description: Class ID
+        in: path
+        name: class_id
+        required: true
+        type: integer
+      - description: Problem ID
+        in: path
+        name: problem_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ข้อความยืนยันการลบ
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: ID ไม่ถูกต้อง
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: ไม่ได้รับอนุญาต (token ไม่ถูกต้อง)
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: ไม่พบคลาสหรือโจทย์
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: ข้อผิดพลาดภายในเซิร์ฟเวอร์
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: ลบโจทย์
+      tags:
+      - problems
+    put:
+      consumes:
+      - application/json
+      description: แก้ไขโจทย์ที่ระบุ โดยต้องระบุ class_id และ problem_id ใน URL และส่งข้อมูลโจทย์ที่ต้องการแก้ไขใน
+        request body
+      parameters:
+      - description: Class ID
+        in: path
+        name: class_id
+        required: true
+        type: integer
+      - description: Problem ID
+        in: path
+        name: problem_id
+        required: true
+        type: integer
+      - description: ข้อมูลโจทย์ที่ต้องการแก้ไข
+        in: body
+        name: problem
+        required: true
+        schema:
+          $ref: '#/definitions/routes.UpdateProblemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ข้อความยืนยันการแก้ไข
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: ข้อมูลที่ส่งมาไม่ถูกต้อง
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: ไม่ได้รับอนุญาต (token ไม่ถูกต้อง)
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: ไม่พบคลาสหรือโจทย์
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: ข้อผิดพลาดภายในเซิร์ฟเวอร์
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: แก้ไขโจทย์
+      tags:
+      - problems
+  /api/{class_id}/{problem_id}/{test_case_id}:
+    delete:
+      consumes:
+      - application/json
+      description: ลบ test case สำหรับโจทย์ที่ระบุ โดยต้องระบุ class_id, problem_id,
+        และ test_case_id ใน URL
+      parameters:
+      - description: Class ID
+        in: path
+        name: class_id
+        required: true
+        type: integer
+      - description: Problem ID
+        in: path
+        name: problem_id
+        required: true
+        type: integer
+      - description: Test Case ID
+        in: path
+        name: test_case_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ข้อความยืนยันการลบ
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: ID ไม่ถูกต้อง
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: ไม่ได้รับอนุญาต (token ไม่ถูกต้อง)
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: ไม่พบคลาส, โจทย์, หรือ test case
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: ข้อผิดพลาดภายในเซิร์ฟเวอร์
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: ลบ test case
+      tags:
+      - test_cases
+    put:
+      consumes:
+      - application/json
+      description: แก้ไข test case สำหรับโจทย์ที่ระบุ โดยต้องระบุ class_id, problem_id,
+        และ test_case_id ใน URL และส่งข้อมูล test case ที่ต้องการแก้ไขใน request body
+      parameters:
+      - description: Class ID
+        in: path
+        name: class_id
+        required: true
+        type: integer
+      - description: Problem ID
+        in: path
+        name: problem_id
+        required: true
+        type: integer
+      - description: Test Case ID
+        in: path
+        name: test_case_id
+        required: true
+        type: integer
+      - description: ข้อมูล Test Case ที่ต้องการแก้ไข
+        in: body
+        name: test_case
+        required: true
+        schema:
+          $ref: '#/definitions/routes.UpdateTestCaseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ข้อความยืนยันการแก้ไข
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: ข้อมูลที่ส่งมาไม่ถูกต้อง
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: ไม่ได้รับอนุญาต (token ไม่ถูกต้อง)
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: ไม่พบคลาส, โจทย์, หรือ test case
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: ข้อผิดพลาดภายในเซิร์ฟเวอร์
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: แก้ไข test case
+      tags:
+      - test_cases
+  /api/{class_id}/problems/{problem_id}:
+    post:
+      consumes:
+      - application/json
+      description: สร้างโจทย์ใหม่ในคลาสที่ระบุ โดยต้องระบุ class_id ใน URL และส่งข้อมูลโจทย์ใน
+        request body
+      parameters:
+      - description: Class ID
+        in: path
+        name: class_id
+        required: true
+        type: integer
+      - description: Problem ID
+        in: path
+        name: problem_id
+        required: true
+        type: integer
+      - description: ข้อมูลโจทย์
+        in: body
+        name: problem
+        required: true
+        schema:
+          $ref: '#/definitions/routes.CreateProblemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: โจทย์ที่สร้างสำเร็จ
+          schema:
+            $ref: '#/definitions/models.Problem'
+        "400":
+          description: ข้อมูลที่ส่งมาไม่ถูกต้อง
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: ไม่ได้รับอนุญาต (token ไม่ถูกต้อง)
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: ไม่พบคลาส
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: ข้อผิดพลาดภายในเซิร์ฟเวอร์
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: สร้างโจทย์ใหม่ในคลาส
+      tags:
+      - problems
+  /api/{class_id}/problems/{problem_id}/testcases/{test_case_id}:
+    post:
+      consumes:
+      - application/json
+      description: สร้าง test case ใหม่สำหรับโจทย์ที่ระบุ โดยต้องระบุ class_id, problem_id
+        และ test_case_id ใน URL และส่งข้อมูล test case ใน request body
+      parameters:
+      - description: Class ID
+        in: path
+        name: class_id
+        required: true
+        type: integer
+      - description: Problem ID
+        in: path
+        name: problem_id
+        required: true
+        type: integer
+      - description: Test Case ID
+        in: path
+        name: test_case_id
+        required: true
+        type: integer
+      - description: ข้อมูล Test Case
+        in: body
+        name: test_case
+        required: true
+        schema:
+          $ref: '#/definitions/routes.CreateTestCaseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Test Case ที่สร้างสำเร็จ
+          schema:
+            $ref: '#/definitions/models.TestCase'
+        "400":
+          description: ข้อมูลที่ส่งมาไม่ถูกต้อง
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: ไม่ได้รับอนุญาต (token ไม่ถูกต้อง)
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: ไม่พบโจทย์
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: ข้อผิดพลาดภายในเซิร์ฟเวอร์
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: สร้าง test case สำหรับโจทย์
+      tags:
+      - test_cases
+  /api/classes/{class_id}/problem:
+    get:
+      consumes:
+      - application/json
+      description: ดึงรายการโจทย์ทั้งหมดในคลาสที่ระบุ โดยต้องระบุ class_id ใน URL
+      parameters:
+      - description: Class ID
+        in: path
+        name: class_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: รายการโจทย์
+          schema:
+            items:
+              $ref: '#/definitions/models.Problem'
+            type: array
+        "400":
+          description: class_id ไม่ถูกต้อง
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: ไม่ได้รับอนุญาต (token ไม่ถูกต้อง)
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: ไม่พบคลาส
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: ข้อผิดพลาดภายในเซิร์ฟเวอร์
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: ดูโจทย์ทั้งหมดในคลาส
+      tags:
+      - problems
   /classes:
     get:
       description: Retrieve a list of all classes
@@ -493,6 +950,44 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Update a user
+      tags:
+      - Users
+  /users/{id}/profile-picture:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a profile picture for the authenticated user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Profile picture file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Upload user profile picture
       tags:
       - Users
   /users/forgot-password:

@@ -392,6 +392,9 @@ const docTemplate = `{
                 "password": {
                     "type": "string"
                 },
+                "profile_picture": {
+                    "type": "string"
+                },
                 "updated_at": {
                     "type": "string"
                 },
@@ -402,6 +405,14 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "\"Enter the token with the ` + "`" + `Bearer ` + "`" + ` prefix, e.g., ` + "`" + `Bearer \u003ctoken\u003e` + "`" + `\"",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
