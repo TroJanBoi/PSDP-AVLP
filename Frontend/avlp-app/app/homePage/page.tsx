@@ -19,9 +19,15 @@ export default function HomePage() {
         <div className="min-h-screen flex flex-col">
             <Navbar />
             <form action="">
-                <OverviewSection />
-                <BenefitSection />
-                <PopularClassesSection />
+                <div id='home-main'>
+                    <OverviewSection />
+                </div>
+                <div id='home-benefit'>
+                    <BenefitSection />
+                </div>
+                <div id='home-class'>
+                    <PopularClassesSection />
+                </div>
             </form>
         </div>
     );

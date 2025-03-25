@@ -5,8 +5,14 @@ import React, { useEffect, useState, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { Bell, LogOutIcon, Settings, User2 } from "lucide-react";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
-const Navbar = () => {
+interface NavbarProps {
+    Topic?: boolean;
+    btnRun?: boolean;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ Topic = false, btnRun = false }) => {
 
     const setMenu = useMenuStore((state) => state.setMenu);
     const [scrollY, setScrollY] = useState(false);
@@ -29,27 +35,28 @@ const Navbar = () => {
 
     const handleSelect = (menu: MenuType) => {
         setMenu(menu);
+        console.log("menu: ", menu);
     };
-    
+
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-          if (
-            isDropdownOpen &&
-            dropdownRef.current &&
-            !dropdownRef.current.contains(event.target as Node) &&
-            avatarRef.current &&
-            !avatarRef.current.contains(event.target as Node)
-          ) {
-            setIsDropdownOpen(false);
-          }
+            if (
+                isDropdownOpen &&
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target as Node) &&
+                avatarRef.current &&
+                !avatarRef.current.contains(event.target as Node)
+            ) {
+                setIsDropdownOpen(false);
+            }
         };
-      
+
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
-          document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("mousedown", handleClickOutside);
         };
-      }, [isDropdownOpen]);
-      
+    }, [isDropdownOpen]);
+
     useEffect(() => {
         if (typeof window !== "undefined") {
             window.addEventListener("scroll", controlNavbar);
@@ -58,10 +65,7 @@ const Navbar = () => {
             };
         }
     }, [lastScrollY]);
-
-    console.log("session email: ", session?.user?.email);
-    // console.log("scrollY: ", scrollY);
-    // console.log("lastScrollY: ", lastScrollY);
+    // console.log("session email: ", session?.user?.email);
     if (status === "loading") return null;
     return (
         <>
@@ -76,7 +80,7 @@ const Navbar = () => {
                                 </Link>
                             </div>
                             <div className="flex items-center gap-4 pr-5">
-                                <Link href={"/register"} className="text-textbase bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-pink-300 dark:focus:ring-pink-800 shadow-lg font-semibold rounded-lg text-xl px-5 py-2.5 text-center me-2 mb-2 ">
+                                <Link href={"/signUpPage"} className="text-textbase bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-pink-300 dark:focus:ring-pink-800 shadow-lg font-semibold rounded-lg text-xl px-5 py-2.5 text-center me-2 mb-2 ">
                                     Sign Up
                                 </Link>
                             </div>
@@ -84,22 +88,66 @@ const Navbar = () => {
                     </div>
                 </nav>
             ) : (
-                <nav className={`fixed w-full top-0 z-50 ${scrollY ? "bg-primary shadow-lg" : ""}`}>
+                <nav className={`${Topic || btnRun ? "static" : "fixed"} w-full top-0 z-50 ${scrollY || Topic || btnRun ? "bg-primary shadow-lg" : ""}`}>
                     <div className="mx-auto px-4 max-w-full">
                         <div className="flex justify-between items-center">
-                            <div className="flex items-center flex-grow gap-4 top">
+                            <div className="flex items-center gap-4 top">
                                 <Link href={"/homePage"} className="flex items-center shrink-0" onClick={() => handleSelect("home-main")}>
                                     <div className="bg-[url('/images/logo.png')] w-20 h-20 bg-cover bg-center bg-no-repeat">
                                     </div>
                                 </Link>
+                                {Topic && (
+                                    <div className="text-white text-xl font-semibold">
+                                        topic
+                                    </div>
+                                )}
                             </div>
-                            <div className="flex items-center gap-4 pr-5">
-                                <div className="font-semibold text-xl text-white">
-                                    <h1 className="">Home</h1>
+                            {btnRun && (
+                                <div className="flex items-center gap-4 ">
+                                    <div>
+                                        <Button className="text-primary bg-white text-xl font-semibold rounded-lg px-5 py-3 text-center shadow-xl hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 dark:focus:ring-gray-800">
+                                            Run
+                                        </Button>
+                                    </div>
                                 </div>
-                                <div className="font-semibold text-xl text-white">
-                                    Class
-                                </div>
+                            )}
+                            <div className="flex items-center gap-4">
+
+                                {btnRun && Topic ? (
+                                    <>
+                                        <Link href={"/"} className="font-semibold text-xl text-white cursor-pointer" onClick={() => handleSelect("home-main")}>
+                                            Home
+                                        </Link>
+                                        <Link href={"/"} className="font-semibold text-xl text-white cursor-pointer" onClick={() => handleSelect("class")}>
+                                            Class
+                                        </Link>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div
+                                            onClick={() => {
+                                                const el = document.getElementById("home-main");
+                                                if (el) {
+                                                    el.scrollIntoView({ behavior: "smooth" });
+                                                }
+                                                handleSelect("home-main");
+                                            }}
+                                            className="font-semibold text-xl text-white cursor-pointer">
+                                            Home
+                                        </div>
+                                        <div
+                                            onClick={() => {
+                                                const el = document.getElementById("home-class");
+                                                if (el) {
+                                                    el.scrollIntoView({ behavior: "smooth" });
+                                                }
+                                                handleSelect("class");
+                                            }}
+                                            className="font-semibold text-xl text-white cursor-pointer">
+                                            Class
+                                        </div>
+                                    </>
+                                )}
                                 <div>
                                     <Bell className="text-white" size={24} />
                                 </div>

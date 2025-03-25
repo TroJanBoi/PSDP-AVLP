@@ -1,7 +1,10 @@
 import Image from "next/image";
 import { BookOpen, Code2, GraduationCap } from 'lucide-react';
+import { useSession } from "next-auth/react";
 
 export default function BenefitSection() {
+    const { data: session, status } = useSession();
+    if (status === "loading") return null;
     return (
         <section className="flex flex-col justify-center items-center bg-background w-screen h-[100vh]">
             <div className="flex flex-col justify-center items-center space-y-5 text-center">

@@ -11,7 +11,9 @@ import {
     CardTitle
 } from "@/components/ui/card";
 import { getAllClass } from "@/services/api";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Link } from "lucide-react";
+import { useSession } from "next-auth/react";
+import NextLink from "next/link";
 
 interface ClassType {
     id: number;
@@ -30,6 +32,7 @@ export default function PopularClassesSection() {
     const [classes, setClasses] = useState<ClassType[]>([]);
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(2);
+    const { data: session, status } = useSession();
 
     useEffect(() => {
 
@@ -78,7 +81,7 @@ export default function PopularClassesSection() {
     };
 
     const visibleCards = classes.slice(page * pageSize, (page + 1) * pageSize);
-
+    if (status === "loading") return null;
     console.log("images: ", classes);
     return (
         <section className="flex flex-col justify-center items-center w-full h-[100vh] bg-no-repeat bg-center bg-cover bg-[#A179DC] xl:bg-[url('/images/bg-populaClass.png')] px-4 py-12 pt-24">
@@ -97,51 +100,52 @@ export default function PopularClassesSection() {
 
                 <div className="w-full flex flex-wrap justify-center items-stretch gap-6">
                     {visibleCards.map((cls) => (
-                        
-                        <Card
-                            key={cls.id}
-                            className="w-full sm:w-[22rem] flex flex-col justify-between"
-                        >
-                            <CardHeader>
-                                <div className="flex justify-center items-center">
-                                    <Image
-                                        src={`http://localhost:9898${cls.img}`}
-                                        width={350}
-                                        height={350}
-                                        alt={cls.topic}
-                                        className="rounded-md object-cover max-h-60 w-full"
-                                    />
-                                </div>
-                            </CardHeader>
-
-                            <CardContent className="text-left flex-grow">
-                                <CardTitle className="text-primary text-xl sm:text-2xl">
-                                    {cls.topic}
-                                </CardTitle>
-                                <CardDescription className="text-sm sm:text-base text-gray-600 mt-2">
-                                    <div>
-                                        {cls.description}
+                        <NextLink href={`/classes/${cls.id}`} key={cls.id}>
+                            <Card
+                                key={cls.id}
+                                className="w-full sm:w-[22rem] flex flex-col justify-between"
+                            >
+                                <CardHeader>
+                                    <div className="flex justify-center items-center">
+                                        <Image
+                                            src={`http://localhost:9898${cls.img}`}
+                                            width={350}
+                                            height={350}
+                                            alt={cls.topic}
+                                            className="rounded-md object-cover max-h-60 w-full"
+                                        />
                                     </div>
+                                </CardHeader>
 
-                                </CardDescription>
-                            </CardContent>
-                            <CardFooter className="flex justify-between items-center pt-4 text-black font-semibold">
-                                <div className="flex items-center gap-2">
-                                    <BookOpen />
-                                    {cls.max_player} Students
-                                </div>
-                                <div className="flex items-center gap-2 truncate">
-                                    <Image
-                                        className="w-7 h-7 rounded-full cursor-pointer bg-gray-200"
-                                        src={`${cls.owner.img ?? "/images/unknown.png"}`}
-                                        width={7}
-                                        height={7}
-                                        alt="User"
-                                    />
-                                     {cls.owner.name}
-                                </div>
-                            </CardFooter>
-                        </Card>
+                                <CardContent className="text-left flex-grow">
+                                    <CardTitle className="text-primary text-xl sm:text-2xl">
+                                        {cls.topic}
+                                    </CardTitle>
+                                    <CardDescription className="text-sm sm:text-base text-gray-600 mt-2">
+                                        <div>
+                                            {cls.description}
+                                        </div>
+
+                                    </CardDescription>
+                                </CardContent>
+                                <CardFooter className="flex justify-between items-center pt-4 text-black font-semibold">
+                                    <div className="flex items-center gap-2">
+                                        <BookOpen />
+                                        {cls.max_player} Students
+                                    </div>
+                                    <div className="flex items-center gap-2 truncate">
+                                        <Image
+                                            className="w-7 h-7 rounded-full cursor-pointer bg-gray-200"
+                                            src={`${cls.owner.img ?? "/images/unknown.png"}`}
+                                            width={7}
+                                            height={7}
+                                            alt="User"
+                                        />
+                                        {cls.owner.name}
+                                    </div>
+                                </CardFooter>
+                            </Card>
+                        </NextLink>
                     ))}
                 </div>
 

@@ -94,3 +94,21 @@ export const getAllClass = async () => {
     throw error || "ไม่สามารถดึงข้อมูลชั้นเรียนได้";
   }
 };
+
+export const getProblemsByClassId = async (classId: string, token: string) => {
+  try {
+    const response = await api.get(`/api/classes/${classId}/problem`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    console.log("Error loading problems:", {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message,
+    });
+    return [];
+  }
+};
