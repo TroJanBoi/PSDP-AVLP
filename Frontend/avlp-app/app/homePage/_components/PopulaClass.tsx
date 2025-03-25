@@ -103,7 +103,7 @@ export default function PopularClassesSection() {
                         <NextLink href={`/classes/${cls.id}`} key={cls.id}>
                             <Card
                                 key={cls.id}
-                                className="w-full sm:w-[22rem] flex flex-col justify-between"
+                                className="w-full sm:w-[22rem] flex flex-col justify-between h-full"
                             >
                                 <CardHeader>
                                     <div className="flex justify-center items-center">
