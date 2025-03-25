@@ -14,6 +14,7 @@ import { getAllClass } from "@/services/api";
 import { BookOpen, Link } from "lucide-react";
 import { useSession } from "next-auth/react";
 import NextLink from "next/link";
+import Swal from "sweetalert2";
 
 interface ClassType {
     id: number;
@@ -33,6 +34,22 @@ export default function PopularClassesSection() {
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(2);
     const { data: session, status } = useSession();
+
+
+    const handleClick = (id: number) => {
+        if (!session) {
+            Swal.fire({
+                icon: "warning",
+                title: "กรุณาเข้าสู่ระบบ",
+                text: "คุณต้องเข้าสู่ระบบก่อนจึงจะสามารถเข้าชั้นเรียนได้",
+                confirmButtonText: "ตกลง"
+            }).then(() => {
+                window.location.href = "/login";
+            });
+            return;
+        }
+        window.location.href = `/classes/${id}`;
+    };
 
     useEffect(() => {
 
@@ -100,7 +117,7 @@ export default function PopularClassesSection() {
 
                 <div className="w-full flex flex-wrap justify-center items-stretch gap-6">
                     {visibleCards.map((cls) => (
-                        <NextLink href={`/classes/${cls.id}`} key={cls.id}>
+                        <div onClick={() => handleClick(cls.id)} key={cls.id} className="cursor-pointer">
                             <Card
                                 key={cls.id}
                                 className="w-full sm:w-[22rem] flex flex-col justify-between h-full"
@@ -145,7 +162,7 @@ export default function PopularClassesSection() {
                                     </div>
                                 </CardFooter>
                             </Card>
-                        </NextLink>
+                        </div>
                     ))}
                 </div>
 

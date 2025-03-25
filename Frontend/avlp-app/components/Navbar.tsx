@@ -6,13 +6,25 @@ import { useSession, signOut } from "next-auth/react";
 import { Bell, LogOutIcon, Settings, User2 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { getClassById } from "@/services/api"; // เพิ่มที่ด้านบน
+
+interface ClassInfoType {
+    description: string;
+    max_player: number;
+    owner: {
+        img: string;
+        name: string;
+        email: string;
+    };
+}
 
 interface NavbarProps {
-    Topic?: boolean;
+    classId?: number;
+    Topic?: string;
     btnRun?: boolean;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ Topic = false, btnRun = false }) => {
+const Navbar: React.FC<NavbarProps> = ({ classId, Topic, btnRun = false }) => {
 
     const setMenu = useMenuStore((state) => state.setMenu);
     const [scrollY, setScrollY] = useState(false);
@@ -21,7 +33,13 @@ const Navbar: React.FC<NavbarProps> = ({ Topic = false, btnRun = false }) => {
     const dropdownRef = useRef<HTMLDivElement>(null);
     const avatarRef = useRef<HTMLImageElement>(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isBellOpen, setIsBellOpen] = useState(false);
+    const bellRef = useRef<HTMLDivElement>(null);
+    const [isTopicOpen, setIsTopicOpen] = useState(false);
+    const topicRef = useRef<HTMLDivElement>(null);
+    const [classInfo, setClassInfo] = useState<ClassInfoType | null>(null);
 
+    console.log("classId: ", classId);
     const controlNavbar = () => {
         if (typeof window !== "undefined") {
             if (window.scrollY > lastScrollY && window.scrollY > 150) {
@@ -65,7 +83,60 @@ const Navbar: React.FC<NavbarProps> = ({ Topic = false, btnRun = false }) => {
             };
         }
     }, [lastScrollY]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                isBellOpen &&
+                bellRef.current &&
+                !bellRef.current.contains(event.target as Node)
+            ) {
+                setIsBellOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isBellOpen]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                isTopicOpen &&
+                topicRef.current &&
+                !topicRef.current.contains(event.target as Node)
+            ) {
+                setIsTopicOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isTopicOpen]);
+
+
+    useEffect(() => {
+        const fetchClassInfo = async () => {
+            if (!classId) return;
+            try {
+                const data = await getClassById(classId);
+                setClassInfo(data);
+            } catch (error) {
+                console.error("ไม่สามารถโหลดข้อมูลคลาสได้", error);
+            }
+        };
+        fetchClassInfo();
+    }, [classId]);
+
+
     // console.log("session email: ", session?.user?.email);
+    console.log("classInfo: ", classInfo);
+    console.log("Topic:", Topic);
+
     if (status === "loading") return null;
     return (
         <>
@@ -96,11 +167,40 @@ const Navbar: React.FC<NavbarProps> = ({ Topic = false, btnRun = false }) => {
                                     <div className="bg-[url('/images/logo.png')] w-20 h-20 bg-cover bg-center bg-no-repeat">
                                     </div>
                                 </Link>
-                                {Topic && (
-                                    <div className="text-white text-xl font-semibold">
-                                        topic
+                                { Topic && (
+                                    <div ref={topicRef} className="relative">
+                                        <button className="text-white font-semibold text-xl" onClick={() => setIsTopicOpen(!isTopicOpen)}>
+                                            {Topic}
+                                        </button>
                                     </div>
                                 )}
+                                {isTopicOpen && classInfo && (
+                                // absolute right-0 mt-2 bg-white rounded-md shadow-lg w-60 p-4 z-50
+                                    <div className="absolute left-0 mt-80 w-[550px] bg-white text-black rounded-xl shadow-xl p-6 z-50">
+                                        <h2 className="text-2xl font-bold mb-4">{Topic}</h2>
+
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div className="flex items-center gap-3">
+                                                <Image
+                                                    src={classInfo.owner?.img || "/images/unknown.png"}
+                                                    alt="Owner"
+                                                    width={48}
+                                                    height={48}
+                                                    className="rounded-full w-12 h-12 object-cover"
+                                                />
+                                                <span className="text-lg font-semibold">{classInfo.owner?.name}</span>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <h3 className="text-lg font-semibold mb-1">Description</h3>
+                                            <p className="text-sm text-gray-700 bg-gray-100 p-3 rounded-lg leading-relaxed">
+                                                {classInfo.description || "ไม่มีคำอธิบาย"}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
                             </div>
                             {btnRun && (
                                 <div className="flex items-center gap-4 ">
@@ -113,7 +213,7 @@ const Navbar: React.FC<NavbarProps> = ({ Topic = false, btnRun = false }) => {
                             )}
                             <div className="flex items-center gap-4">
 
-                                {btnRun && Topic ? (
+                                {btnRun || Topic ? (
                                     <>
                                         <Link href={"/"} className="font-semibold text-xl text-white cursor-pointer" onClick={() => handleSelect("home-main")}>
                                             Home
@@ -149,7 +249,19 @@ const Navbar: React.FC<NavbarProps> = ({ Topic = false, btnRun = false }) => {
                                     </>
                                 )}
                                 <div>
-                                    <Bell className="text-white" size={24} />
+                                    <div ref={bellRef} className="relative">
+                                        <Bell
+                                            className="text-white cursor-pointer"
+                                            size={24}
+                                            onClick={() => setIsBellOpen(!isBellOpen)}
+                                        />
+                                        {isBellOpen && (
+                                            <div className="absolute right-0 mt-2 bg-white rounded-md shadow-lg w-60 p-4 z-50">
+                                                <div className="text-sm text-gray-700">🔔 ไม่มีการแจ้งเตือนใหม่</div>
+                                            </div>
+                                        )}
+                                    </div>
+
                                 </div>
                                 <div>
                                     <Image

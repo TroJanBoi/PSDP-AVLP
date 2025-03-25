@@ -1,5 +1,3 @@
-// ✅ FINAL VERSION with Assembly Simulation Logic - AssemblyflowPage
-
 "use client";
 import Navbar from "@/components/Navbar";
 import Flow_Block from "./_components/FlowPage";
@@ -8,11 +6,13 @@ import { ReactFlowProvider, useNodesState, useEdgesState } from "reactflow";
 import { Button } from "@/components/ui/button";
 import { useCallback, useState } from "react";
 import { useParams } from "next/navigation";
+import { getClassById } from "@/services/api";
 
 export default function AssemblyflowPage() {
-  const { problemId } = useParams();
+  const param = useParams();
 
-  console.log("Problem ID:", problemId);
+  console.log("Problem ID:", param.id);
+
   const [nodes, setNodes, onNodesChange] = useNodesState([
     {
       id: "start",
@@ -26,6 +26,7 @@ export default function AssemblyflowPage() {
       },
     },
   ]);
+  
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [resultLog, setResultLog] = useState<string[]>([]);
 
@@ -180,7 +181,7 @@ export default function AssemblyflowPage() {
 
   return (
     <div className="h-screen flex flex-col w-screen">
-      <Navbar Topic={true} btnRun={true} />
+      <Navbar Topic={""} btnRun={true} />
       <div className="flex-1 p-10">
         <div className="flex h-full justify-start items-center rounded-xl">
           <div className="w-1/3 h-full bg-red-500 text-white rounded-xl mr-5 p-5">

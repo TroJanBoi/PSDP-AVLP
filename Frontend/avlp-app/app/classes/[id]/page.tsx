@@ -86,7 +86,7 @@ export default function ClassDetailPage() {
 
   return (
     <div className="flex flex-col items-center min-h-screen w-full bg-[url('/images/bg-showClass.png')] bg-cover bg-center bg-no-repeat text-black">
-      <Navbar Topic={true} />
+      <Navbar classId={classData.id} Topic={classData.topic} />
       <div className="flex flex-col items-center w-full px-6 mt-8 space-y-10">
         <div className="w-full max-w-4xl space-y-6">
           <div className="overflow-hidden rounded-lg w-full h-[350px] shadow-lg">

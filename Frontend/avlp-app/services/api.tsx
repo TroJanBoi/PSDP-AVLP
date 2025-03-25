@@ -129,3 +129,12 @@ export const createProblemAttempt = async (problemId: number, userId: number) =>
     throw error.response?.data?.message || "ไม่สามารถเริ่มโจทย์ได้";
   }
 };
+
+export const getClassById = async (classId: string | number) => {
+  try {
+    const response = await api.get(`/classes/${classId}`);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.message || "ไม่สามารถดึงข้อมูลคลาสได้";
+  }
+};
