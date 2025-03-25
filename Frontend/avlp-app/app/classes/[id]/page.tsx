@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { getAllClass, getProblemsByClassId } from "@/services/api";
+import { createProblemAttempt } from "@/services/api";
 
 interface ClassType {
   id: number;
@@ -108,8 +109,22 @@ export default function ClassDetailPage() {
             <div className="space-y-3">
               {problems.map((problem) => (
                 <button
-                  key={problem.id}
-                  onClick={() => router.push(`/problem/${problem.id}`)}
+                key={problem.id}
+                onClick={async () => {
+                  try {
+                    const userId = Number(session?.user?.id); // Convert user.id to a number
+                    console.log("userId", userId);
+                    if (!userId) {
+                      alert("กรุณาเข้าสู่ระบบก่อน");
+                      return;
+                    }
+            
+                    await createProblemAttempt(problem.id, userId);
+                    router.push(`/AssemblyFlow/${problem.id}`);
+                  } catch (error: any) {
+                    alert("เริ่มโจทย์ไม่สำเร็จ: " + error);
+                  }
+                }}
                   className="w-full flex flex-col sm:flex-row justify-between sm:items-center border border-gray-300 rounded-lg p-4 bg-white hover:bg-gray-50 transition text-left"
                 >
                   <div className="flex items-center gap-2">

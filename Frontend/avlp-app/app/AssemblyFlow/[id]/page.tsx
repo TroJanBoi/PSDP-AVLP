@@ -7,8 +7,12 @@ import DraggableBlock from "./_components/DraggableBlock";
 import { ReactFlowProvider, useNodesState, useEdgesState } from "reactflow";
 import { Button } from "@/components/ui/button";
 import { useCallback, useState } from "react";
+import { useParams } from "next/navigation";
 
 export default function AssemblyflowPage() {
+  const { problemId } = useParams();
+
+  console.log("Problem ID:", problemId);
   const [nodes, setNodes, onNodesChange] = useNodesState([
     {
       id: "start",
@@ -30,6 +34,7 @@ export default function AssemblyflowPage() {
     const log: string[] = [];
     const visited: Set<string> = new Set();
     const errorNodes = new Set<string>();
+
 
     const nodeMap = Object.fromEntries(nodes.map((n) => [n.id, n]));
 
@@ -169,6 +174,8 @@ export default function AssemblyflowPage() {
 
     setResultLog(log);
     console.log("Variables:", variables);
+    console.log("nodes:", nodes);
+    console.log("edges:", edges);
   }, [nodes, edges]);
 
   return (

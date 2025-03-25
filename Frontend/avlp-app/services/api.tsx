@@ -112,3 +112,20 @@ export const getProblemsByClassId = async (classId: string, token: string) => {
     return [];
   }
 };
+
+export const createProblemAttempt = async (problemId: number, userId: number) => {
+  const startedAt = new Date().toISOString(); // ✅ ISO 8601
+
+  const body = {
+    problem_id: problemId,
+    started_at: startedAt,
+    user_id: userId,
+  };
+
+  try {
+    const response = await api.post(`/api/problem_attempt/${problemId}`, body); // ✅ corrected endpoint
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.message || "ไม่สามารถเริ่มโจทย์ได้";
+  }
+};
