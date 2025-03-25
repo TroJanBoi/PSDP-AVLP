@@ -123,7 +123,7 @@ func main() {
 	log.Println("Running database migrations...")
 
 	// Migrate both User and Class models
-	err := database.DB.AutoMigrate(&models.User{}, &models.Class{}, &models.Problem{}, &models.TestCase{})
+	err := database.DB.AutoMigrate(&models.User{}, &models.Class{}, &models.Problem{}, &models.TestCase{}, &models.ProblemAttempt{})
 	if err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 
@@ -153,6 +153,7 @@ func main() {
 	routes.RegisterAsmRoutes(r)
 	routes.RegisterClassRoutes(r)
 	routes.RegisterProblemRoutes(r)
+	routes.RegisterProblemAttemptRoutes(r)
 
 	r.GET("/api-ready", apiReadyHandler)
 	r.GET("/", htmlHandler)
@@ -165,6 +166,7 @@ func main() {
 	r.StaticFile("/swagger-docs/problems.json", "docs/problems/swagger.json")
 	r.StaticFile("/swagger-docs/test_case.json", "docs/test_case/swagger.json")
 	r.StaticFile("/swagger-docs/asm.json", "docs/asm/swagger.json")
+	r.StaticFile("/swagger-docs/problems_attempt.json", "docs/problems_attempt/swagger.json")
 
 	// Serve custom Swagger UI
 	r.GET("/swagger/*any", swaggerHandler)

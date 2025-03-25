@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"example.com/greetings/database"
-	"example.com/greetings/middleware"
 	"example.com/greetings/models"
 	"github.com/gin-gonic/gin"
 )
@@ -432,7 +431,8 @@ func updateTestCase(c *gin.Context) {
 }
 
 func RegisterProblemRoutes(r *gin.Engine) {
-	problemGroup := r.Group("/api", middleware.AuthMiddleware())
+	problemGroup := r.Group("/api")
+	// problemGroup := r.Group("/api", middleware.AuthMiddleware())
 	{
 		// เส้นทางสำหรับ Problem
 		problemGroup.POST("/:class_id/problems/:problem_id", createProblem) // เปลี่ยนเป็น /api/:class_id/problems/:problem_id
