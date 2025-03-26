@@ -24,12 +24,22 @@ export const login = async (username: string, password: string) => {
 
 export const register = async (username: string, password: string, email: string) => {
   try {
-    const response = await api.post("/users", { username, password, email });
-    return response.data; 
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password, email }),
+    });
+
+    return await response.json();
   } catch (error: any) {
-    error.response.data.message;
+    console.error('Register Error:', error.message || error);
+    throw new Error(error.message || 'Unknown error occurred');
   }
-}
+};
+
+
 
 export const forgotPassword = async (username: string) => {
   try {

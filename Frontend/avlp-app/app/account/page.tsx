@@ -190,8 +190,6 @@ const UserProfilePage: React.FC = () => {
     }
   };
 
-  if (status === 'loading') return null;
-
   return (
     // ภาพพื้นหลัง
     <div

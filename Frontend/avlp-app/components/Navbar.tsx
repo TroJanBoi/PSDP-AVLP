@@ -41,18 +41,6 @@ const mockClasses: ClassInfoType[] = [
     }
   },
   {
-    id: 6,
-    topic: "Introduction to Assembly Language",
-    description: "Learn the basics of Assembly programming",
-    img: "/images/topic-class-3.png",
-    max_player: 40,
-    owner: {
-      name: "Patipan",
-      email: "ddpatipan@gmail.com",
-      img: "/images/unknown.png"
-    }
-  },
-  {
     id: 3,
     topic: "Assembly Control Flow",
     description: "Understand control flow in Assembly using jumps, loops, and conditional statements.",
@@ -70,6 +58,66 @@ const mockClasses: ClassInfoType[] = [
     description: "Dive into advanced Assembly topics like interrupts, system calls, and optimization techniques.",
     img: "/images/topic-class-2.png",
     max_player: 10,
+    owner: {
+      name: "Administrator",
+      email: "admin@example.com",
+      img: "/images/unknown.png"
+    }
+  },
+  {
+    id: 6,
+    topic: "Introduction to Assembly Language",
+    description: "Learn the basics of Assembly programming",
+    img: "/images/topic-class-3.png",
+    max_player: 40,
+    owner: {
+      name: "Patipan",
+      email: "ddpatipan@gmail.com",
+      img: "/images/unknown.png" // Adjusted from "http://example.com/patipan.jpg"
+    }
+  },
+  {
+    id: 2,
+    topic: "Assembly Arithmetic Operations",
+    description: "Explore arithmetic operations in Assembly, such as ADD, SUB, MUL, and DIV, with practical examples.",
+    img: "/images/topic-class-2.png",
+    max_player: 15,
+    owner: {
+      name: "Administrator",
+      email: "admin@example.com",
+      img: "/images/unknown.png"
+    }
+  },
+  {
+    id: 7,
+    topic: "Control Flow in Assembly",
+    description: "Understand jumps, loops, and conditionals",
+    img: "/images/topic-class-2.png",
+    max_player: 30,
+    owner: {
+      name: "Administrator",
+      email: "admin@example.com",
+      img: "/images/unknown.png"
+    }
+  },
+  {
+    id: 4,
+    topic: "Assembly Memory Management",
+    description: "Learn how to manage memory in Assembly, including stack operations and memory addressing modes.",
+    img: "/images/topic-class-1.png",
+    max_player: 18,
+    owner: {
+      name: "Administrator",
+      email: "admin@example.com",
+      img: "/images/unknown.png"
+    }
+  },
+  {
+    id: 8,
+    topic: "Interfacing Assembly with Hardware",
+    description: "Explore low-level hardware programming",
+    img: "/images/topic-class-1.png",
+    max_player: 20,
     owner: {
       name: "Administrator",
       email: "admin@example.com",
@@ -233,7 +281,7 @@ const Navbar: React.FC<NavbarProps> = ({ classId, Topic, btnRun = false }) => {
                     <div className="px-4 py-2 text-sm text-gray-900">{session.user?.email}</div>
                     <div className="border-t">
                       <a href={"/account"} className="flex px-4 py-2 text-sm hover:bg-gray-100"><User2 className="mr-3" /> Profile</a>
-                      <a href="#" className="flex px-4 py-2 text-sm hover:bg-gray-100"><Settings className="mr-3" /> Settings</a>
+                      <a href={"/ProfilePage"} className="flex px-4 py-2 text-sm hover:bg-gray-100"><Settings className="mr-3" /> Settings</a>
                       <a href="#" onClick={() => signOut({ callbackUrl: '/' })} className="flex px-4 py-2 text-sm hover:bg-gray-100"><LogOutIcon className="mr-3" /> Sign out</a>
                     </div>
                   </div>

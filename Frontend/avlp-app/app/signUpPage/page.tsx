@@ -121,19 +121,6 @@ export default function RegisterPage() {
   
         {/* Form */}
         <div className="relative z-10 flex flex-col justify-center items-center bg-background w-full sm:w-4/5 md:w-3/5 lg:w-1/2 max-w-[1180px] sm:h-auto md:h-auto lg:h-full sm:py-8 md:py-8 sm:mx-auto md:mx-auto sm:rounded-l-3xl md:rounded-l-3xl lg:rounded-l-3xl drop-shadow-lg gap-5 md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2 lg:absolute lg:right-0 lg:top-1/2 lg:-translate-y-1/2">
-          <div className="mb-4 lg:mb-0 mt-6">
-            <img 
-              src="https://i.postimg.cc/LsBzbNmv/image-2025-03-16-034214396.png" 
-              alt="Logo" 
-              className="rounded-3xl bg-secondary w-32 h-32 flex justify-center items-center shadow-lg" 
-              style={{ 
-                boxShadow: '0 0 20px 5px rgba(43, 255, 0, 0.7), 0 0 30px 10px rgba(255, 255, 255, 0.5)', 
-                filter: 'drop-shadow(0 0 10px rgba(163, 148, 249, 0.5))', 
-                position: 'relative' 
-              }} 
-            />
-          </div>
-  
           <form onSubmit={handleSignUp} className="w-full max-w-sm space-y-3">
             <h2 className="text-2xl font-bold text-[#2e3136] border-b-2 w-full text-center border-primary mt-4 mb-7">Sign Up</h2>
             <InputField type="text" name="username" placeholder="Username" Icon={User} value={formData.username} onChange={handleInputChange} />
@@ -153,9 +140,6 @@ export default function RegisterPage() {
       {/* iPad Layout */}
       <div className="xl:hidden flex justify-center items-center w-full h-full bg-cover bg-center" style={{ backgroundImage: "url('https://i.postimg.cc/qBcGFBv4/man2new.jpg')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <div className="bg-white p-6 rounded-3xl shadow-lg w-11/12 max-w-md">
-          <div className="text-center mb-7">
-            <img src="https://i.postimg.cc/LsBzbNmv/image-2025-03-16-034214396.png" alt="Logo" className="rounded-3xl bg-secondary w-32 h-32 flex justify-center items-center mx-auto shadow-lg" style={{ boxShadow: '0 0 20px 5px rgba(43, 255, 0, 0.7), 0 0 30px 10px rgba(255, 255, 255, 0.5)', filter: 'drop-shadow(0 0 10px rgba(163, 148, 249, 0.5))', position: 'relative' }} />
-          </div>
           <form onSubmit={handleSignUp} className="space-y-3">
             <h2 className="text-2xl font-bold text-[#2e3136] border-b-2 w-full text-center border-primary mt-4 mb-7">Sign Up</h2>
             <InputField type="text" name="username" placeholder="Username" Icon={User} value={formData.username} onChange={handleInputChange} />

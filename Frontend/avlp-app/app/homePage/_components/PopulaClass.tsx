@@ -76,7 +76,7 @@ const mockClasses: ClassType[] = [
         owner: {
             name: "Patipan",
             email: "ddpatipan@gmail.com",
-            img: "/images/patipan.jpg" // Adjusted from "http://example.com/patipan.jpg"
+            img: "/images/unknown.png" // Adjusted from "http://example.com/patipan.jpg"
         }
     },
     {
