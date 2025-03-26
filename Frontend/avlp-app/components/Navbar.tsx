@@ -232,7 +232,7 @@ const Navbar: React.FC<NavbarProps> = ({ classId, Topic, btnRun = false }) => {
                   <div ref={dropdownRef} className="absolute right-0 mt-[220px] bg-white rounded-md shadow-lg w-60 p-4 z-50 text-sm text-gray-700">
                     <div className="px-4 py-2 text-sm text-gray-900">{session.user?.email}</div>
                     <div className="border-t">
-                      <a href="#" className="flex px-4 py-2 text-sm hover:bg-gray-100"><User2 className="mr-3" /> Profile</a>
+                      <a href={"/account"} className="flex px-4 py-2 text-sm hover:bg-gray-100"><User2 className="mr-3" /> Profile</a>
                       <a href="#" className="flex px-4 py-2 text-sm hover:bg-gray-100"><Settings className="mr-3" /> Settings</a>
                       <a href="#" onClick={() => signOut({ callbackUrl: '/' })} className="flex px-4 py-2 text-sm hover:bg-gray-100"><LogOutIcon className="mr-3" /> Sign out</a>
                     </div>
