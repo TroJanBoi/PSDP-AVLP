@@ -57,7 +57,47 @@ func RegisterProblemRoutes(r *gin.Engine) {
 		apiGroup.POST("/classes/:class_id/:problem_id/test_case", checkTestCase)
 		apiGroup.GET("/classes/:class_id/:problem_id", getAttemptScore)
 
+		apiGroup.GET("/problems/:problem_id/testcases", getTestCasesByProblem)
+
 	}
+}
+
+// @Summary Get test cases for a problem
+// @Tags TestCases
+// @Description Retrieve all test cases for a specific problem
+// @Produce json
+// @Security BearerAuth
+// @Param problem_id path int true "Problem ID"
+// @Success 200 {array} models.TestCase
+// @Failure 400 {object} models.ErrorResponse "Invalid problem ID"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
+// @Failure 404 {object} models.ErrorResponse "Problem not found"
+// @Failure 500 {object} models.ErrorResponse
+// @Router /api/problems/{problem_id}/testcases [get]
+func getTestCasesByProblem(c *gin.Context) {
+	problemID, err := strconv.Atoi(c.Param("problem_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid problem ID"})
+		return
+	}
+
+	// Verify problem exists
+	var problem models.Problem
+	if err := database.DB.First(&problem, problemID).Error; err != nil {
+		c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "Problem not found"})
+		return
+	}
+
+	var testCases []models.TestCase
+	if err := database.DB.
+		Where("problem_id = ?", problemID).
+		Preload("Problem"). // Optional: include problem details
+		Find(&testCases).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, testCases)
 }
 
 // @Summary Create a new problem attempt

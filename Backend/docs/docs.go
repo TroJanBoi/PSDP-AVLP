@@ -772,6 +772,65 @@ const docTemplate = `{
             }
         },
         "/api/problems/{problem_id}/testcases": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all test cases for a specific problem",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TestCases"
+                ],
+                "summary": "Get test cases for a problem",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Problem ID",
+                        "name": "problem_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.TestCase"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid problem ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Problem not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -1916,8 +1975,7 @@ const docTemplate = `{
         "routes.NewTestCaseRequest": {
             "type": "object",
             "required": [
-                "expected_output",
-                "input_data"
+                "expected_output"
             ],
             "properties": {
                 "description": {
