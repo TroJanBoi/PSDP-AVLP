@@ -63,7 +63,7 @@ const ProfilePage: React.FC = () => {
   console.log(session);
   return (
     <div className="min-h-screen bg-gray-100 bg-[url('/images/bg-profile.png')] bg-cover bg-center">
-      <Navbar Topic='Profile'/>
+      <Navbar Topic={"Profile"}/>
       <div className="flex flex-col items-center p-6 w-full justify-center ">
         <div className="w-3/4 flex space-x-6">
           <div className="w-full bg-transparent p-6">

@@ -1,7 +1,8 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    domains: ['localhost'], // ✅ หรือ 'your-api-domain.com' ถ้า deploy แล้ว
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

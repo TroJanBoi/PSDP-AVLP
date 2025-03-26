@@ -190,6 +190,7 @@ const UserProfilePage: React.FC = () => {
     }
   };
 
+
   return (
     // ภาพพื้นหลัง
     <div
@@ -201,7 +202,7 @@ const UserProfilePage: React.FC = () => {
       }}
     >
       {/* Navbar */}
-      <Navbar Topic='Profile' />
+      <Navbar Topic='Account' />
 
       <div className="mt-4 md:mt-16 w-full px-2 md:px-4">
         <div className="flex flex-col md:flex-row w-full">

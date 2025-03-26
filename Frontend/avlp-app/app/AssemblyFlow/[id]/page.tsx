@@ -266,7 +266,7 @@ export default function AssemblyflowPage() {
 
   return (
     <div className="h-screen flex flex-col w-screen">
-      <Navbar Topic={""} btnRun={true} />
+      <Navbar Topic={" "} />
       <div className="flex-1 p-10">
         <div className="flex h-full justify-start items-center rounded-xl">
           <div className="grid grid-cols-2 gap-5 w-1/4 h-full border-4 border-primary text-white rounded-xl mr-5 p-5">

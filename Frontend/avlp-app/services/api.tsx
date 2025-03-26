@@ -1,152 +1,111 @@
 // services/api.ts
-import axios from 'axios';
-
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:9898";
 
 console.log("✅ API base URL:", API);
 
-const api = axios.create({
-  baseURL: API,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-export const login = async (username: string, password: string) => {
+const fetcher = async (url: string, options?: RequestInit) => {
+  const fullUrl = `${API}${url}`;
   try {
-    const response = await api.post("/users/login", { username, password });
-    return response.data;
-  } catch (error: any) {
-    throw error.response?.data?.message || "การเข้าสู่ระบบล้มเหลว";
+    console.log("🌐 Requesting:", fullUrl);
+    const res = await fetch(fullUrl, options);
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      console.error("❌ API Error Response:", errorData);
+      throw new Error(errorData.message || `Request failed: ${res.status}`);
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error("❌ Fetcher error:", error);
+    throw error;
   }
+};
+
+// 🧠 Auth APIs
+export const login = async (username: string, password: string) => {
+  return await fetcher("/users/login", {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  });
 };
 
 export const register = async (username: string, password: string, email: string) => {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password, email }),
-    });
-
-    return await response.json();
-  } catch (error: any) {
-    console.error('Register Error:', error.message || error);
-    throw new Error(error.message || 'Unknown error occurred');
-  }
+  return await fetcher("/users", {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password, email })
+  });
 };
 
-
-
 export const forgotPassword = async (username: string) => {
-  try {
-    const response = await api.post("/users/forgot-password", { username });
-    return response.data; // ส่งคืนอีเมลสำหรับการส่งรหัสยืนยัน
-  } catch (error: any) {
-    throw error;
-  }
+  return await fetcher("/users/forgot-password", {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username })
+  });
 };
 
 export const verifyCode = async (email: string, code: string) => {
   try {
-    // ส่งคำขอไปยัง API เพื่อตรวจสอบรหัสยืนยัน
-    try {
-      // ใช้ endpoint reset-password เพื่อตรวจสอบความถูกต้องของรหัส OTP
-      const response = await api.post("/users/reset-password", {
-        email: email,
-        new_password: "temporary_verification_password",
-        code: code
-      });
-      
-      return true;
-    } catch (apiError: any) {
-      // ในกรณีที่รหัส OTP ไม่ถูกต้อง (สถานะข้อผิดพลาด 401)
-      if (apiError.response && apiError.response.status === 401) {
-        return false;
-      }
-      
-      throw new Error("เกิดข้อผิดพลาดที่เซิร์ฟเวอร์ระหว่างการตรวจสอบ OTP กรุณาลองใหม่อีกครั้ง");
-    }
+    await fetcher("/users/reset-password", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, new_password: "temporary_verification_password", code })
+    });
+    return true;
   } catch (error: any) {
-    console.error("ข้อผิดพลาดรหัสยืนยัน:", error);
-    throw error;
+    if (error.message.includes("401")) return false;
+    throw new Error("เกิดข้อผิดพลาดที่เซิร์ฟเวอร์ระหว่างการตรวจสอบ OTP กรุณาลองใหม่อีกครั้ง");
   }
 };
 
 export const resetPassword = async (email: string, password: string, code: string) => {
-  try {
-    // ส่งคำขอเปลี่ยนรหัสผ่านไปยัง API โดยตรง
-    const requestData = {
-      email: email,
-      new_password: password,
-      code: code
-    };
-    
-    const response = await api.post('/users/reset-password', requestData);
-    return response.data;
-  } catch (error: any) {
-    if (error.response) {
-      throw error.response?.data?.message || "การรีเซ็ตรหัสผ่านล้มเหลว";
-    } else if (error.request) {
-      throw "ไม่ได้รับการตอบกลับจากเซิร์ฟเวอร์ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต";
-    } else {
-      throw error;
-    }
-  }
+  return await fetcher("/users/reset-password", {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, new_password: password, code })
+  });
 };
 
+// 📚 Class APIs
 export const getAllClass = async () => {
-  try {
-    const response = await api.get('/classes');
-    return response.data;
-  } catch (error: any) {
-    throw error || "ไม่สามารถดึงข้อมูลชั้นเรียนได้";
-  }
+  return await fetcher("/classes");
 };
 
+export const getClassById = async (classId: string | number) => {
+  return await fetcher(`/classes/${classId}`);
+};
+
+export const getOwnedClasses = async (token: string) => {
+  return await fetcher("/classes/owned", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// 🧩 Problems
 export const getProblemsByClassId = async (classId: string, token: string) => {
-  try {
-    const response = await api.get(`/api/classes/${classId}/problem`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error: any) {
-    console.log("Error loading problems:", {
-      status: error.response?.status,
-      data: error.response?.data,
-      message: error.message,
-    });
-    return [];
-  }
+  return await fetcher(`/api/classes/${classId}/problem`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
 
 export const createProblemAttempt = async (problemId: number, userId: number) => {
-  const startedAt = new Date().toISOString(); // ✅ ISO 8601
-
+  const startedAt = new Date().toISOString();
   const body = {
     problem_id: problemId,
     started_at: startedAt,
     user_id: userId,
   };
 
-  try {
-    const response = await api.post(`/api/problem_attempt/${problemId}`, body); // ✅ corrected endpoint
-    return response.data;
-  } catch (error: any) {
-    throw error.response?.data?.message || "ไม่สามารถเริ่มโจทย์ได้";
-  }
-};
-
-export const getClassById = async (classId: string | number) => {
-  try {
-    const response = await api.get(`/classes/${classId}`);
-    return response.data;
-  } catch (error: any) {
-    throw error.response?.data?.message || "ไม่สามารถดึงข้อมูลคลาสได้";
-  }
+  return await fetcher(`/api/problem_attempt/${problemId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
 };

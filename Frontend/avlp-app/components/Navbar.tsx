@@ -6,6 +6,7 @@ import { useSession, signOut } from "next-auth/react";
 import { Bell, LogOutIcon, Settings, User2 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { getClassById } from "@/services/api";
 
 interface ClassInfoType {
   id: number;
@@ -25,106 +26,6 @@ interface NavbarProps {
   Topic?: string;
   btnRun?: boolean;
 }
-
-// ✅ Mock class data
-const mockClasses: ClassInfoType[] = [
-  {
-    id: 1,
-    topic: "Introduction to Assembly Language",
-    description: "Learn the basics of Assembly language, including syntax, registers, and basic instructions.",
-    img: "/images/topic-class-1.png",
-    max_player: 20,
-    owner: {
-      name: "Administrator",
-      email: "admin@example.com",
-      img: "/images/unknown.png"
-    }
-  },
-  {
-    id: 3,
-    topic: "Assembly Control Flow",
-    description: "Understand control flow in Assembly using jumps, loops, and conditional statements.",
-    img: "/images/topic-class-3.png",
-    max_player: 25,
-    owner: {
-      name: "Administrator",
-      email: "admin@example.com",
-      img: "/images/unknown.png"
-    }
-  },
-  {
-    id: 5,
-    topic: "Advanced Assembly Techniques",
-    description: "Dive into advanced Assembly topics like interrupts, system calls, and optimization techniques.",
-    img: "/images/topic-class-2.png",
-    max_player: 10,
-    owner: {
-      name: "Administrator",
-      email: "admin@example.com",
-      img: "/images/unknown.png"
-    }
-  },
-  {
-    id: 6,
-    topic: "Introduction to Assembly Language",
-    description: "Learn the basics of Assembly programming",
-    img: "/images/topic-class-3.png",
-    max_player: 40,
-    owner: {
-      name: "Patipan",
-      email: "ddpatipan@gmail.com",
-      img: "/images/unknown.png" // Adjusted from "http://example.com/patipan.jpg"
-    }
-  },
-  {
-    id: 2,
-    topic: "Assembly Arithmetic Operations",
-    description: "Explore arithmetic operations in Assembly, such as ADD, SUB, MUL, and DIV, with practical examples.",
-    img: "/images/topic-class-2.png",
-    max_player: 15,
-    owner: {
-      name: "Administrator",
-      email: "admin@example.com",
-      img: "/images/unknown.png"
-    }
-  },
-  {
-    id: 7,
-    topic: "Control Flow in Assembly",
-    description: "Understand jumps, loops, and conditionals",
-    img: "/images/topic-class-2.png",
-    max_player: 30,
-    owner: {
-      name: "Administrator",
-      email: "admin@example.com",
-      img: "/images/unknown.png"
-    }
-  },
-  {
-    id: 4,
-    topic: "Assembly Memory Management",
-    description: "Learn how to manage memory in Assembly, including stack operations and memory addressing modes.",
-    img: "/images/topic-class-1.png",
-    max_player: 18,
-    owner: {
-      name: "Administrator",
-      email: "admin@example.com",
-      img: "/images/unknown.png"
-    }
-  },
-  {
-    id: 8,
-    topic: "Interfacing Assembly with Hardware",
-    description: "Explore low-level hardware programming",
-    img: "/images/topic-class-1.png",
-    max_player: 20,
-    owner: {
-      name: "Administrator",
-      email: "admin@example.com",
-      img: "/images/unknown.png"
-    }
-  }
-];
 
 const Navbar: React.FC<NavbarProps> = ({ classId, Topic, btnRun = false }) => {
   const setMenu = useMenuStore((state) => state.setMenu);
@@ -156,13 +57,18 @@ const Navbar: React.FC<NavbarProps> = ({ classId, Topic, btnRun = false }) => {
   };
 
   useEffect(() => {
-    if (!classId) return;
-    const found = mockClasses.find((cls) => cls.id === classId);
-    if (found) {
-      setClassInfo(found);
-    } else {
-      console.warn("Class not found in mock data");
-    }
+    const fetchClassInfo = async () => {
+      if (!classId) return;
+
+      try {
+        const classData = await getClassById(classId);
+        setClassInfo(classData);
+      } catch (error) {
+        console.error("เกิดข้อผิดพลาดในการโหลดข้อมูลคลาส:", error);
+      }
+    };
+
+    fetchClassInfo();
   }, [classId]);
 
   useEffect(() => {
@@ -240,13 +146,15 @@ const Navbar: React.FC<NavbarProps> = ({ classId, Topic, btnRun = false }) => {
                     </button>
                     {isTopicOpen && classInfo && (
                       <div className="absolute left-0 w-[550px] bg-white text-black rounded-xl shadow-xl p-6 z-50">
-                        <h2 className="text-2xl font-bold mb-4">{Topic}</h2>
+                        <h2 className="text-2xl font-bold mb-4">{classInfo.topic}</h2>
                         <div className="flex items-center gap-3 mb-4">
                           <Image src={classInfo.owner.img || "/images/unknown.png"} alt="Owner" width={48} height={48} className="rounded-full w-12 h-12 object-cover" />
                           <span className="text-lg font-semibold">{classInfo.owner.name}</span>
                         </div>
                         <h3 className="text-lg font-semibold mb-1">Description</h3>
-                        <p className="text-sm text-gray-700 bg-gray-100 p-3 rounded-lg">{classInfo.description || "ไม่มีคำอธิบาย"}</p>
+                        <p className="text-sm text-gray-700 bg-gray-100 p-3 rounded-lg">
+                          {classInfo.description || "ไม่มีคำอธิบาย"}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -280,8 +188,8 @@ const Navbar: React.FC<NavbarProps> = ({ classId, Topic, btnRun = false }) => {
                   <div ref={dropdownRef} className="absolute right-0 mt-[220px] bg-white rounded-md shadow-lg w-60 p-4 z-50 text-sm text-gray-700">
                     <div className="px-4 py-2 text-sm text-gray-900">{session.user?.email}</div>
                     <div className="border-t">
-                      <a href={"/account"} className="flex px-4 py-2 text-sm hover:bg-gray-100"><User2 className="mr-3" /> Profile</a>
-                      <a href={"/ProfilePage"} className="flex px-4 py-2 text-sm hover:bg-gray-100"><Settings className="mr-3" /> Settings</a>
+                      <a href={"/ProfilePage"} className="flex px-4 py-2 text-sm hover:bg-gray-100"><User2 className="mr-3" /> Profile</a>
+                      <a href={"/account"} className="flex px-4 py-2 text-sm hover:bg-gray-100"><Settings className="mr-3" /> Settings</a>
                       <a href="#" onClick={() => signOut({ callbackUrl: '/' })} className="flex px-4 py-2 text-sm hover:bg-gray-100"><LogOutIcon className="mr-3" /> Sign out</a>
                     </div>
                   </div>
