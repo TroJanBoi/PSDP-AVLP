@@ -213,6 +213,10 @@ definitions:
         type: boolean
     required:
     - expected_output
+<<<<<<< HEAD
+=======
+    - input_data
+>>>>>>> c5b1836e7cce8517160374f0b9c2cdfab200a509
     type: object
   routes.ProblemAttemptRequest:
     properties:
@@ -765,6 +769,7 @@ paths:
       tags:
       - ProblemAttempts
   /api/problems/{problem_id}/testcases:
+<<<<<<< HEAD
     get:
       description: Retrieve all test cases for a specific problem
       parameters:
@@ -803,6 +808,8 @@ paths:
       summary: Get test cases for a problem
       tags:
       - TestCases
+=======
+>>>>>>> c5b1836e7cce8517160374f0b9c2cdfab200a509
     post:
       consumes:
       - application/json

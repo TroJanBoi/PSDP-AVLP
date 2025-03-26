@@ -772,20 +772,35 @@ const docTemplate = `{
             }
         },
         "/api/problems/{problem_id}/testcases": {
+<<<<<<< HEAD
             "get": {
+=======
+            "post": {
+>>>>>>> c5b1836e7cce8517160374f0b9c2cdfab200a509
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
+<<<<<<< HEAD
                 "description": "Retrieve all test cases for a specific problem",
+=======
+                "description": "Create a new test case for a specific problem",
+                "consumes": [
+                    "application/json"
+                ],
+>>>>>>> c5b1836e7cce8517160374f0b9c2cdfab200a509
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "TestCases"
                 ],
+<<<<<<< HEAD
                 "summary": "Get test cases for a problem",
+=======
+                "summary": "Create a test case for a problem",
+>>>>>>> c5b1836e7cce8517160374f0b9c2cdfab200a509
                 "parameters": [
                     {
                         "type": "integer",
@@ -793,6 +808,7 @@ const docTemplate = `{
                         "name": "problem_id",
                         "in": "path",
                         "required": true
+<<<<<<< HEAD
                     }
                 ],
                 "responses": {
@@ -807,6 +823,28 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Invalid problem ID",
+=======
+                    },
+                    {
+                        "description": "Test case details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.NewTestCaseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.TestCase"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data",
+>>>>>>> c5b1836e7cce8517160374f0b9c2cdfab200a509
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -830,6 +868,7 @@ const docTemplate = `{
                         }
                     }
                 }
+<<<<<<< HEAD
             },
             "post": {
                 "security": [
@@ -898,6 +937,8 @@ const docTemplate = `{
                         }
                     }
                 }
+=======
+>>>>>>> c5b1836e7cce8517160374f0b9c2cdfab200a509
             }
         },
         "/classes": {
@@ -1975,7 +2016,12 @@ const docTemplate = `{
         "routes.NewTestCaseRequest": {
             "type": "object",
             "required": [
+<<<<<<< HEAD
                 "expected_output"
+=======
+                "expected_output",
+                "input_data"
+>>>>>>> c5b1836e7cce8517160374f0b9c2cdfab200a509
             ],
             "properties": {
                 "description": {

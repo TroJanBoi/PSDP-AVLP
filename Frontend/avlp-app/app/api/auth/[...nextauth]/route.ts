@@ -6,6 +6,9 @@ declare module "next-auth" {
     accessToken?: string;
     maxPlayer?: number;
     user?: {
+      youtube: string;
+      github: string;
+      bio: string;
       id?: string;
       name?: string;
       email?: string;
@@ -49,7 +52,11 @@ const handler = NextAuth({
             email: data.user.email,
             maxPlayer: data.user.maxPlayer,
             image: data.user.image,
-            accessToken: data.token, // ✅ Type-safe
+            bio: data.user.bio,
+            youtube: data.user.youtube,
+            github: data.user.github,
+            accessToken: data.token,
+
           };
         }
 
@@ -69,6 +76,9 @@ const handler = NextAuth({
         token.image = user.image;
         token.accessToken = user.accessToken;
         token.maxPlayer = (user as any).maxPlayer;
+        token.bio = (user as any).bio;
+        token.youtube = (user as any).youtube;
+        token.github = (user as any).github;
       }
       return token;
     },
@@ -78,6 +88,9 @@ const handler = NextAuth({
         name: token.name as string,
         email: token.email as string,
         image: token.image as string,
+        bio: token.bio as string,
+        youtube: token.youtube as string,
+        github: token.github as string,
       };
       session.accessToken = token.accessToken as string;
       session.maxPlayer = token.maxPlayer as number;

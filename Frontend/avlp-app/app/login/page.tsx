@@ -3,10 +3,17 @@
 import Link from "next/link";
 import { User, Lock } from "lucide-react";
 import { useState } from "react";
+<<<<<<< HEAD
 import { api, login } from "@/services/api";
+=======
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
+>>>>>>> c5b1836e7cce8517160374f0b9c2cdfab200a509
 import Swal from "sweetalert2";
 
 export default function LoginPage() {
+    const router = useRouter();
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string>('');
@@ -17,6 +24,7 @@ export default function LoginPage() {
         setError('');
         setLoading(true);
 
+<<<<<<< HEAD
         try {
             const data = await login(username, password);
             if (data === undefined) {
@@ -35,6 +43,26 @@ export default function LoginPage() {
             }).then(() => {
                 window.location.href = "/homePage";
             });
+=======
+        console.log("res: ", res);
+        console.log("username: ", username);
+        console.log("password: ", password);
+
+        if (res?.ok) {
+          Swal.fire({
+            icon: "success",
+            title: "Login success",
+            text: "Welcome to AVLP",
+          }).then(() => {
+            router.push("/homePage");
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Login failed",
+            text: "Invalid username or password",
+          });
+>>>>>>> c5b1836e7cce8517160374f0b9c2cdfab200a509
         }
         catch (error: any) {
             Swal.fire({
@@ -72,18 +100,7 @@ export default function LoginPage() {
                 lg:absolute lg:right-0 lg:top-1/2 lg:-translate-y-1/2">
 
                 
-                {/* Logo */}
-                <div className="mb-4 lg:mb-0 mt-6">
-                    <div className="rounded-3xl bg-secondary w-32 h-32 flex justify-center items-center shadow-lg" 
-                        style={{ 
-                            boxShadow: '0 0 20px 5px rgba(43, 255, 0, 0.7), 0 0 30px 10px rgba(255, 255, 255, 0.5)',
-                            filter: 'drop-shadow(0 0 10px rgba(163, 148, 249, 0.5))',
-                            position: 'relative'
-                        }}>
-                        <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white to-transparent opacity-20"></div>
-                        <h1 className="text-textbase font-bold text-2xl relative z-10">LOGO</h1>
-                    </div>
-                </div>
+               
                 
                 {/* Form Content */}
                 <div className="flex flex-col gap-3 justify-center items-center w-full sm:w-3/4 md:w-3/4 lg:w-3/4 mt-4">
@@ -160,6 +177,7 @@ export default function LoginPage() {
                             </div>
                         </form>
                     </div>
+<<<<<<< HEAD
                     
                     {/* Social Login Options */}
                     <div className="flex flex-col justify-center items-center w-4/5 sm:w-3/4 md:w-3/4 lg:w-3/4 mt-2 gap-2">
@@ -189,6 +207,9 @@ export default function LoginPage() {
                             </button>
                         </div>
                     </div>
+=======
+
+>>>>>>> c5b1836e7cce8517160374f0b9c2cdfab200a509
                 </div>
             </div>
         </div>

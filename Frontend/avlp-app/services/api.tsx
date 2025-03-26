@@ -2,7 +2,13 @@ import axios from 'axios';
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:9898";
 
+<<<<<<< HEAD
 export const api = axios.create({
+=======
+console.log("✅ API base URL:", API);
+
+const api = axios.create({
+>>>>>>> c5b1836e7cce8517160374f0b9c2cdfab200a509
   baseURL: API,
   withCredentials: true,
   headers: {
@@ -21,12 +27,22 @@ export const login = async (username: string, password: string) => {
 
 export const register = async (username: string, password: string, email: string) => {
   try {
-    const response = await api.post("/users", { username, password, email });
-    return response.data; 
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password, email }),
+    });
+
+    return await response.json();
   } catch (error: any) {
-    error.response.data.message;
+    console.error('Register Error:', error.message || error);
+    throw new Error(error.message || 'Unknown error occurred');
   }
-}
+};
+
+
 
 export const forgotPassword = async (username: string) => {
   try {
@@ -84,3 +100,59 @@ export const resetPassword = async (email: string, password: string, code: strin
     }
   }
 };
+<<<<<<< HEAD
+=======
+
+export const getAllClass = async () => {
+  try {
+    const response = await api.get('/classes');
+    return response.data;
+  } catch (error: any) {
+    throw error || "ไม่สามารถดึงข้อมูลชั้นเรียนได้";
+  }
+};
+
+export const getProblemsByClassId = async (classId: string, token: string) => {
+  try {
+    const response = await api.get(`/api/classes/${classId}/problem`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    console.log("Error loading problems:", {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message,
+    });
+    return [];
+  }
+};
+
+export const createProblemAttempt = async (problemId: number, userId: number) => {
+  const startedAt = new Date().toISOString(); // ✅ ISO 8601
+
+  const body = {
+    problem_id: problemId,
+    started_at: startedAt,
+    user_id: userId,
+  };
+
+  try {
+    const response = await api.post(`/api/problem_attempt/${problemId}`, body); // ✅ corrected endpoint
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.message || "ไม่สามารถเริ่มโจทย์ได้";
+  }
+};
+
+export const getClassById = async (classId: string | number) => {
+  try {
+    const response = await api.get(`/classes/${classId}`);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.message || "ไม่สามารถดึงข้อมูลคลาสได้";
+  }
+};
+>>>>>>> c5b1836e7cce8517160374f0b9c2cdfab200a509
