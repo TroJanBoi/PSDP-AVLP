@@ -13,7 +13,7 @@ interface Class {
 const ProfilePage: React.FC = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [attendedClasses, setAttendedClasses] = useState<Class[]>([]);
+  const [attendedClasses, setAttendedClasses] = useState<Class[]>([]); 
   const [viewedClasses, setViewedClasses] = useState<Class[]>([]);
   const [showAlert, setShowAlert] = useState<{ platform: 'github' | 'youtube'; message: string } | null>(null);
 
@@ -67,7 +67,12 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-[#a394f9] p-4 flex justify-between items-center">
-        <div className="text-2xl font-bold">Logo</div>
+        {/* โลโก้เว็บตรงๆ โดยไม่ดึงข้อมูลจาก session */}
+        <img 
+          src="https://i.postimg.cc/LsBzbNmv/image-2025-03-16-034214396.png" 
+          alt="Website Logo" 
+          className="w-12 h-12" // ขนาดที่ต้องการ
+        />
         <nav className="space-x-4 flex items-center">
           <a href="/" className="text-black">Home</a>
           <a href="#" className="text-black">Class</a>
