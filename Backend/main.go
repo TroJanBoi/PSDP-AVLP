@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+
 	"time"
 
 	"example.com/greetings/database"
@@ -24,6 +25,8 @@ import (
 // @version 1.0
 // @description API for managing users, classes, and assembly-related functionality in the Assembly Visual Learning Platform
 // @termsOfService http://swagger.io/terms/
+// @in header
+// @name Authorization
 
 // @contact.name API Support
 // @contact.url http://www.swagger.io/support
@@ -62,9 +65,20 @@ func swaggerHandler(c *gin.Context) {
 }
 
 func main() {
-	// // รันคำสั่ง swag init ก่อนเริ่มโปรแกรม
+	// // รันคำสั่ง swag init สำหรับ main
+	// log.Println("Generating Swagger docs for Test_case...")
+	// cmd := exec.Command("swag", "init", "-o", "docs")
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
+	// if err := cmd.Run(); err != nil {
+	// 	log.Fatalf("failed to run swag init for Test_case: %v", err)
+	// }
+	// log.Println("Swagger docs for Test_case generated successfully")
+	// // // รันคำสั่ง swag init ก่อนเริ่มโปรแกรม
 	// log.Println("Generating Swagger docs for Users...")
-	// cmd := exec.Command("swag", "init", "--tags", "Users", "-o", "docs/users")
+
+	// cmd = exec.Command("swag", "init", "--tags", "Users", "-o", "docs/users")
+
 	// cmd.Stdout = os.Stdout // แสดง output ใน terminal
 	// cmd.Stderr = os.Stderr // แสดง error ใน terminal
 	// if err := cmd.Run(); err != nil {
@@ -94,17 +108,7 @@ func main() {
 
 	// // รันคำสั่ง swag init สำหรับ Test_case
 	// log.Println("Generating Swagger docs for Test_case...")
-	// cmd = exec.Command("swag", "init", "--tags", "Test_cases", "-o", "docs/test_cases")
-	// cmd.Stdout = os.Stdout
-	// cmd.Stderr = os.Stderr
-	// if err := cmd.Run(); err != nil {
-	// 	log.Fatalf("failed to run swag init for Test_case: %v", err)
-	// }
-	// log.Println("Swagger docs for Test_case generated successfully")
-
-	// // รันคำสั่ง swag init สำหรับ main
-	// log.Println("Generating Swagger docs for Test_case...")
-	// cmd = exec.Command("swag", "init", "-o", "docs")
+	// cmd = exec.Command("swag", "init", "--tags", "TestCases", "-o", "docs/testCases")
 	// cmd.Stdout = os.Stdout
 	// cmd.Stderr = os.Stderr
 	// if err := cmd.Run(); err != nil {
@@ -123,7 +127,7 @@ func main() {
 	log.Println("Running database migrations...")
 
 	// Migrate both User and Class models
-	err := database.DB.AutoMigrate(&models.User{}, &models.Class{}, &models.Problem{}, &models.TestCase{})
+	err := database.DB.AutoMigrate(&models.User{}, &models.Class{}, &models.Problem{}, &models.TestCase{}, &models.ProblemAttempt{})
 	if err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 
@@ -132,7 +136,7 @@ func main() {
 
 	// Seed the database with default data
 	log.Println("Seeding the database...")
-	seed.SeedData()
+	seed.SeedData(database.DB)
 	log.Println("Database seeding completed")
 
 	// Set Gin to release mode in production
@@ -141,7 +145,7 @@ func main() {
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:3001", "http://localhost:9898"},
+		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:3001", "http://localhost:9898", "*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -153,6 +157,8 @@ func main() {
 	routes.RegisterAsmRoutes(r)
 	routes.RegisterClassRoutes(r)
 	routes.RegisterProblemRoutes(r)
+	// routes.RegisterTestCaseRoutes(r)
+	// routes.RegisterProblemAttemptRoutes(r)
 
 	r.GET("/api-ready", apiReadyHandler)
 	r.GET("/", htmlHandler)
@@ -163,10 +169,12 @@ func main() {
 	r.StaticFile("/swagger-docs/users.json", "docs/users/swagger.json")
 	r.StaticFile("/swagger-docs/classes.json", "docs/classes/swagger.json")
 	r.StaticFile("/swagger-docs/problems.json", "docs/problems/swagger.json")
-	r.StaticFile("/swagger-docs/test_case.json", "docs/test_case/swagger.json")
+	r.StaticFile("/swagger-docs/testCases.json", "docs/testCases/swagger.json")
 	r.StaticFile("/swagger-docs/asm.json", "docs/asm/swagger.json")
+	r.StaticFile("/swagger-docs/problems_attempts.json", "docs/problems_attempts/swagger.json")
 
 	// Serve custom Swagger UI
+	// r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.GET("/swagger/*any", swaggerHandler)
 
 	// Serve uploaded images

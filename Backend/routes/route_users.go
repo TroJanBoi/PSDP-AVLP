@@ -19,7 +19,12 @@ import (
 	gomail "gopkg.in/gomail.v2"
 )
 
+// swag init -o docs
 // swag init --tags Users -o docs/users
+// swag init --tags Classes -o docs/classes
+// swag init --tags Problems -o docs/problems
+// swag init --tags Problems_attempt -o docs/problems_attempt
+// swag init --tags TestCases -o docs/testcases
 
 var resetCodes = make(map[string]struct {
 	Code      string

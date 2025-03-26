@@ -41,24 +41,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/classes/{class_id}/problem": {
+        "/api/classes/{class_id}/problems": {
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "ดึงรายการโจทย์ทั้งหมดในคลาสที่ระบุ โดยต้องระบุ class_id ใน URL",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Retrieve all problems in a specific class",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "problems"
+                    "Problems"
                 ],
-                "summary": "ดูโจทย์ทั้งหมดในคลาส",
+                "summary": "Get problems in a class",
                 "parameters": [
                     {
                         "type": "integer",
@@ -70,7 +67,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "รายการโจทย์",
+                        "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -79,40 +76,32 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "class_id ไม่ถูกต้อง",
+                        "description": "Invalid class ID",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
-                        "description": "ไม่ได้รับอนุญาต (token ไม่ถูกต้อง)",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "ไม่พบคลาส",
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "ข้อผิดพลาดภายในเซิร์ฟเวอร์",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
-            }
-        },
-        "/api/{class_id}/problems/{problem_id}": {
+            },
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "สร้างโจทย์ใหม่ในคลาสที่ระบุ โดยต้องระบุ class_id ใน URL และส่งข้อมูลโจทย์ใน request body",
+                "description": "Create a new problem in a specific class",
                 "consumes": [
                     "application/json"
                 ],
@@ -120,9 +109,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "problems"
+                    "Problems"
                 ],
-                "summary": "สร้างโจทย์ใหม่ในคลาส",
+                "summary": "Create a new problem in a class",
                 "parameters": [
                     {
                         "type": "integer",
@@ -132,49 +121,42 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "Problem ID",
-                        "name": "problem_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "ข้อมูลโจทย์",
-                        "name": "problem",
+                        "description": "Problem details",
+                        "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/routes.CreateProblemRequest"
+                            "$ref": "#/definitions/routes.NewProblemRequest"
                         }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "โจทย์ที่สร้างสำเร็จ",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/models.Problem"
                         }
                     },
                     "400": {
-                        "description": "ข้อมูลที่ส่งมาไม่ถูกต้อง",
+                        "description": "Invalid data",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
-                        "description": "ไม่ได้รับอนุญาต (token ไม่ถูกต้อง)",
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "ไม่พบคลาส",
+                        "description": "Class not found",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "ข้อผิดพลาดภายในเซิร์ฟเวอร์",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -182,14 +164,409 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/{class_id}/problems/{problem_id}/testcases/{test_case_id}": {
+        "/api/classes/{class_id}/problems/{problem_id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update a problem in a class",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Problems"
+                ],
+                "summary": "Update a problem",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "class_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Problem ID",
+                        "name": "problem_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Problem details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.NewProblemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "message: edit problem success",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Problem not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a problem from a class",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Problems"
+                ],
+                "summary": "Delete a problem",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "class_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Problem ID",
+                        "name": "problem_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "message: Success Remove Problem",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Problem not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/classes/{class_id}/problems/{problem_id}/testcases/{test_case_id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update a test case for a problem",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TestCases"
+                ],
+                "summary": "Update a test case",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "class_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Problem ID",
+                        "name": "problem_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Test Case ID",
+                        "name": "test_case_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Test case details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.NewTestCaseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "message: edit test case success",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Test case not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a test case for a specific problem",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TestCases"
+                ],
+                "summary": "Delete a test case",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "class_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Problem ID",
+                        "name": "problem_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Test Case ID",
+                        "name": "test_case_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "message: Success Remove test case",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/classes/{class_id}/{problem_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve score for a problem attempt",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ProblemAttempts"
+                ],
+                "summary": "Get attempt score",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "class_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Problem ID",
+                        "name": "problem_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ProblemAttempt"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Attempt not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/classes/{class_id}/{problem_id}/test_case": {
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "สร้าง test case ใหม่สำหรับโจทย์ที่ระบุ โดยต้องระบุ class_id, problem_id และ test_case_id ใน URL และส่งข้อมูล test case ใน request body",
+                "description": "Check if the submitted solution matches test case",
                 "consumes": [
                     "application/json"
                 ],
@@ -197,9 +574,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "test_cases"
+                    "ProblemAttempts"
                 ],
-                "summary": "สร้าง test case สำหรับโจทย์",
+                "summary": "Check test case result",
                 "parameters": [
                     {
                         "type": "integer",
@@ -216,49 +593,42 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "Test Case ID",
-                        "name": "test_case_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "ข้อมูล Test Case",
-                        "name": "test_case",
+                        "description": "Test case check details",
+                        "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/routes.CreateTestCaseRequest"
+                            "$ref": "#/definitions/routes.TestCaseCheckRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Test Case ที่สร้างสำเร็จ",
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.TestCase"
                         }
                     },
                     "400": {
-                        "description": "ข้อมูลที่ส่งมาไม่ถูกต้อง",
+                        "description": "Invalid data",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
-                        "description": "ไม่ได้รับอนุญาต (token ไม่ถูกต้อง)",
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "ไม่พบโจทย์",
+                        "description": "Problem or test case not found",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "ข้อผิดพลาดภายในเซิร์ฟเวอร์",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -266,107 +636,26 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/{class_id}/{problem_id}": {
-            "put": {
+        "/api/problem_attempt/{attempt_id}/{problem_id}": {
+            "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "แก้ไขโจทย์ที่ระบุ โดยต้องระบุ class_id และ problem_id ใน URL และส่งข้อมูลโจทย์ที่ต้องการแก้ไขใน request body",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Retrieve details of a specific problem attempt",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "problems"
+                    "ProblemAttempts"
                 ],
-                "summary": "แก้ไขโจทย์",
+                "summary": "Get problem attempt details",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Class ID",
-                        "name": "class_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Problem ID",
-                        "name": "problem_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "ข้อมูลโจทย์ที่ต้องการแก้ไข",
-                        "name": "problem",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/routes.UpdateProblemRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ข้อความยืนยันการแก้ไข",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "ข้อมูลที่ส่งมาไม่ถูกต้อง",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "ไม่ได้รับอนุญาต (token ไม่ถูกต้อง)",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "ไม่พบคลาสหรือโจทย์",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "ข้อผิดพลาดภายในเซิร์ฟเวอร์",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "ลบโจทย์ที่ระบุ โดยต้องระบุ class_id และ problem_id ใน URL",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "problems"
-                ],
-                "summary": "ลบโจทย์",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Class ID",
-                        "name": "class_id",
+                        "description": "Attempt ID",
+                        "name": "attempt_id",
                         "in": "path",
                         "required": true
                     },
@@ -380,34 +669,31 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "ข้อความยืนยันการลบ",
+                        "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ProblemAttempt"
                         }
                     },
                     "400": {
-                        "description": "ID ไม่ถูกต้อง",
+                        "description": "Invalid ID",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
-                        "description": "ไม่ได้รับอนุญาต (token ไม่ถูกต้อง)",
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "ไม่พบคลาสหรือโจทย์",
+                        "description": "Attempt not found",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "ข้อผิดพลาดภายในเซิร์ฟเวอร์",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -415,14 +701,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/{class_id}/{problem_id}/{test_case_id}": {
-            "put": {
+        "/api/problem_attempt/{problem_id}": {
+            "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "แก้ไข test case สำหรับโจทย์ที่ระบุ โดยต้องระบุ class_id, problem_id, และ test_case_id ใน URL และส่งข้อมูล test case ที่ต้องการแก้ไขใน request body",
+                "description": "Create a new attempt for solving a problem",
                 "consumes": [
                     "application/json"
                 ],
@@ -430,17 +716,10 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "test_cases"
+                    "ProblemAttempts"
                 ],
-                "summary": "แก้ไข test case",
+                "summary": "Create a new problem attempt",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Class ID",
-                        "name": "class_id",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "Problem ID",
@@ -449,65 +728,57 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "Test Case ID",
-                        "name": "test_case_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "ข้อมูล Test Case ที่ต้องการแก้ไข",
-                        "name": "test_case",
+                        "description": "Attempt details",
+                        "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/routes.UpdateTestCaseRequest"
+                            "$ref": "#/definitions/routes.ProblemAttemptRequest"
                         }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "ข้อความยืนยันการแก้ไข",
+                    "201": {
+                        "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ProblemAttempt"
                         }
                     },
                     "400": {
-                        "description": "ข้อมูลที่ส่งมาไม่ถูกต้อง",
+                        "description": "Invalid data",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
-                        "description": "ไม่ได้รับอนุญาต (token ไม่ถูกต้อง)",
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "ไม่พบคลาส, โจทย์, หรือ test case",
+                        "description": "Problem not found",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "ข้อผิดพลาดภายในเซิร์ฟเวอร์",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
-            },
-            "delete": {
+            }
+        },
+        "/api/problems/{problem_id}/testcases": {
+            "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "ลบ test case สำหรับโจทย์ที่ระบุ โดยต้องระบุ class_id, problem_id, และ test_case_id ใน URL",
+                "description": "Create a new test case for a specific problem",
                 "consumes": [
                     "application/json"
                 ],
@@ -515,17 +786,10 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "test_cases"
+                    "TestCases"
                 ],
-                "summary": "ลบ test case",
+                "summary": "Create a test case for a problem",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Class ID",
-                        "name": "class_id",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "Problem ID",
@@ -534,43 +798,42 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "Test Case ID",
-                        "name": "test_case_id",
-                        "in": "path",
-                        "required": true
+                        "description": "Test case details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.NewTestCaseRequest"
+                        }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "ข้อความยืนยันการลบ",
+                    "201": {
+                        "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.TestCase"
                         }
                     },
                     "400": {
-                        "description": "ID ไม่ถูกต้อง",
+                        "description": "Invalid data",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
-                        "description": "ไม่ได้รับอนุญาต (token ไม่ถูกต้อง)",
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "ไม่พบคลาส, โจทย์, หรือ test case",
+                        "description": "Problem not found",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "ข้อผิดพลาดภายในเซิร์ฟเวอร์",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -580,6 +843,11 @@ const docTemplate = `{
         },
         "/classes": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of all classes",
                 "produces": [
                     "application/json"
@@ -598,6 +866,12 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -607,6 +881,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new class with the provided details and an optional image",
                 "consumes": [
                     "multipart/form-data"
@@ -660,13 +939,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid data",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Owner not found",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -682,6 +967,11 @@ const docTemplate = `{
         },
         "/classes/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieve a class by its ID",
                 "produces": [
                     "application/json"
@@ -707,13 +997,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid class ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Class not found",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -727,6 +1023,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update a class with the provided details and an optional image",
                 "consumes": [
                     "multipart/form-data"
@@ -785,13 +1086,25 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid data or class ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Class not found",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -805,6 +1118,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete a class by its ID",
                 "produces": [
                     "application/json"
@@ -830,13 +1148,25 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid class ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Class not found",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -1393,6 +1723,32 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ProblemAttempt": {
+            "type": "object",
+            "properties": {
+                "attempt_id": {
+                    "type": "integer"
+                },
+                "complete_at": {
+                    "type": "string"
+                },
+                "input_data": {
+                    "type": "string"
+                },
+                "problem_id": {
+                    "type": "integer"
+                },
+                "score_obtained": {
+                    "type": "integer"
+                },
+                "started_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.SuccessResponse": {
             "type": "object",
             "properties": {
@@ -1484,43 +1840,6 @@ const docTemplate = `{
                 }
             }
         },
-        "routes.CreateProblemRequest": {
-            "type": "object",
-            "required": [
-                "description",
-                "title"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "routes.CreateTestCaseRequest": {
-            "type": "object",
-            "required": [
-                "description",
-                "expected_output",
-                "input_data"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "expected_output": {
-                    "type": "string"
-                },
-                "input_data": {
-                    "type": "string"
-                },
-                "isPublic": {
-                    "type": "boolean"
-                }
-            }
-        },
         "routes.CreateUserRequest": {
             "type": "object",
             "required": [
@@ -1580,6 +1899,56 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.NewProblemRequest": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.NewTestCaseRequest": {
+            "type": "object",
+            "required": [
+                "expected_output",
+                "input_data"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "expected_output": {
+                    "type": "string"
+                },
+                "input_data": {
+                    "type": "string"
+                },
+                "isPublic": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "routes.ProblemAttemptRequest": {
+            "type": "object",
+            "required": [
+                "problem_id",
+                "user_id"
+            ],
+            "properties": {
+                "problem_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "routes.ResetPasswordRequest": {
             "type": "object",
             "required": [
@@ -1599,40 +1968,18 @@ const docTemplate = `{
                 }
             }
         },
-        "routes.UpdateProblemRequest": {
+        "routes.TestCaseCheckRequest": {
             "type": "object",
             "required": [
-                "description",
-                "title"
+                "input_data",
+                "user_id"
             ],
             "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "routes.UpdateTestCaseRequest": {
-            "type": "object",
-            "required": [
-                "description",
-                "expected_output",
-                "input_data"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "expected_output": {
-                    "type": "string"
-                },
                 "input_data": {
                     "type": "string"
                 },
-                "isPublic": {
-                    "type": "boolean"
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },

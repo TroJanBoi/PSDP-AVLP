@@ -2,6 +2,7 @@ package routes
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -71,7 +72,9 @@ func saveUploadedFile(c *gin.Context, fieldName string) (string, error) {
 // @Tags Classes
 // @Description Retrieve a list of all classes
 // @Produce json
+// @Security BearerAuth
 // @Success 200 {array} models.Class
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
 // @Failure 500 {object} models.ErrorResponse
 // @Router /classes [get]
 func getClasses(c *gin.Context) {
@@ -87,10 +90,12 @@ func getClasses(c *gin.Context) {
 // @Tags Classes
 // @Description Retrieve a class by its ID
 // @Produce json
+// @Security BearerAuth
 // @Param id path int true "Class ID"
 // @Success 200 {object} models.Class
-// @Failure 400 {object} models.ErrorResponse
-// @Failure 404 {object} models.ErrorResponse
+// @Failure 400 {object} models.ErrorResponse "Invalid class ID"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
+// @Failure 404 {object} models.ErrorResponse "Class not found"
 // @Failure 500 {object} models.ErrorResponse
 // @Router /classes/{id} [get]
 func getClassByID(c *gin.Context) {
@@ -113,14 +118,16 @@ func getClassByID(c *gin.Context) {
 // @Description Create a new class with the provided details and an optional image
 // @Accept multipart/form-data
 // @Produce json
+// @Security BearerAuth
 // @Param topic formData string true "Class topic"
 // @Param description formData string false "Class description"
 // @Param max_player formData int true "Maximum number of players"
 // @Param is_public formData boolean false "Whether the class is public"
 // @Param img formData file false "Class image"
 // @Success 201 {object} models.Class
-// @Failure 400 {object} models.ErrorResponse
-// @Failure 404 {object} models.ErrorResponse
+// @Failure 400 {object} models.ErrorResponse "Invalid data"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
+// @Failure 404 {object} models.ErrorResponse "Owner not found"
 // @Failure 500 {object} models.ErrorResponse
 // @Router /classes [post]
 func createClass(c *gin.Context) {
@@ -132,6 +139,7 @@ func createClass(c *gin.Context) {
 
 	// Get the user ID from the JWT token
 	userID, exists := c.Get("user_id")
+	log.Println("Seeding the database...", userID)
 	if !exists {
 		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "User ID not found in token"})
 		return
@@ -178,6 +186,7 @@ func createClass(c *gin.Context) {
 // @Description Update a class with the provided details and an optional image
 // @Accept multipart/form-data
 // @Produce json
+// @Security BearerAuth
 // @Param id path int true "Class ID"
 // @Param topic formData string false "Class topic"
 // @Param description formData string false "Class description"
@@ -185,8 +194,10 @@ func createClass(c *gin.Context) {
 // @Param is_public formData boolean false "Whether the class is public"
 // @Param img formData file false "Class image"
 // @Success 200 {object} models.Class
-// @Failure 400 {object} models.ErrorResponse
-// @Failure 404 {object} models.ErrorResponse
+// @Failure 400 {object} models.ErrorResponse "Invalid data or class ID"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
+// @Failure 403 {object} models.ErrorResponse "Forbidden"
+// @Failure 404 {object} models.ErrorResponse "Class not found"
 // @Failure 500 {object} models.ErrorResponse
 // @Router /classes/{id} [put]
 func updateClass(c *gin.Context) {
@@ -256,10 +267,13 @@ func updateClass(c *gin.Context) {
 // @Tags Classes
 // @Description Delete a class by its ID
 // @Produce json
+// @Security BearerAuth
 // @Param id path int true "Class ID"
 // @Success 200 {object} models.SuccessResponse
-// @Failure 400 {object} models.ErrorResponse
-// @Failure 404 {object} models.ErrorResponse
+// @Failure 400 {object} models.ErrorResponse "Invalid class ID"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
+// @Failure 403 {object} models.ErrorResponse "Forbidden"
+// @Failure 404 {object} models.ErrorResponse "Class not found"
 // @Failure 500 {object} models.ErrorResponse
 // @Router /classes/{id} [delete]
 func deleteClass(c *gin.Context) {
