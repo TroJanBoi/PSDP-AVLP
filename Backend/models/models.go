@@ -87,5 +87,5 @@ type ProblemAttempt struct {
 	InputData     string     `json:"input_data"`
 	StartedAt     time.Time  `json:"started_at"`
 	CompleteAt    *time.Time `json:"complete_at"`    // Nullable
-	ScoreObtained *int       `json:"score_obtained"` // Nullable
+	ScoreObtained int        `json:"score_obtained"` // Nullable
 }
