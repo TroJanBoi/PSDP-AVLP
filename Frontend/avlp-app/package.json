@@ -46,12 +46,7 @@
     "framer-motion": "^12.4.2",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.475.0",
-<<<<<<< HEAD
     "next": "15.1.7",
-=======
-    "next": "^15.2.4",
-    "next-auth": "^4.24.11",
->>>>>>> c5b1836e7cce8517160374f0b9c2cdfab200a509
     "next-themes": "^0.4.4",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
@@ -61,11 +56,7 @@
     "reactflow": "^11.11.4",
     "recharts": "^2.15.1",
     "sonner": "^1.7.4",
-<<<<<<< HEAD
     "sweetalert2": "^11.17.2",
-=======
-    "sweetalert2": "^11.6.13",
->>>>>>> c5b1836e7cce8517160374f0b9c2cdfab200a509
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.1.0",
