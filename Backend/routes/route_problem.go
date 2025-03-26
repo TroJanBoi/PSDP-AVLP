@@ -20,7 +20,7 @@ type NewProblemRequest struct {
 
 // NewTestCaseRequest represents the request body for creating/updating a test case
 type NewTestCaseRequest struct {
-	InputData      string `json:"input_data" binding:"required"`
+	InputData      string `json:"input_data"`
 	ExpectedOutput string `json:"expected_output" binding:"required"`
 	Description    string `json:"description"`
 	IsPublic       bool   `json:"isPublic"`
