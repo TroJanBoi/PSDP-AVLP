@@ -494,6 +494,283 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/classes/{class_id}/{problem_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve score for a problem attempt",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ProblemAttempts"
+                ],
+                "summary": "Get attempt score",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "class_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Problem ID",
+                        "name": "problem_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ProblemAttempt"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Attempt not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/classes/{class_id}/{problem_id}/test_case": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Check if the submitted solution matches test case",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ProblemAttempts"
+                ],
+                "summary": "Check test case result",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "class_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Problem ID",
+                        "name": "problem_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Test case check details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.TestCaseCheckRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.TestCase"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Problem or test case not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/problem_attempt/{attempt_id}/{problem_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve details of a specific problem attempt",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ProblemAttempts"
+                ],
+                "summary": "Get problem attempt details",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Attempt ID",
+                        "name": "attempt_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Problem ID",
+                        "name": "problem_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ProblemAttempt"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Attempt not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/problem_attempt/{problem_id}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new attempt for solving a problem",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ProblemAttempts"
+                ],
+                "summary": "Create a new problem attempt",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Problem ID",
+                        "name": "problem_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Attempt details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.ProblemAttemptRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.ProblemAttempt"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Problem not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/problems/{problem_id}/testcases": {
             "post": {
                 "security": [
@@ -1446,6 +1723,32 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ProblemAttempt": {
+            "type": "object",
+            "properties": {
+                "attempt_id": {
+                    "type": "integer"
+                },
+                "complete_at": {
+                    "type": "string"
+                },
+                "input_data": {
+                    "type": "string"
+                },
+                "problem_id": {
+                    "type": "integer"
+                },
+                "score_obtained": {
+                    "type": "integer"
+                },
+                "started_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.SuccessResponse": {
             "type": "object",
             "properties": {
@@ -1631,6 +1934,21 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.ProblemAttemptRequest": {
+            "type": "object",
+            "required": [
+                "problem_id",
+                "user_id"
+            ],
+            "properties": {
+                "problem_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "routes.ResetPasswordRequest": {
             "type": "object",
             "required": [
@@ -1647,6 +1965,21 @@ const docTemplate = `{
                 },
                 "new_password": {
                     "type": "string"
+                }
+            }
+        },
+        "routes.TestCaseCheckRequest": {
+            "type": "object",
+            "required": [
+                "input_data",
+                "user_id"
+            ],
+            "properties": {
+                "input_data": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
