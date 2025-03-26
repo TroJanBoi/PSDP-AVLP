@@ -222,6 +222,7 @@ export default function AssemblyflowPage() {
             ))}
 
             <Button onClick={handleRunClick}>Run</Button>
+            <Button>Submit</Button>t
           </div>
           <div className="flex flex-col w-full h-full text-white rounded-r-xl">
             <div className="w-full h-2/3 border-4 border-primary rounded-xl mb-5 overflow-hidden relative">
