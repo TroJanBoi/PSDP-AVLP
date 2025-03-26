@@ -67,7 +67,6 @@
         .hidden {
             display: none;
         }
-        /* ปรับแต่ง Swagger UI */
         .swagger-ui .topbar {
             background-color: #007bff;
         }
@@ -80,7 +79,6 @@
         .swagger-ui .scheme-container {
             background-color: #f4f4f4;
         }
-        /* Responsive Design */
         @media (max-width: 768px) {
             .navbar {
                 flex-direction: column;
@@ -113,31 +111,35 @@
     <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
     <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
     <script>
-        // ตรวจสอบสถานะการล็อกอินเมื่อโหลดหน้า
+        // Check login status and initialize Swagger UI on page load
         window.onload = function() {
             const token = localStorage.getItem("token");
             const username = localStorage.getItem("username");
 
             if (token && username) {
-                // แสดงชื่อผู้ใช้และปุ่ม Logout ใน Navbar
+                // Update navbar with user info
                 document.getElementById("nav-user-name").textContent = `สวัสดี, ${username}`;
                 document.getElementById("nav-user-name").classList.remove("hidden");
                 document.getElementById("nav-logout").classList.remove("hidden");
+            } else {
+                // Redirect to login if no token
+                window.location.href = "/";
+                return;
             }
 
-            // กำหนด URL สำหรับ Swagger JSON
+            // Define Swagger JSON endpoints
             const urls = [
-                { url: "/swagger-docs/all.json", name: "All Endpoints" },
-                { url: "/swagger-docs/users.json", name: "Users" },
-                { url: "/swagger-docs/classes.json", name: "Classes" },
-                { url: "/swagger-docs/problems.json", name: "Problems" },
-                { url: "/swagger-docs/test_cases.json", name: "Test_cases" },
-                { url: "/swagger-docs/problems_attempt.json", name: "Problems_attempt" },
-                { url: "/swagger-docs/asm.json", name: "Asm" }
+                { url: "/swagger-docs/all.json", name: "All Endpoints" }
+                // { url: "/swagger-docs/users.json", name: "Users" },
+                // { url: "/swagger-docs/classes.json", name: "Classes" },
+                // { url: "/swagger-docs/problems.json", name: "Problems" },
+                // { url: "/swagger-docs/test_cases.json", name: "Test_cases" },
+                // { url: "/swagger-docs/problems_attempt.json", name: "Problems_attempt" },
+                // { url: "/swagger-docs/asm.json", name: "Asm" }
             ];
 
-            // โหลด Swagger UI
-            SwaggerUIBundle({
+            // Initialize Swagger UI with Bearer token support
+            const ui = SwaggerUIBundle({
                 urls: urls,
                 dom_id: '#swagger-ui',
                 deepLinking: true,
@@ -149,22 +151,37 @@
                 docExpansion: "list",
                 persistAuthorization: true,
                 defaultModelRendering: "example",
-                // ปรับแต่งสีของ Swagger UI
-                customCss: `
-                    .swagger-ui .topbar { background-color: #007bff; }
-                    .swagger-ui .topbar a { color: white; }
-                    .swagger-ui .info .title { color: #007bff; }
-                    .swagger-ui .scheme-container { background-color: #f4f4f4; }
-                `
+                // Pre-authorize with Bearer token from localStorage
+                requestInterceptor: (req) => {
+                    if (token) {
+                        req.headers.Authorization = `Bearer ${token}`;
+                    }
+                    return req;
+                },
+                // Handle response errors (e.g., 401 Unauthorized)
+                responseInterceptor: (res) => {
+                    if (res.status === 401) {
+                        alert("โทเค็นไม่ถูกต้องหรือหมดอายุ กรุณาล็อกอินใหม่");
+                        logout();
+                    }
+                    return res;
+                }
             });
+
+            // Pre-fill the authorization UI with the token if available
+            if (token) {
+                ui.preauthorizeApiKey("BearerAuth", token);
+            }
         };
 
-        // ฟังก์ชันออกจากระบบ
+        // Logout function
         function logout() {
-            localStorage.removeItem("token");
-            localStorage.removeItem("username");
-            localStorage.removeItem("userId");
-            window.location.href = "/"; // กลับไปหน้าแรก
+            if (confirm("คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?")) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("username");
+                localStorage.removeItem("userId");
+                window.location.href = "/";
+            }
         }
     </script>
 </body>
