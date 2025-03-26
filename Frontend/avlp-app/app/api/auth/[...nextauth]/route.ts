@@ -49,7 +49,7 @@ const handler = NextAuth({
             email: data.user.email,
             maxPlayer: data.user.maxPlayer,
             image: data.user.image,
-            accessToken: data.token, // ✅ Type-safe
+            accessToken: data.token,
           };
         }
 

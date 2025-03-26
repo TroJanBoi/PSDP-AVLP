@@ -60,13 +60,13 @@ export default function ClassDetailPage() {
 
       try {
         const data = await getProblemsByClassId(id as string, token);
-        // ปรับข้อมูลให้ตรงกับ ProblemType
+
         const formattedProblems = data.map((problem: any) => ({
           id: problem.id,
           title: problem.title,
-          likes: problem.likes || 0, // กำหนด default ถ้าไม่มี likes
-          difficulty: problem.difficulty || "Easy", // กำหนด default
-          status: problem.status || "Not Started", // กำหนด default
+          likes: problem.likes || 0,
+          difficulty: problem.difficulty || "Easy",
+          status: problem.status || "Not Started",
         }));
         setProblems(formattedProblems);
       } catch (err: any) {
@@ -112,7 +112,7 @@ export default function ClassDetailPage() {
                 key={problem.id}
                 onClick={async () => {
                   try {
-                    const userId = Number(session?.user?.id); // Convert user.id to a number
+                    const userId = Number(session?.user?.id);
                     console.log("userId", userId);
                     if (!userId) {
                       alert("กรุณาเข้าสู่ระบบก่อน");
