@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   User, 
   Settings, 
@@ -12,13 +12,42 @@ import {
   Moon,
   X  
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import ProfileNavbar from '../../components/ProfileNavbar';
+import Image from 'next/image';
 
-// คอมโพเนนต์หลักสำหรับหน้าโปรไฟล์ผู้ใช้
 const UserProfilePage: React.FC = () => {
   // สถานะเก็บแท็บที่กำลังเปิดอยู่
   const [activeTab, setActiveTab] = useState('Profile');
   // สถานะธีมปัจจุบัน
   const [theme, setTheme] = useState('light');
+  
+  // ดึงข้อมูล session
+  const { data: session, status } = useSession();
+
+  // สถานะเก็บข้อมูลผู้ใช้
+  const [userProfile, setUserProfile] = useState({
+    firstName: '',
+    lastName: '',
+    bio: '',
+    email: '',
+    image: session?.user?.image || '/images/unknown.png'
+  });
+
+  // อัพเดทข้อมูลผู้ใช้เมื่อ session เปลี่ยน
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      // แยกชื่อและนามสกุลจากชื่อผู้ใช้
+      const nameParts = session.user.name?.split(' ') || [];
+      setUserProfile(prev => ({
+        ...prev,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        email: session.user?.email || '',
+        image: session.user?.image || prev.image
+      }));
+    }
+  }, [session, status]);
 
   const renderContent = () => {
     switch(activeTab) {
@@ -35,6 +64,8 @@ const UserProfilePage: React.FC = () => {
                 <input 
                   id="firstName"
                   type="text" 
+                  value={userProfile.firstName}
+                  onChange={(e) => setUserProfile(prev => ({...prev, firstName: e.target.value}))}
                   placeholder="Enter first name" 
                   className="w-full rounded-md p-1 md:p-2 text-sm"
                 />
@@ -45,6 +76,8 @@ const UserProfilePage: React.FC = () => {
                 <input 
                   id="lastName"
                   type="text" 
+                  value={userProfile.lastName}
+                  onChange={(e) => setUserProfile(prev => ({...prev, lastName: e.target.value}))}
                   placeholder="Enter last name" 
                   className="w-full rounded-md p-1 md:p-2 text-sm"
                 />
@@ -56,6 +89,8 @@ const UserProfilePage: React.FC = () => {
               <textarea 
                 id="bio"
                 maxLength={138} 
+                value={userProfile.bio}
+                onChange={(e) => setUserProfile(prev => ({...prev, bio: e.target.value}))}
                 placeholder="Write your bio (138 characters max)" 
                 className="w-full rounded-md p-1 md:p-2 text-sm"
               />
@@ -75,6 +110,8 @@ const UserProfilePage: React.FC = () => {
                 <input 
                   id="email"
                   type="email" 
+                  value={userProfile.email}
+                  onChange={(e) => setUserProfile(prev => ({...prev, email: e.target.value}))}
                   placeholder="Enter your email" 
                   className="rounded-md p-1 md:p-2 w-full md:mr-4 text-sm"
                 />
@@ -186,6 +223,30 @@ const UserProfilePage: React.FC = () => {
     }
   };
 
+  // หากยังไม่ได้ login ให้แสดงข้อความแทน
+  if (status === 'unauthenticated') {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <ProfileNavbar />
+        <div className="flex-grow flex items-center justify-center">
+          <p className="text-2xl">Please log in to view your profile</p>
+        </div>
+      </div>
+    );
+  }
+
+  // หากกำลัง load session ให้แสดง loading
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <ProfileNavbar />
+        <div className="flex-grow flex items-center justify-center">
+          <p className="text-2xl">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     // ภาพพื้นหลัง
     <div 
@@ -196,27 +257,8 @@ const UserProfilePage: React.FC = () => {
         backgroundPosition: 'center'
       }}
     >
-      {/* แถบนำทางด้านบน */}
-      <div className="bg-[#a394f9] shadow-md flex justify-between items-center p-2 md:p-4">
-        <div className="text-lg md:text-2xl font-bold text-white">Logo</div>
-        <div className="flex items-center space-x-2 md:space-x-6">
-          <a href="#" className="text-xs md:text-base text-white hover:text-gray-200">Home</a>
-          <a href="#" className="text-xs md:text-base text-white hover:text-gray-200">Class</a>
-          <a href="#" className="text-xs md:text-base text-white hover:text-gray-200">Contact</a>
-          {/* ไอคอนการแจ้งเตือน */}
-          <button className="text-white hover:text-gray-200">
-            <Bell size={16} />
-          </button>
-          {/* รูปโปรไฟล์ผู้ใช้ */}
-          <div className="w-6 h-6 md:w-10 md:h-10 rounded-full bg-gray-300">
-            <img 
-              src="https://img2.pic.in.th/pic/3135715bbb91183116ea5c8.png"
-              alt="Profile" 
-              className="rounded-full w-full h-full object-cover"
-            />
-          </div>
-        </div>
-      </div>
+      {/* Navbar */}
+      <ProfileNavbar />
 
       <div className="mt-4 md:mt-16 w-full px-2 md:px-4">
         <div className="flex flex-col md:flex-row w-full">
@@ -225,14 +267,18 @@ const UserProfilePage: React.FC = () => {
             <div className="flex flex-col items-center w-full md:w-64">
               {/* รูปโปรไฟล์ */}
               <div className="w-16 h-16 md:w-24 md:h-24 rounded-full">
-                <img 
-                  src="https://img2.pic.in.th/pic/3135715bbb91183116ea5c8.png"
+                <Image
+                  src={userProfile.image || '/images/unknown.png'}
                   alt="Profile" 
+                  width={96}
+                  height={96}
                   className="rounded-full w-full h-full object-cover"
                 />
               </div>
               {/* ชื่อผู้ใช้และสถานะ */}
-              <h2 className="text-base md:text-xl font-bold mt-2 md:mt-3">Peerapol Srisawat</h2>
+              <h2 className="text-base md:text-xl font-bold mt-2 md:mt-3">
+                {userProfile.firstName} {userProfile.lastName}
+              </h2>
               <p className="text-xs md:text-sm text-gray-500 flex items-center">
                 <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                 Online
