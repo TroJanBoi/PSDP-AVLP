@@ -10,7 +10,6 @@ import {
     CardHeader,
     CardTitle
 } from "@/components/ui/card";
-import { getAllClass } from "@/services/api";
 import { BookOpen, Link } from "lucide-react";
 import { useSession } from "next-auth/react";
 import NextLink from "next/link";
@@ -29,12 +28,111 @@ interface ClassType {
     };
 }
 
+// Static JSON data based on the provided API response
+const mockClasses: ClassType[] = [
+    {
+        id: 1,
+        topic: "Introduction to Assembly Language",
+        description: "Learn the basics of Assembly language, including syntax, registers, and basic instructions.",
+        img: "/images/topic-class-1.png",
+        max_player: 20,
+        owner: {
+            name: "Administrator",
+            email: "admin@example.com",
+            img: "/images/unknown.png" // profile_picture is ""
+        }
+    },
+    {
+        id: 3,
+        topic: "Assembly Control Flow",
+        description: "Understand control flow in Assembly using jumps, loops, and conditional statements.",
+        img: "/images/topic-class-3.png",
+        max_player: 25,
+        owner: {
+            name: "Administrator",
+            email: "admin@example.com",
+            img: "/images/unknown.png"
+        }
+    },
+    {
+        id: 5,
+        topic: "Advanced Assembly Techniques",
+        description: "Dive into advanced Assembly topics like interrupts, system calls, and optimization techniques.",
+        img: "/images/topic-class-2.png",
+        max_player: 10,
+        owner: {
+            name: "Administrator",
+            email: "admin@example.com",
+            img: "/images/unknown.png"
+        }
+    },
+    {
+        id: 6,
+        topic: "Introduction to Assembly Language",
+        description: "Learn the basics of Assembly programming",
+        img: "/images/topic-class-3.png",
+        max_player: 40,
+        owner: {
+            name: "Patipan",
+            email: "ddpatipan@gmail.com",
+            img: "/images/patipan.jpg" // Adjusted from "http://example.com/patipan.jpg"
+        }
+    },
+    {
+        id: 2,
+        topic: "Assembly Arithmetic Operations",
+        description: "Explore arithmetic operations in Assembly, such as ADD, SUB, MUL, and DIV, with practical examples.",
+        img: "/images/topic-class-2.png",
+        max_player: 15,
+        owner: {
+            name: "Administrator",
+            email: "admin@example.com",
+            img: "/images/unknown.png"
+        }
+    },
+    {
+        id: 7,
+        topic: "Control Flow in Assembly",
+        description: "Understand jumps, loops, and conditionals",
+        img: "/images/topic-class-2.png",
+        max_player: 30,
+        owner: {
+            name: "Administrator",
+            email: "admin@example.com",
+            img: "/images/unknown.png"
+        }
+    },
+    {
+        id: 4,
+        topic: "Assembly Memory Management",
+        description: "Learn how to manage memory in Assembly, including stack operations and memory addressing modes.",
+        img: "/images/topic-class-1.png",
+        max_player: 18,
+        owner: {
+            name: "Administrator",
+            email: "admin@example.com",
+            img: "/images/unknown.png"
+        }
+    },
+    {
+        id: 8,
+        topic: "Interfacing Assembly with Hardware",
+        description: "Explore low-level hardware programming",
+        img: "/images/topic-class-1.png",
+        max_player: 20,
+        owner: {
+            name: "Administrator",
+            email: "admin@example.com",
+            img: "/images/unknown.png"
+        }
+    }
+];
+
 export default function PopularClassesSection() {
     const [classes, setClasses] = useState<ClassType[]>([]);
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(2);
     const { data: session, status } = useSession();
-
 
     const handleClick = (id: number) => {
         if (!session) {
@@ -52,26 +150,22 @@ export default function PopularClassesSection() {
     };
 
     useEffect(() => {
-
-        const fetchClasses = async () => {
-            try {
-                const data = await getAllClass();
-                console.log("data: ", data);
-                setClasses(data);
-            } catch (error) {
-                console.error("Error fetching classes", error);
-            }
+        // Use static mock data instead of fetching from API
+        const fetchClasses = () => {
+            setClasses(mockClasses);
+            console.log("Mock data loaded: ", mockClasses);
         };
 
         const handleResize = () => {
-            const widowWidth = window.innerWidth;
+            const windowWidth = window.innerWidth;
             if (typeof window !== "undefined") {
-                if (widowWidth > 1080) {
+                if (windowWidth > 1080) {
                     setPageSize(3);
-                } else
+                } else {
                     setPageSize(2);
+                }
             }
-        }
+        };
 
         fetchClasses();
         handleResize();
@@ -81,9 +175,8 @@ export default function PopularClassesSection() {
             if (typeof window !== "undefined") {
                 window.removeEventListener("resize", handleResize);
             }
-        }
+        };
     }, []);
-
 
     const nextPage = () => {
         if ((page + 1) * pageSize < classes.length) {
@@ -125,7 +218,7 @@ export default function PopularClassesSection() {
                                 <CardHeader>
                                     <div className="flex justify-center items-center">
                                         <Image
-                                            src={`http://localhost:9898${cls.img}`}
+                                            src={cls.img}
                                             width={350}
                                             height={350}
                                             alt={cls.topic}
@@ -142,7 +235,6 @@ export default function PopularClassesSection() {
                                         <div>
                                             {cls.description}
                                         </div>
-
                                     </CardDescription>
                                 </CardContent>
                                 <CardFooter className="flex justify-between items-center pt-4 text-black font-semibold">
@@ -153,7 +245,7 @@ export default function PopularClassesSection() {
                                     <div className="flex items-center gap-2 truncate">
                                         <Image
                                             className="w-7 h-7 rounded-full cursor-pointer bg-gray-200"
-                                            src={`${cls.owner.img ?? "/images/unknown.png"}`}
+                                            src={cls.owner.img ?? "/images/unknown.png"}
                                             width={7}
                                             height={7}
                                             alt="User"
