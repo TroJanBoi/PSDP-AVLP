@@ -58,7 +58,7 @@ export default function ForgotPasswordPage() {
                 text: "กรุณารอสักครู่...",
                 allowOutsideClick: false,
                 didOpen: () => {
-                    Swal.showLoading();
+                    Swal.showLoading(Swal.getHtmlContainer() as HTMLButtonElement | null);
                 }
             });
             
@@ -152,7 +152,7 @@ export default function ForgotPasswordPage() {
                 timerProgressBar: true,
                 allowOutsideClick: false,
                 didOpen: () => {
-                    Swal.showLoading();
+                    Swal.showLoading(Swal.getHtmlContainer() as HTMLButtonElement | null);
                     const b = Swal.getHtmlContainer()?.querySelector('b');
                     if (b) {
                         timerInterval = setInterval(() => {
@@ -210,7 +210,7 @@ export default function ForgotPasswordPage() {
                 text: "กรุณารอสักครู่...",
                 allowOutsideClick: false,
                 didOpen: () => {
-                    Swal.showLoading();
+                    Swal.showLoading(Swal.getHtmlContainer() as HTMLButtonElement | null);
                 }
             });
     

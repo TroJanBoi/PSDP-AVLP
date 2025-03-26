@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"example.com/greetings/database"
-	"example.com/greetings/middleware"
 	"example.com/greetings/models"
 	"github.com/gin-gonic/gin"
 )
@@ -33,7 +32,7 @@ type UpdateClassRequest struct {
 
 func RegisterClassRoutes(r *gin.Engine) {
 	// Apply AuthMiddleware to all /classes routes
-	classGroup := r.Group("/classes", middleware.AuthMiddleware())
+	classGroup := r.Group("/classes")
 	{
 		classGroup.GET("", getClasses)
 		classGroup.GET("/:id", getClassByID)

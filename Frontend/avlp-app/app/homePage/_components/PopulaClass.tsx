@@ -14,6 +14,7 @@ import { BookOpen, Link } from "lucide-react";
 import { useSession } from "next-auth/react";
 import NextLink from "next/link";
 import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 
 interface ClassType {
     id: number;
@@ -129,6 +130,7 @@ const mockClasses: ClassType[] = [
 ];
 
 export default function PopularClassesSection() {
+    const router = useRouter();
     const [classes, setClasses] = useState<ClassType[]>([]);
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(2);
@@ -142,11 +144,11 @@ export default function PopularClassesSection() {
                 text: "คุณต้องเข้าสู่ระบบก่อนจึงจะสามารถเข้าชั้นเรียนได้",
                 confirmButtonText: "ตกลง"
             }).then(() => {
-                window.location.href = "/login";
+                router.push("/login");
             });
             return;
         }
-        window.location.href = `/classes/${id}`;
+       router.push(`/classes/${id}`);
     };
 
     useEffect(() => {

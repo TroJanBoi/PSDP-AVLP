@@ -5,8 +5,11 @@ import DraggableBlock from "./_components/DraggableBlock";
 import { ReactFlowProvider, useNodesState, useEdgesState } from "reactflow";
 import { Button } from "@/components/ui/button";
 import { useCallback, useState } from "react";
+import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 
 export default function AssemblyflowPage() {
+  const router = useRouter();
   const [nodes, setNodes, onNodesChange] = useNodesState([
     {
       id: "start",
@@ -33,7 +36,7 @@ export default function AssemblyflowPage() {
     },
   };
 
-  const handleRunClick = useCallback(() => {
+  const handleRunClick = useCallback((): Record<string, number> => {
     const variables: Record<string, number> = {};
     const log: string[] = [];
     const visited: Set<string> = new Set();
@@ -205,6 +208,7 @@ export default function AssemblyflowPage() {
 
     setVariablesResult(variables);
     setResultLog(log);
+    return variables;
   }, [nodes, edges]);
 
   const handleRunTestCaseClick = async () => {
@@ -225,12 +229,12 @@ export default function AssemblyflowPage() {
     setRunTestLog(passed ? "✅ Test Case Passed!" : `❌ Test Case Failed:\n${failLog.join("\n")}`);
   };
 
-  const handleSubmitClick = async () => {
-    await handleRunClick();
+  const handleSubmitClick = () => {
+    const actual = handleRunClick();
     const expected = testCase.expectedVariables;
-    const actual = variablesResult;
     let passed = true;
     const failLog: string[] = [];
+  
     for (const key in expected) {
       const typedKey = key as keyof typeof expected;
       if (actual[typedKey] !== expected[typedKey]) {
@@ -240,12 +244,25 @@ export default function AssemblyflowPage() {
         failLog.push(`✅ ${typedKey} = ${actual[typedKey]}`);
       }
     }
+  
     if (passed) {
-      alert("✅ Submit Success!");
+      Swal.fire({
+        icon: "success",
+        title: "Submit Success",
+        confirmButtonColor: "#10B981",
+      }).then  (() => {
+        router.push("/homePage");
+      });
     } else {
-      alert(`❌ Submit Failed:\n${failLog.join("\n")}`);
+      Swal.fire({
+        icon: "error",
+        title: "Submit Failed",
+        html: `<pre style="text-align:left">${failLog.join("\n")}</pre>`,
+        customClass: { popup: "swal2-rounded" },
+      });
     }
   };
+  
 
   return (
     <div className="h-screen flex flex-col w-screen">
@@ -253,7 +270,7 @@ export default function AssemblyflowPage() {
       <div className="flex-1 p-10">
         <div className="flex h-full justify-start items-center rounded-xl">
           <div className="grid grid-cols-2 gap-5 w-1/4 h-full border-4 border-primary text-white rounded-xl mr-5 p-5">
-            {["MOV", "ADD", "SUB", "MUL", "DIV", "CMP", "JE", "JNE", "JG", "JL", "JGE", "JLE", "LABEL", "JMP"].map((label) => (
+            {["MOV", "ADD", "SUB", "MUL", "DIV", "CMP", "JE", "JNE", "JG", "JL", "LABEL", "JMP"].map((label) => (
               <DraggableBlock key={label} label={label} type="updater" />
             ))}
             <Button onClick={handleRunClick}>Run</Button>

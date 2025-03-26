@@ -4,10 +4,12 @@ import Link from "next/link";
 import { User, Lock } from "lucide-react";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 import Swal from "sweetalert2";
 
 export default function LoginPage() {
+    const router = useRouter();
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string>('');
@@ -34,7 +36,7 @@ export default function LoginPage() {
             title: "Login success",
             text: "Welcome to AVLP",
           }).then(() => {
-            window.location.href = "/homePage";
+            router.push("/homePage");
           });
         } else {
           Swal.fire({
