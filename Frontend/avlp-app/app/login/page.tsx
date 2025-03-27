@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { User, Lock } from "lucide-react";
+import { User, Lock, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 
@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 export default function LoginPage() {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const [showPassword, setShowPassword] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -47,7 +48,7 @@ export default function LoginPage() {
         setLoading(false);
     };
       
-    // กำหนด class ของปุ่มให้เป็นตัวแปรเพื่อให้แน่ใจว่าใช้ style เดียวกันทุกปุ่ม
+    // Define button class for consistent styling
     const buttonClass = "bg-[#a394f9] text-textbase w-full rounded-md py-3 text-center hover:bg-secondary flex justify-center items-center h-12";
 
     return (
@@ -77,15 +78,16 @@ export default function LoginPage() {
 
                     {/* Logo */}
                     <div className="mb-4 lg:mb-0 mt-6">
-                        <div className="rounded-3xl bg-secondary w-32 h-32 flex justify-center items-center shadow-lg" 
+                        <img 
+                            src="https://i.postimg.cc/LsBzbNmv/image-2025-03-16-034214396.png" 
+                            alt="Logo" 
+                            className="rounded-3xl bg-secondary w-32 h-32 flex justify-center items-center shadow-lg" 
                             style={{ 
-                                boxShadow: '0 0 20px 5px rgba(43, 255, 0, 0.7), 0 0 30px 10px rgba(255, 255, 255, 0.5)',
-                                filter: 'drop-shadow(0 0 10px rgba(163, 148, 249, 0.5))',
-                                position: 'relative'
-                            }}>
-                            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white to-transparent opacity-20"></div>
-                            <h1 className="text-textbase font-bold text-2xl relative z-10">LOGO</h1>
-                        </div>
+                                boxShadow: '0 0 20px 5px rgba(43, 255, 0, 0.7), 0 0 30px 10px rgba(255, 255, 255, 0.5)', 
+                                filter: 'drop-shadow(0 0 10px rgba(163, 148, 249, 0.5))', 
+                                position: 'relative' 
+                            }} 
+                        />
                     </div>
                     
                     {/* Form Content */}
@@ -104,16 +106,23 @@ export default function LoginPage() {
                             />
                         </div>
                         
-                        {/* Password Input */}
-                        <div className="flex items-center text-xl bg-[#dddddd] shadow-md border border-transparent transition-all duration-200 hover:border-primary text-white px-4 py-2 rounded-lg w-full">
+                        {/* Password Input with Toggle */}
+                        <div className="relative flex items-center text-xl bg-[#dddddd] shadow-md border border-transparent transition-all duration-200 hover:border-primary text-primary px-4 py-2 rounded-lg w-full">
                             <Lock className="mr-2 w-6 h-6 text-primary" />
                             <input 
-                                type="password" 
+                                type={showPassword ? "text" : "password"} 
                                 placeholder="Password" 
                                 value={password} 
                                 className="bg-[#dddddd] outline-none text-primary w-full h-8" 
                                 onChange={(e) => setPassword(e.target.value)} 
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary w-5 h-5"
+                            >
+                                {showPassword ? <EyeOff /> : <Eye />}
+                            </button>
                         </div>
                         
                         {/* Remember Me & Forgot Password */}
@@ -190,15 +199,16 @@ export default function LoginPage() {
                 <div className="bg-white p-6 rounded-3xl shadow-lg w-11/12 max-w-md">
                     {/* Logo */}
                     <div className="text-center mb-7">
-                        <div className="rounded-3xl bg-secondary w-32 h-32 flex justify-center items-center shadow-lg mx-auto" 
+                        <img 
+                            src="https://i.postimg.cc/LsBzbNmv/image-2025-03-16-034214396.png" 
+                            alt="Logo" 
+                            className="rounded-3xl bg-secondary w-32 h-32 flex justify-center items-center shadow-lg mx-auto" 
                             style={{ 
                                 boxShadow: '0 0 20px 5px rgba(43, 255, 0, 0.7), 0 0 30px 10px rgba(255, 255, 255, 0.5)',
                                 filter: 'drop-shadow(0 0 10px rgba(163, 148, 249, 0.5))',
                                 position: 'relative'
-                            }}>
-                            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white to-transparent opacity-20"></div>
-                            <h1 className="text-textbase font-bold text-2xl relative z-10">LOGO</h1>
-                        </div>
+                            }}
+                        />
                     </div>
                     
                     {/* Form */}
@@ -217,16 +227,23 @@ export default function LoginPage() {
                             />
                         </div>
                         
-                        {/* Password Input */}
-                        <div className="flex items-center text-xl bg-[#dddddd] shadow-md border border-transparent transition-all duration-200 hover:border-primary text-white px-4 py-2 rounded-lg w-full">
+                        {/* Password Input with Toggle */}
+                        <div className="relative flex items-center text-xl bg-[#dddddd] shadow-md border border-transparent transition-all duration-200 hover:border-primary text-primary px-4 py-2 rounded-lg w-full">
                             <Lock className="mr-2 w-6 h-6 text-primary" />
                             <input 
-                                type="password" 
+                                type={showPassword ? "text" : "password"} 
                                 placeholder="Password" 
                                 value={password} 
                                 className="bg-[#dddddd] outline-none text-primary w-full h-8" 
                                 onChange={(e) => setPassword(e.target.value)} 
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary w-5 h-5"
+                            >
+                                {showPassword ? <EyeOff /> : <Eye />}
+                            </button>
                         </div>
                         
                         {/* Remember Me & Forgot Password */}

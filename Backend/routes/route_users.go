@@ -169,41 +169,107 @@ func getUserByID(c *gin.Context) {
 // @Failure 500 {object} models.ErrorResponse
 // @Router /users/{id} [put]
 func updateUser(c *gin.Context) {
-	id := c.Param("id")
-	var user models.User
-	if err := database.DB.First(&user, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "User not found"})
+	// Get the user ID from the URL parameter
+	userID := c.Param("id")
+
+	// Convert userID to uint if needed
+	userIDUint, err := strconv.ParseUint(userID, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
 	}
-	var input UpdateUserRequest
+
+	// Create a struct to receive the update data
+	type UpdateUserInput struct {
+		Name           *string `json:"name"`
+		Email          *string `json:"email"`
+		Bio            *string `json:"bio"`
+		Github         *string `json:"github"`
+		Youtube        *string `json:"youtube"`
+		Linkedin       *string `json:"linkedin"`
+		Discord        *string `json:"discord"`
+		ProfilePicture *string `json:"profile_picture"`
+	}
+
+	// Bind the input data
+	var input UpdateUserInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid JSON data: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if input.Password != "" {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to hash password: " + err.Error()})
-			return
-		}
-		input.Password = string(hashedPassword)
-	}
-
-	updateData := map[string]interface{}{
-		"name":     input.Name,
-		"password": input.Password,
-		"bio":      input.Bio,
-		"github":   input.Github,
-		"youtube":  input.Youtube,
-		"linkedin": input.Linkedin,
-		"discord":  input.Discord,
-	}
-	if err := database.DB.Model(&user).Updates(updateData).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
+	// Find the existing user
+	var user models.User
+	if err := database.DB.First(&user, userIDUint).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
-	c.JSON(http.StatusOK, user)
+
+	// Update user fields only if they are not nil
+	if input.Name != nil {
+		user.Name = *input.Name
+	}
+	if input.Email != nil {
+		user.Email = *input.Email
+	}
+	if input.Bio != nil {
+		user.Bio = *input.Bio
+	}
+	if input.Github != nil {
+		user.Github = *input.Github
+	}
+	if input.Youtube != nil {
+		user.Youtube = *input.Youtube
+	}
+	if input.Linkedin != nil {
+		user.Linkedin = *input.Linkedin
+	}
+	if input.Discord != nil {
+		user.Discord = *input.Discord
+	}
+	if input.ProfilePicture != nil {
+		user.ProfilePicture = *input.ProfilePicture
+	}
+
+	// Save the updates
+	if err := database.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Create a response struct WITHOUT any password fields
+	type UserResponse struct {
+		ID             uint      `json:"id"`
+		CreatedAt      time.Time `json:"created_at"`
+		UpdatedAt      time.Time `json:"updated_at"`
+		Username       string    `json:"username"`
+		Email          string    `json:"email"`
+		Name           string    `json:"name"`
+		Bio            string    `json:"bio"`
+		Github         string    `json:"github"`
+		Youtube        string    `json:"youtube"`
+		Linkedin       string    `json:"linkedin"`
+		Discord        string    `json:"discord"`
+		ProfilePicture string    `json:"profile_picture"`
+	}
+
+	// Convert to response struct
+	response := UserResponse{
+		ID:             user.ID,
+		CreatedAt:      user.CreatedAt,
+		UpdatedAt:      user.UpdatedAt,
+		Username:       user.Username,
+		Email:          user.Email,
+		Name:           user.Name,
+		Bio:            user.Bio,
+		Github:         user.Github,
+		Youtube:        user.Youtube,
+		Linkedin:       user.Linkedin,
+		Discord:        user.Discord,
+		ProfilePicture: user.ProfilePicture,
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 // @Summary Delete a user

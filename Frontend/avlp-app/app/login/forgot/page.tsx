@@ -1,7 +1,7 @@
 "use client";
 
 import { forgotPassword, resetPassword } from "@/services/api";
-import { User, Lock, Code, ArrowLeft } from "lucide-react";
+import { User, Lock, Code, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
@@ -17,6 +17,8 @@ export default function ForgotPasswordPage() {
     const [timeleft, setTimeleft] = useState<string>("03:20");
     const [countdown, setCountdown] = useState<number | null>(null);
     const [step, setStep] = useState<number>(1);
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
 
     useEffect(() => {
         if (countdown !== null) {
@@ -366,13 +368,20 @@ export default function ForgotPasswordPage() {
                             <Lock className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-400" />
                         </div>
                         <input
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="w-full py-3 sm:py-4 pl-10 sm:pl-12 pr-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base sm:text-lg"
                             placeholder="ใส่รหัสผ่านใหม่"
                             required
                         />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400"
+                        >
+                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        </button>
                     </div>
                 </div>
                 
@@ -383,13 +392,20 @@ export default function ForgotPasswordPage() {
                             <Lock className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-400" />
                         </div>
                         <input
-                            type="password"
+                            type={showConfirmPassword ? "text" : "password"}
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             className="w-full py-3 sm:py-4 pl-10 sm:pl-12 pr-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base sm:text-lg"
                             placeholder="ยืนยันรหัสผ่านใหม่"
                             required
                         />
+                        <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400"
+                        >
+                            {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        </button>
                     </div>
                 </div>
 
